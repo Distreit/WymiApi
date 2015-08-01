@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+
+            http://www.springframework.org/schema/task
+            http://www.springframework.org/schema/task/spring-task-3.0.xsd
+            ">
+
+    <task:annotation-driven/>
+
+    <import resource="classpath:webSecurityConfig.xml"/>
+
+    <bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
+        <property name="featuresToEnable">
+            <array>
+                <value>#{T(com.fasterxml.jackson.databind.SerializationFeature).INDENT_OUTPUT}</value>
+            </array>
+        </property>
+    </bean>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/wymi"/>
+        <property name="username" value="root"/>
+        <property name="password" value="maes1234"/>
+    </bean>
+
+    <!-- Hibernate 3 Annotation SessionFactory Bean definition -->
+    <bean id="hibernate4AnnotatedSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan" value="com.hak.wymi"/>
+        <!--<property name="annotatedClasses">-->
+        <!--<list>-->
+        <!--<value>com.hak.wymi.authentication.user.User</value>-->
+        <!--</list>-->
+        <!--</property>-->
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.current_session_context_class">thread</prop>
+                <prop key="hibernate.show_sql">true</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="secureRandom" class="java.security.SecureRandom"/>
+
+    <bean id="userDao" class="com.hak.wymi.persistance.pojos.user.UserDaoImpl"/>
+
+    <bean id="callbackCodeDao" class="com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeImpl"/>
+</beans>
