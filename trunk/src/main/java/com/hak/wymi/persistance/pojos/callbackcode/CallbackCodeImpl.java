@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.callbackcode;
 
-import com.hak.wymi.persistance.pojos.user.User;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -37,10 +36,10 @@ public class CallbackCodeImpl implements CallbackCodeDao {
     public CallbackCode getFromUserName(String userName, String code, CallbackCodeType type) {
         Session session = this.sessionFactory.openSession();
         List<CallbackCode> registerList = session.createQuery(
-                "from CallbackCode c where c.user.name=:name and c.code=:code and c.type=:type")
+                "from CallbackCode c where lower(c.user.name)=:name and c.code=:code and c.type=:type")
                 .setParameter("code", code)
                 .setParameter("type", type)
-                .setParameter("name", userName)
+                .setParameter("name", userName.toLowerCase())
                 .list();
         session.close();
         if (registerList.size() == 1) {
@@ -61,5 +60,20 @@ public class CallbackCodeImpl implements CallbackCodeDao {
         } catch (HibernateException e) {
             return false;
         }
+    }
+
+    @Override
+    public CallbackCode getFromCode(String code, CallbackCodeType type) {
+        Session session = this.sessionFactory.openSession();
+        List<CallbackCode> registerList = session.createQuery(
+                "from CallbackCode c where c.code=:code and c.type=:type")
+                .setParameter("code", code)
+                .setParameter("type", type)
+                .list();
+        session.close();
+        if (registerList.size() == 1) {
+            return registerList.get(0);
+        }
+        return null;
     }
 }

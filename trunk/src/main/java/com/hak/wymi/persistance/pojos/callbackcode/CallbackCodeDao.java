@@ -6,4 +6,6 @@ public interface CallbackCodeDao {
     public CallbackCode getFromUserName(String userName, String code, CallbackCodeType type);
 
     public boolean delete(CallbackCode callbackCode);
+
+    public CallbackCode getFromCode(String code, CallbackCodeType type);
 }

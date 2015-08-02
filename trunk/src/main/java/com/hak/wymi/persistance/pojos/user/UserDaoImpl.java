@@ -40,7 +40,9 @@ public class UserDaoImpl implements UserDao {
     public User getFromName(String name) {
         if (name != null && !name.equals("")) {
             Session session = this.sessionFactory.openSession();
-            List<User> userList = session.createQuery("from User where name=:name").setParameter("name", name).list();
+            List<User> userList = session.createQuery("from User where lower(name)=:name")
+                    .setParameter("name", name.toLowerCase())
+                    .list();
             session.close();
             if (userList.size() == 1) {
                 return userList.get(0);
@@ -53,7 +55,9 @@ public class UserDaoImpl implements UserDao {
     public User getFromEmail(String email) {
         if (email != null && !email.equals("")) {
             Session session = this.sessionFactory.openSession();
-            List<User> userList = session.createQuery("from User where email=:email").setParameter("email", email).list();
+            List<User> userList = session.createQuery("from User where lower(email)=:email")
+                    .setParameter("email", email.toLowerCase())
+                    .list();
             session.close();
             if (userList.size() == 1) {
                 return userList.get(0);

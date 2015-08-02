@@ -13,7 +13,7 @@ public class EmailsMatchValidator implements ConstraintValidator<EmailsMatch, Us
 
     @Override
     public boolean isValid(User user, ConstraintValidatorContext cxt) {
-        return user.getEmail().equals(user.getConfirmEmail());
+        return user.getEmail().toLowerCase().equals(user.getConfirmEmail().toLowerCase());
     }
 
 }

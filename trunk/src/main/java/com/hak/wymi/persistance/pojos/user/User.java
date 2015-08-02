@@ -26,7 +26,13 @@ public class User {
     private String name;
 
     @NotNull
-    @Size(min = 8, max = 50, message = "Password must be between 8 and 256 characters in length")
+    @Size(
+            min = 8,
+            max = 50,
+            message = "Password must be between 8 and 256 characters in length",
+            groups = Registration.class
+    )
+    @Password(groups = Registration.class)
     private String password;
 
     @Transient
@@ -42,7 +48,7 @@ public class User {
     @Transient
     private String confirmEmail;
 
-    private Boolean validated;
+    private Boolean validated = false;
 
     public User() {
     }
