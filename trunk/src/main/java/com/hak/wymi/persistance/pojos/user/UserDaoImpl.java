@@ -5,13 +5,13 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.security.Principal;
 import java.util.List;
 
 @Repository
+@SuppressWarnings("unchecked")
 public class UserDaoImpl implements UserDao {
 
     @Autowired
@@ -36,7 +36,6 @@ public class UserDaoImpl implements UserDao {
         return getFromName(principal.getName());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public User getFromName(String name) {
         if (name != null && !name.equals("")) {
@@ -61,5 +60,19 @@ public class UserDaoImpl implements UserDao {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean update(User user) {
+        Session session = this.sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+        try {
+            session.update(user);
+            tx.commit();
+            session.close();
+            return true;
+        } catch (HibernateException e) {
+            return false;
+        }
     }
 }

@@ -34,24 +34,10 @@ public class CallbackCodeImpl implements CallbackCodeDao {
     }
 
     @Override
-    public CallbackCode get(User user, CallbackCodeType type) {
-        Session session = this.sessionFactory.openSession();
-        List<CallbackCode> registerList = session.createQuery(
-                "from CallbackCode cbc where cbc.userId=:userId and cbc.type=:type")
-                .setParameter("userId", user.getUserId())
-                .setParameter("type", type).list();
-        session.close();
-        if (registerList.size() == 1) {
-            return registerList.get(0);
-        }
-        return null;
-    }
-
-    @Override
     public CallbackCode getFromUserName(String userName, String code, CallbackCodeType type) {
         Session session = this.sessionFactory.openSession();
         List<CallbackCode> registerList = session.createQuery(
-                "from CallbackCode c left join User u on c.userId=User and c.type=:type and c.code=:code and u.name=:name")
+                "from CallbackCode c where c.user.name=:name and c.code=:code and c.type=:type")
                 .setParameter("code", code)
                 .setParameter("type", type)
                 .setParameter("name", userName)
@@ -61,5 +47,19 @@ public class CallbackCodeImpl implements CallbackCodeDao {
             return registerList.get(0);
         }
         return null;
+    }
+
+    @Override
+    public boolean delete(CallbackCode callbackCode) {
+        Session session = this.sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+        try {
+            session.delete(callbackCode);
+            tx.commit();
+            session.close();
+            return true;
+        } catch (HibernateException e) {
+            return false;
+        }
     }
 }

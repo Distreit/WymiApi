@@ -42,6 +42,8 @@ public class User {
     @Transient
     private String confirmEmail;
 
+    private Boolean validated;
+
     public User() {
     }
 
@@ -99,5 +101,13 @@ public class User {
 
     public void setConfirmEmail(String confirmEmail) {
         this.confirmEmail = confirmEmail;
+    }
+
+    public Boolean getValidated() {
+        return validated;
+    }
+
+    public void setValidated(Boolean validated) {
+        this.validated = validated;
     }
 }

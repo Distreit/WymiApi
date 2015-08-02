@@ -14,7 +14,7 @@ public class CallbackCode {
 
     @ManyToOne
     @JoinColumn(name = "userId")
-    private User userId;
+    private User user;
 
     private String code;
 
@@ -31,12 +31,12 @@ public class CallbackCode {
         this.callbackCodeId = callbackCodeId;
     }
 
-    public User getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
     public void setUser(User userId) {
-        this.userId = userId;
+        this.user = userId;
     }
 
     public String getCode() {

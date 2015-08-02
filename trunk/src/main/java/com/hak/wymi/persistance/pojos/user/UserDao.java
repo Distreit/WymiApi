@@ -10,4 +10,6 @@ public interface UserDao {
 	public User getFromName(String name);
 
 	public User getFromEmail(String email);
+
+	public boolean update(User user);
 }
