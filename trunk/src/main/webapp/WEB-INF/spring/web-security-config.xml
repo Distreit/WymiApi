@@ -17,13 +17,11 @@
 
     <context:component-scan base-package="com.hak.wymi.security"/>
 
-    <security:global-method-security pre-post-annotations="enabled"/>
-
     <beans:bean id="csrfHeaderFilter" class="com.hak.wymi.security.CsrfHeaderFilter"/>
     <beans:bean id="statelessCsrfFilter" class="com.hak.wymi.security.StatelessCsrfFilter"/>
 
     <security:http use-expressions="true" entry-point-ref="restAuthenticationEntryPoint">
-        <!--<security:intercept-url pattern="/wymi/data/**" access="permitAll"/>-->
+        <!--<security:intercept-url pattern="/**" access="isAuthenticated()"/>-->
         <!--<security:intercept-url pattern="auth/**" access="isAuthenticated()"/>-->
         <security:form-login authentication-success-handler-ref="mySuccessHandler"
                              authentication-failure-handler-ref="myFailureHandler"/>

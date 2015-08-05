@@ -3,18 +3,21 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:context="http://www.springframework.org/schema/context"
-             xmlns="http://www.springframework.org/schema/mvc"
+             xmlns:security="http://www.springframework.org/schema/security"
 
-             xsi:schemaLocation="
-                 http://www.springframework.org/schema/mvc
-                 http://www.springframework.org/schema/mvc/spring-mvc.xsd
+             xsi:schemaLocation="http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc.xsd
 
-                 http://www.springframework.org/schema/beans
-                 http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://www.springframework.org/schema/beans
+                    http://www.springframework.org/schema/beans/spring-beans.xsd
 
-                 http://www.springframework.org/schema/context
-                 http://www.springframework.org/schema/context/spring-context.xsd
-		    ">
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context.xsd
+
+                    http://www.springframework.org/schema/security
+                    http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <security:global-method-security pre-post-annotations="enabled"/>
 
     <context:component-scan base-package="com.hak.wymi.*"/>
 
@@ -41,8 +44,8 @@
     </beans:bean>
 
     <beans:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <beans:property name="host" value="smtp.gmail.com" />
-        <beans:property name="port" value="587" />
+        <beans:property name="host" value="smtp.gmail.com"/>
+        <beans:property name="port" value="587"/>
         <beans:property name="username" value="wymi.services@gmail.com"/>
         <beans:property name="password" value="z19v5sZ4mDb9"/>
         <beans:property name="javaMailProperties">

@@ -37,7 +37,7 @@ public class WymiAuthenticationProvider implements AuthenticationProvider {
 
         String suppliedPasswordHash = DigestUtils.sha256Hex(authentication.getCredentials().toString());
 
-        if (user == null || !user.getPassword().equals(authentication.getCredentials())) {
+        if (!user.getPassword().equals(suppliedPasswordHash)) {
             throw new BadCredentialsException("Invalid credentials");
         }
 

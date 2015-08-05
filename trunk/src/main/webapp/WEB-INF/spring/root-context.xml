@@ -13,7 +13,7 @@
 
     <task:annotation-driven/>
 
-    <import resource="classpath:webSecurityConfig.xml"/>
+   <import resource="/**/web-security-config.xml"/>
 
     <bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
         <property name="featuresToEnable">

@@ -4,6 +4,7 @@ import com.hak.wymi.validations.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -17,10 +18,11 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Null(groups = Registration.class)
     private Integer userId;
 
     @NotNull
-    @Size(min = 3, max = 20, message = "Name must be between 3 and 30 characters in length")
+    @Size(min = 3, max = 30, message = "Name must be between 3 and 30 characters in length")
     @NameDoesNotExist(groups = Registration.class)
     @Pattern(regexp = "[0-9a-zA-Z-_]*")
     private String name;

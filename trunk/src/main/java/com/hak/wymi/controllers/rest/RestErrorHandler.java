@@ -1,7 +1,5 @@
 package com.hak.wymi.controllers.rest;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class RestErrorHandler {
@@ -28,13 +27,9 @@ public class RestErrorHandler {
         List<String> errorList = new ArrayList<>();
         values.put("errors", errorList);
 
-        for (FieldError error : result.getFieldErrors()) {
-            errorList.add(error.getDefaultMessage());
-        }
+        errorList.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList()));
 
-        for (ObjectError error : result.getGlobalErrors()) {
-            errorList.add(error.getDefaultMessage());
-        }
+        errorList.addAll(result.getGlobalErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
 
         return values;
     }

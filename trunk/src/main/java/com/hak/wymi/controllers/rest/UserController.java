@@ -23,6 +23,8 @@ import javax.validation.groups.Default;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class UserController extends BaseController {
@@ -45,9 +47,15 @@ public class UserController extends BaseController {
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public User getUser(Principal principal) {
+    public Map<String, String> getUser(Principal principal) {
         if (principal != null && !principal.getName().equals("")) {
-            return userDao.get(principal);
+            User user = userDao.get(principal);
+
+            Map<String, String> result = new HashMap<>();
+            result.put("name", user.getName());
+            result.put("email", user.getEmail());
+            result.put("validated", user.getValidated().toString());
+            return result;
         } else {
             return null;
         }
