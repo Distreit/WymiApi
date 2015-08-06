@@ -31,11 +31,11 @@ public class TopicController extends BaseController {
             value = "/topic",
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Topic> createTopic(@Validated({Topic.Creation.class}) @RequestBody Topic topic, Principal principal) {
-//        User user = userDao.get(principal);
+        User user = userDao.get(principal);
 
-//        topic.setOwner(user);
+        topic.setOwner(user);
         topic.setRent(0);
         topic.setRentDueDate(DateUtils.addDays(new Date(), 30));
         topic.setSubscribers(0);

@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NameDoesNotExist {
-    String message() default "User name already exists";
+    String message() default "name already exists";
 
     Class<?>[] groups() default {};
 

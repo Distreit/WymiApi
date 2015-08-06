@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @SuppressWarnings("unchecked")
 public class TopicDaoImpl implements TopicDao {
@@ -45,6 +47,16 @@ public class TopicDaoImpl implements TopicDao {
 
     @Override
     public Topic get(String name) {
+        if (name != null && !name.equals("")) {
+            Session session = this.sessionFactory.openSession();
+            List<Topic> topicList = session.createQuery("from Topic where lower(name)=:name")
+                    .setParameter("name", name.toLowerCase())
+                    .list();
+            session.close();
+            if (topicList.size() == 1) {
+                return topicList.get(0);
+            }
+        }
         return null;
     }
 }

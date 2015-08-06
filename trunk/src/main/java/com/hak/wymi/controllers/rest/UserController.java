@@ -90,8 +90,8 @@ public class UserController extends BaseController {
     }
 
     @RequestMapping(
-            value = "/user/password-change",
-            method = RequestMethod.POST,
+            value = "/user/password",
+            method = RequestMethod.PUT,
             produces = "application/json; charset=utf-8")
     public ResponseEntity<String> getSendPasswordChange(@Valid @RequestBody PasswordChange passwordChange) {
         CallbackCode callbackCode = callbackCodeDao.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);

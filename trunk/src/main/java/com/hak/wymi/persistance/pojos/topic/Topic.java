@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.topic;
 
 import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.validations.NameDoesNotExist;
 
 import javax.persistence.*;
 import javax.validation.constraints.Null;
@@ -11,6 +12,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "topic")
+@NameDoesNotExist(groups = {Topic.Creation.class})
 public class Topic {
     public interface Creation {
     }

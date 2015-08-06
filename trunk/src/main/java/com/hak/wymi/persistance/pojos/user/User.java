@@ -12,6 +12,7 @@ import javax.validation.constraints.Size;
 @Table(name = "user")
 @PasswordsMatch(groups = User.Registration.class)
 @EmailsMatch(groups = User.Registration.class)
+@NameDoesNotExist(groups = User.Registration.class)
 public class User {
     public static interface Registration {
     }
@@ -23,7 +24,6 @@ public class User {
 
     @NotNull
     @Size(min = 3, max = 30, message = "Name must be between 3 and 30 characters in length")
-    @NameDoesNotExist(groups = Registration.class)
     @Pattern(regexp = "[0-9a-zA-Z-_]*")
     private String name;
 
