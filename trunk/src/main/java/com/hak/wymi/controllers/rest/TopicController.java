@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.persistance.pojos.secure.SecureTopic;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.user.User;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class TopicController extends BaseController {
@@ -45,5 +49,16 @@ public class TopicController extends BaseController {
             return new ResponseEntity<>(HttpStatus.CREATED);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(
+            value = "/topic",
+            method = RequestMethod.GET,
+            produces = "application/json; charset=utf-8")
+    public ResponseEntity<List<SecureTopic>> getTopics() {
+        List<Topic> topics = topicDao.getAll();
+        List<SecureTopic> secureTopics = topics.stream().map(SecureTopic::new).collect(Collectors.toCollection(() -> new LinkedList<>()));
+
+        return new ResponseEntity<>(secureTopics, HttpStatus.ACCEPTED);
     }
 }

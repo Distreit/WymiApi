@@ -23,6 +23,14 @@ public class TopicDaoImpl implements TopicDao {
     }
 
     @Override
+    public List<Topic> getAll() {
+        Session session = this.sessionFactory.openSession();
+        List<Topic> topicList = session.createQuery("from Topic").list();
+        session.close();
+        return topicList;
+    }
+
+    @Override
     @Secured("ROLE_USER")
     public boolean save(Topic topic) {
         return saveOrUpdate(topic, true);

@@ -24,5 +24,4 @@ public class PasswordsMatchValidator implements ConstraintValidator<PasswordsMat
             return false;
         }
     }
-
 }
