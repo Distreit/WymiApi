@@ -1,15 +1,14 @@
 package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.persistance.pojos.secure.SecureTopic;
-import com.hak.wymi.persistance.pojos.topic.Topic;
-import com.hak.wymi.persistance.pojos.topic.TopicDao;
-import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.topic.Topic;
+import com.hak.wymi.persistance.pojos.unsecure.topic.TopicDao;
+import com.hak.wymi.persistance.pojos.unsecure.user.User;
+import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;

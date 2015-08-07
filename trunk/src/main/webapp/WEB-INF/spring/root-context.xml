@@ -13,7 +13,7 @@
 
     <task:annotation-driven/>
 
-   <import resource="/**/web-security-config.xml"/>
+    <import resource="/**/web-security-config.xml"/>
 
     <bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
         <property name="featuresToEnable">
@@ -50,7 +50,7 @@
 
     <bean id="secureRandom" class="java.security.SecureRandom"/>
 
-    <bean id="userDao" class="com.hak.wymi.persistance.pojos.user.UserDaoImpl"/>
+    <bean id="userDao" class="com.hak.wymi.persistance.pojos.unsecure.user.UserDaoImpl"/>
 
-    <bean id="callbackCodeDao" class="com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeImpl"/>
+    <bean id="callbackCodeDao" class="com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeImpl"/>
 </beans>

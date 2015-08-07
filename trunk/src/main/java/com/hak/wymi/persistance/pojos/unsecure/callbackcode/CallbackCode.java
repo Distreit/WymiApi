@@ -1,6 +1,6 @@
-package com.hak.wymi.persistance.pojos.callbackcode;
+package com.hak.wymi.persistance.pojos.unsecure.callbackcode;
 
-import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.persistance.pojos.unsecure.user.User;
 
 import javax.persistence.*;
 import java.util.Date;

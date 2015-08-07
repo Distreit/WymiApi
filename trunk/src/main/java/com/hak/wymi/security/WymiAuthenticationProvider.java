@@ -1,7 +1,7 @@
 package com.hak.wymi.security;
 
-import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.user.User;
+import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;

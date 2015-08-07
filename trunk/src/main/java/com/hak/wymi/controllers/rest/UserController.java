@@ -1,11 +1,11 @@
 package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.persistance.pojos.PasswordChange;
-import com.hak.wymi.persistance.pojos.callbackcode.CallbackCode;
-import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeDao;
-import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeType;
-import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCode;
+import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeDao;
+import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeType;
+import com.hak.wymi.persistance.pojos.unsecure.user.User;
+import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.secure;
 
-import com.hak.wymi.persistance.pojos.topic.Topic;
+import com.hak.wymi.persistance.pojos.unsecure.topic.Topic;
 
 public class SecureTopic {
 

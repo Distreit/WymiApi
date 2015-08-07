@@ -1,6 +1,6 @@
 package com.hak.wymi.validations;
 
-import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeType;
+import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeType;
 import com.hak.wymi.validations.constraints.CallbackCodeExistsValidator;
 
 import javax.validation.Constraint;

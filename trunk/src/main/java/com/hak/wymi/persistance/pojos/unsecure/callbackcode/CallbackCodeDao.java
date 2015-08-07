@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.callbackcode;
+package com.hak.wymi.persistance.pojos.unsecure.callbackcode;
 
 public interface CallbackCodeDao {
     public boolean save(CallbackCode callbackCode);
