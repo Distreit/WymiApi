@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.persistance.pojos.secure.SecurePost;
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import com.hak.wymi.persistance.pojos.unsecure.post.PostDao;
 import com.hak.wymi.persistance.pojos.unsecure.topic.Topic;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/topic/{topicName}")
@@ -57,5 +61,16 @@ public class PostController {
         }
 
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(
+            value = "/post",
+            method = RequestMethod.GET,
+            produces = "application/json; charset=utf-8")
+    public ResponseEntity<List<SecurePost>> getTopics(@PathVariable String topicName) {
+        List<Post> posts = postDao.getAll(topicName);
+        List<SecurePost> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
+
+        return new ResponseEntity<>(secureTopics, HttpStatus.ACCEPTED);
     }
 }
