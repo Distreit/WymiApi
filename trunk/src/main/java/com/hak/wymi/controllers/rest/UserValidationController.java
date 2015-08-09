@@ -25,6 +25,7 @@ public class UserValidationController {
         if (callbackCode != null) {
             User user = callbackCode.getUser();
             user.setValidated(true);
+            user.setRoles(user.getRoles() + ",ROLE_VALIDATED");
             if (userDao.update(user)) {
                 callbackCodeDao.delete(callbackCode);
                 return "redirect:/validated";

@@ -37,7 +37,7 @@ public class PostController {
             value = "/post",
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<Topic> createPost(
             @Validated(Post.Creation.class) @RequestBody Post post,
             @PathVariable String topicName,

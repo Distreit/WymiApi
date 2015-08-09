@@ -34,7 +34,7 @@ public class TopicController extends BaseController {
             value = "/topic",
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<Topic> createTopic(@Validated({Topic.Creation.class}) @RequestBody Topic topic, Principal principal) {
         User user = userDao.get(principal);
 

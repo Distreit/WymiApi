@@ -46,7 +46,7 @@ public class UserController extends BaseController {
             value = "/user",
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public Map<String, String> getUser(Principal principal) {
         if (principal != null && !principal.getName().equals("")) {
             User user = userDao.get(principal);
@@ -111,9 +111,10 @@ public class UserController extends BaseController {
             value = "/user",
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
-    public ResponseEntity<User> postUser(@Validated({Default.class, User.Registration.class}) @RequestBody User user) {
+    public ResponseEntity<User> registerNewUser(@Validated({Default.class, User.Registration.class}) @RequestBody User user) {
         user.setRoles("ROLE_USER");
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+        user.setPoints(0);
         if (userDao.save(user)) {
             String code = getValidationCode(user, CallbackCodeType.VALIDATION);
             SimpleMailMessage message = new SimpleMailMessage();

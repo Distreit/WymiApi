@@ -14,6 +14,14 @@ import javax.validation.constraints.Size;
 @EmailsMatch(groups = User.Registration.class)
 @NameDoesNotExist(groups = User.Registration.class)
 public class User {
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
+
     public static interface Registration {
     }
 
@@ -51,6 +59,9 @@ public class User {
     private String confirmEmail;
 
     private Boolean validated = false;
+
+    @Null(groups = Registration.class)
+    private Integer points;
 
     public User() {
     }
