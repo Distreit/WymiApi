@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.xml.bind.ValidationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,20 @@ public class RestErrorHandler {
         errorList.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList()));
 
         errorList.addAll(result.getGlobalErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
+
+        return values;
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public HashMap<String, Object> processValidationError(ValidationException ex) {
+        HashMap<String, Object> values = new HashMap<>();
+
+        List<String> errorList = new ArrayList<>();
+        values.put("errors", errorList);
+
+        errorList.add(ex.getMessage());
 
         return values;
     }

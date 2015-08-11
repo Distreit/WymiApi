@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.unsecure.post;
 
+import com.hak.wymi.persistance.pojos.unsecure.topic.Topic;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,7 +29,22 @@ public class PostDaoImpl implements PostDao {
     }
 
     @Override
-    @Secured("ROLE_USER")
+    public Post get(Integer id) {
+        if (id != null) {
+            Session session = this.sessionFactory.openSession();
+            List<Post> postList = session.createQuery("from Post where postId=:postId")
+                    .setParameter("postId", id)
+                    .list();
+            session.close();
+            if (postList.size() == 1) {
+                return postList.get(0);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @Secured("ROLE_VALIDATED")
     public boolean save(Post post) {
         return saveOrUpdate(post, true);
     }

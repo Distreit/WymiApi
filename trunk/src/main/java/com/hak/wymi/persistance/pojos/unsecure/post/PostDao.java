@@ -6,4 +6,6 @@ public interface PostDao {
 	public boolean save(Post post);
 
 	public List<Post> getAll(String topicName);
+
+	Post get(Integer id);
 }

@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import javax.xml.bind.ValidationException;
 
 @Entity
 @Table(name = "user")
@@ -14,14 +15,6 @@ import javax.validation.constraints.Size;
 @EmailsMatch(groups = User.Registration.class)
 @NameDoesNotExist(groups = User.Registration.class)
 public class User {
-    public Integer getPoints() {
-        return points;
-    }
-
-    public void setPoints(Integer points) {
-        this.points = points;
-    }
-
     public static interface Registration {
     }
 
@@ -64,6 +57,20 @@ public class User {
     private Integer points;
 
     public User() {
+    }
+
+    public void addPoints(Integer amount) throws ValidationException {
+        if (amount < 0) {
+            throw new ValidationException("Not allowed to add negative points");
+        }
+        this.setPoints(this.getPoints() + amount);
+    }
+
+    public void removePoints(int amount) throws ValidationException {
+        if (this.getPoints() - amount < 0) {
+            throw new ValidationException("Not enough points");
+        }
+        this.setPoints(getPoints() - amount);
     }
 
     public Integer getUserId() {
@@ -128,5 +135,13 @@ public class User {
 
     public void setValidated(Boolean validated) {
         this.validated = validated;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 }

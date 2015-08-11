@@ -7,6 +7,7 @@ import com.hak.wymi.validations.UrlOrText;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.xml.bind.ValidationException;
 import java.util.Date;
 
 @Entity
@@ -45,6 +46,13 @@ public class Post {
     private Date updated;
 
     private Date created;
+
+    public void addPoints(int amount) throws ValidationException {
+        if (amount < 0) {
+            throw new ValidationException("Not allowed to add negative points");
+        }
+        this.setPoints(this.getPoints() + amount);
+    }
 
     public Integer getPostId() {
         return postId;
