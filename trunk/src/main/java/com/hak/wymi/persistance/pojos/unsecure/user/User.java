@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import javax.xml.bind.ValidationException;
+import java.util.Date;
 
 @Entity
 @Table(name = "user")
@@ -32,7 +32,7 @@ public class User {
     @Size(
             min = 8,
             max = 50,
-            message = "Password must be between 8 and 256 characters in length",
+            message = "Password must be between 8 and 50 characters in length",
             groups = Registration.class
     )
     @Password(groups = Registration.class)
@@ -41,6 +41,7 @@ public class User {
     @Transient
     private String confirmPassword;
 
+    @Null(groups = Registration.class)
     private String roles;
 
     @NotNull
@@ -51,26 +52,20 @@ public class User {
     @Transient
     private String confirmEmail;
 
+    @Null(groups = Registration.class)
     private Boolean validated = false;
 
+    @Version
     @Null(groups = Registration.class)
-    private Integer points;
+    private Integer version;
+
+    @Null(groups = Registration.class)
+    private Date created;
+
+    @Null(groups = Registration.class)
+    private Date updated;
 
     public User() {
-    }
-
-    public void addPoints(Integer amount) throws ValidationException {
-        if (amount < 0) {
-            throw new ValidationException("Not allowed to add negative points");
-        }
-        this.setPoints(this.getPoints() + amount);
-    }
-
-    public void removePoints(int amount) throws ValidationException {
-        if (this.getPoints() - amount < 0) {
-            throw new ValidationException("Not enough points");
-        }
-        this.setPoints(getPoints() - amount);
     }
 
     public Integer getUserId() {
@@ -137,11 +132,27 @@ public class User {
         this.validated = validated;
     }
 
-    public Integer getPoints() {
-        return points;
+    public Integer getVersion() {
+        return version;
     }
 
-    public void setPoints(Integer points) {
-        this.points = points;
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
     }
 }

@@ -43,6 +43,9 @@ public class Post {
 
     private Double score;
 
+    @Version
+    private Integer version;
+
     private Date updated;
 
     private Date created;
