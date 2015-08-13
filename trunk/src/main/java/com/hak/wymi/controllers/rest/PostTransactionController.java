@@ -6,6 +6,7 @@ import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.utility.BalanceTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,9 @@ public class PostTransactionController {
 
     @Autowired
     private PostDao postDao;
+
+    @Autowired
+    private BalanceTransactionManager balanceTransactionManager;
 
     @Autowired
     private PostTransactionDao postTransactionDao;
@@ -46,6 +50,7 @@ public class PostTransactionController {
 
                 postTransactionDao.save(postTransaction);
 
+                balanceTransactionManager.add(postTransaction);
                 return new ResponseEntity(HttpStatus.ACCEPTED);
             }
         }

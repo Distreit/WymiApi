@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.unsecure.post;
 
-import com.hak.wymi.persistance.pojos.unsecure.topic.Topic;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

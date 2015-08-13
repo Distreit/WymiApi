@@ -1,7 +1,9 @@
 package com.hak.wymi.persistance.pojos.unsecure.posttransaction;
 
-import javax.xml.bind.ValidationException;
+import java.util.List;
 
 public interface PostTransactionDao {
-    public boolean save(PostTransaction postTransaction) throws ValidationException;
+    public boolean save(PostTransaction postTransaction);
+
+    public List<PostTransaction> getUnprocessed();
 }
