@@ -1,10 +1,10 @@
 package com.hak.wymi.persistance.pojos.unsecure.transactions;
 
 import com.hak.wymi.persistance.pojos.unsecure.balance.Balance;
-import com.hak.wymi.persistance.pojos.unsecure.message.Message;
 import com.hak.wymi.persistance.pojos.unsecure.message.MessageDao;
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
 import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,9 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     @Autowired
     private MessageDao messageDao;
+
+    @Autowired
+    private PostTransactionDao postTransactionDao;
 
     LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
@@ -48,7 +51,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             sourceBalance.removePoints(amount);
             destinationBalance.addPoints(amount);
             post.addPoints(amount);
-            postTransaction.setProcessed(true);
+            postTransaction.setState(TransactionState.PROCESSED);
 
             session.update(sourceBalance);
             session.update(destinationBalance);
@@ -60,19 +63,12 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             return true;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            tx.rollback();
+            if (tx != null) {
+                tx.rollback();
+            }
             session.close();
             if (e instanceof ValidationException) {
-                Message message = new Message(
-                        postTransaction.getSourceUser(),
-                        null,
-                        "Transfer failure.",
-                        String.format("Failed to transfer %d points to the post '%s' in the topic '%s'.",
-                                postTransaction.getAmount(),
-                                postTransaction.getPost().getTitle(),
-                                postTransaction.getPost().getTopic().getName()));
-                message.setSourceDeleted(true);
-                messageDao.save(message);
+                postTransactionDao.cancel(postTransaction);
             }
             return false;
         }

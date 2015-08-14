@@ -4,6 +4,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
@@ -13,6 +15,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class PostDaoImpl implements PostDao {
+    protected static final Logger logger = LoggerFactory.getLogger(PostDaoImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -58,10 +61,15 @@ public class PostDaoImpl implements PostDao {
                 session.update(post);
             }
             tx.commit();
-            session.close();
             return true;
         } catch (HibernateException e) {
+            logger.error(e.getMessage());
+            if (tx != null) {
+                tx.rollback();
+            }
             return false;
+        } finally {
+            session.close();
         }
     }
 }

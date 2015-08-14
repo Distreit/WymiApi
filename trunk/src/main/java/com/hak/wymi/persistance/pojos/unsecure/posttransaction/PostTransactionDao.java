@@ -5,5 +5,7 @@ import java.util.List;
 public interface PostTransactionDao {
     public boolean save(PostTransaction postTransaction);
 
+    public boolean cancel(PostTransaction postTransaction);
+
     public List<PostTransaction> getUnprocessed();
 }

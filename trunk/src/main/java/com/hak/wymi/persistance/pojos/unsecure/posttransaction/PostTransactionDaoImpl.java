@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.unsecure.posttransaction;
 
-import com.hak.wymi.persistance.pojos.unsecure.post.Post;
+import com.hak.wymi.persistance.pojos.unsecure.message.Message;
+import com.hak.wymi.persistance.pojos.unsecure.transactions.TransactionState;
 import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +24,46 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
         Transaction tx = session.beginTransaction();
 
         try {
-            postTransaction.setProcessed(false);
+            postTransaction.setState(TransactionState.UNPROCESSED);
             session.persist(postTransaction);
             tx.commit();
             return true;
         } catch (HibernateException e) {
             logger.error(e.getMessage());
+            if (tx != null) {
+                tx.rollback();
+            }
+            return false;
+        } finally {
+            session.close();
+        }
+    }
+
+    @Override
+    public boolean cancel(PostTransaction postTransaction) {
+        Session session = this.sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+
+        try {
+            postTransaction.setState(TransactionState.CANCELED);
+            Message message = new Message(
+                    postTransaction.getSourceUser(),
+                    null,
+                    "Transfer failure.",
+                    String.format("Failed to transfer %d points to the post '%s' in the topic '%s', transaction was canceled.",
+                            postTransaction.getAmount(),
+                            postTransaction.getPost().getTitle(),
+                            postTransaction.getPost().getTopic().getName()));
+
+            session.update(postTransaction);
+            session.save(message);
+            tx.commit();
+            return true;
+        } catch (HibernateException e) {
+            logger.error(e.getMessage());
+            if (tx != null) {
+                tx.rollback();
+            }
             tx.rollback();
             return false;
         } finally {
@@ -39,7 +74,9 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
     @Override
     public List<PostTransaction> getUnprocessed() {
         Session session = this.sessionFactory.openSession();
-        List<PostTransaction> postTransactionList = session.createQuery("from PostTransaction p where p.processed=false")
+        List<PostTransaction> postTransactionList = session
+                .createQuery("from PostTransaction p where p.state=:state")
+                .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
         session.close();
         return postTransactionList;

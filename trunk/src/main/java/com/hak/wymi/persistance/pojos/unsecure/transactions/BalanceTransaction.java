@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.unsecure.transactions;
 
 public abstract class BalanceTransaction {
-    public abstract void setProcessed(boolean processed) ;
+    public abstract void setState(TransactionState state) ;
 
-    public abstract boolean getProcessed();
+    public abstract TransactionState getState();
 }

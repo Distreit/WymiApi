@@ -1,11 +1,11 @@
 package com.hak.wymi.persistance.pojos.unsecure.balance;
 
-import com.hak.wymi.persistance.pojos.unsecure.balance.Balance;
-import com.hak.wymi.persistance.pojos.unsecure.balance.BalanceDao;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
@@ -15,6 +15,7 @@ import java.security.Principal;
 @Repository
 @SuppressWarnings("unchecked")
 public class BalanceDaoImpl implements BalanceDao {
+    protected static final Logger logger = LoggerFactory.getLogger(BalanceDaoImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -33,10 +34,15 @@ public class BalanceDaoImpl implements BalanceDao {
             balance.setBalance(0);
             session.persist(balance);
             tx.commit();
-            session.close();
             return true;
         } catch (HibernateException e) {
+            logger.error(e.getMessage());
+            if (tx != null) {
+                tx.rollback();
+            }
             return false;
+        } finally {
+            session.close();
         }
     }
 }

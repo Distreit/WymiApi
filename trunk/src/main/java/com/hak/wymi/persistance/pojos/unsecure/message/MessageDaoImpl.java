@@ -36,12 +36,15 @@ public class MessageDaoImpl implements MessageDao {
                 session.update(message);
             }
             tx.commit();
-            session.close();
             return true;
         } catch (HibernateException e) {
             logger.error(e.getMessage());
-            session.close();
+            if (tx != null) {
+                tx.rollback();
+            }
             return false;
+        } finally {
+            session.close();
         }
     }
 

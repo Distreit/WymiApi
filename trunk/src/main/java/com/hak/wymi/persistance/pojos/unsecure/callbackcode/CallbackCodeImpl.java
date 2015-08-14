@@ -4,6 +4,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +14,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class CallbackCodeImpl implements CallbackCodeDao {
+    protected static final Logger logger = LoggerFactory.getLogger(CallbackCodeImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -23,10 +26,15 @@ public class CallbackCodeImpl implements CallbackCodeDao {
         try {
             session.persist(callbackCode);
             tx.commit();
-            session.close();
             return true;
         } catch (HibernateException e) {
+            logger.error(e.getMessage());
+            if (tx != null) {
+                tx.rollback();
+            }
             return false;
+        } finally {
+            session.close();
         }
     }
 
@@ -53,10 +61,15 @@ public class CallbackCodeImpl implements CallbackCodeDao {
         try {
             session.delete(callbackCode);
             tx.commit();
-            session.close();
             return true;
         } catch (HibernateException e) {
+            logger.error(e.getMessage());
+            if (tx != null) {
+                tx.rollback();
+            }
             return false;
+        } finally {
+            session.close();
         }
     }
 

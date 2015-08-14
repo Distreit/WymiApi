@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.unsecure.posttransaction;
 
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.transactions.TransactionState;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.util.Date;
 @Entity
 @Table(name = "postTransaction")
 public class PostTransaction extends BalanceTransaction {
+
     public interface Creation {
     }
 
@@ -33,7 +35,8 @@ public class PostTransaction extends BalanceTransaction {
 
     private Date created;
 
-    private boolean processed;
+    @Enumerated(EnumType.STRING)
+    private TransactionState state;
 
     public Integer getPostTransactionId() {
         return postTransactionId;
@@ -84,12 +87,12 @@ public class PostTransaction extends BalanceTransaction {
     }
 
     @Override
-    public void setProcessed(boolean processed) {
-        this.processed = processed;
+    public void setState(TransactionState state) {
+        this.state = state;
     }
 
     @Override
-    public boolean getProcessed() {
-        return this.processed;
+    public TransactionState getState() {
+        return this.state;
     }
 }
