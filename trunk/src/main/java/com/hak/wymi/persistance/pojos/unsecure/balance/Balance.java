@@ -55,7 +55,7 @@ public class Balance {
 
     public Integer removePoints(Integer amount) throws ValidationException {
         if (this.balance < amount) {
-            throw new ValidationException("Not enough points to remove.");
+            throw new ValidationException("Not enough points.");
         }
         this.balance -= amount;
         return this.balance;
