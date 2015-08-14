@@ -67,10 +67,21 @@ public class PostController {
             value = "/post",
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
-    public ResponseEntity<List<SecurePost>> getTopics(@PathVariable String topicName) {
+    public ResponseEntity<List<SecurePost>> getPosts(@PathVariable String topicName) {
         List<Post> posts = postDao.getAll(topicName);
         List<SecurePost> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(secureTopics, HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(
+            value = "/post/{postId}",
+            method = RequestMethod.GET,
+            produces = "application/json; charset=utf-8")
+    public ResponseEntity<SecurePost> getPost(@PathVariable Integer postId) {
+        Post post = postDao.get(postId);
+        SecurePost securePost = new SecurePost(post);
+
+        return new ResponseEntity<>(securePost, HttpStatus.ACCEPTED);
     }
 }
