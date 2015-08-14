@@ -45,13 +45,17 @@ public class PostTransactionController {
         if (user != null) {
             Post post = postDao.get(postId);
             if (post != null) {
-                postTransaction.setPost(post);
-                postTransaction.setSourceUser(user);
+                if (!post.getUser().getUserId().equals(user.getUserId())) {
+                    postTransaction.setPost(post);
+                    postTransaction.setSourceUser(user);
 
-                postTransactionDao.save(postTransaction);
+                    postTransactionDao.save(postTransaction);
 
-                balanceTransactionManager.add(postTransaction);
-                return new ResponseEntity(HttpStatus.ACCEPTED);
+                    balanceTransactionManager.add(postTransaction);
+                    return new ResponseEntity(HttpStatus.ACCEPTED);
+                } else {
+                    throw new ValidationException("Cannot donate to your own post.");
+                }
             }
         }
 

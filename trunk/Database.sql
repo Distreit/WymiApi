@@ -46,6 +46,29 @@ CREATE TABLE IF NOT EXISTS `callbackcode` (
 -- Data exporting was unselected.
 
 
+-- Dumping structure for table wymi.message
+CREATE TABLE IF NOT EXISTS `message` (
+  `messageId` int(10) NOT NULL AUTO_INCREMENT,
+  `destinationUserId` int(10) NOT NULL,
+  `sourceUserId` int(10) DEFAULT NULL,
+  `subject` varchar(255) NOT NULL,
+  `content` varchar(15000) NOT NULL,
+  `alreadyRead` tinyint(4) DEFAULT '0',
+  `destinationDeleted` tinyint(4) DEFAULT '0',
+  `sourceDeleted` tinyint(4) DEFAULT '0',
+  `version` int(10) DEFAULT '0',
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`messageId`),
+  KEY `FK_message_user` (`destinationUserId`),
+  KEY `FK_message_user_2` (`sourceUserId`),
+  CONSTRAINT `FK_message_user` FOREIGN KEY (`destinationUserId`) REFERENCES `user` (`userId`),
+  CONSTRAINT `FK_message_user_2` FOREIGN KEY (`sourceUserId`) REFERENCES `user` (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table wymi.post
 CREATE TABLE IF NOT EXISTS `post` (
   `postId` int(11) NOT NULL AUTO_INCREMENT,
@@ -78,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `posttransaction` (
   `amount` bigint(20) NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `processed` tinyint(4) NOT NULL,
+  `state` enum('UNPROCESSED','PROCESSED','CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
   PRIMARY KEY (`postTransactionId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

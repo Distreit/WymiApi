@@ -55,6 +55,7 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
                             postTransaction.getPost().getTitle(),
                             postTransaction.getPost().getTopic().getName()));
 
+            message.setSourceDeleted(true);
             session.update(postTransaction);
             session.save(message);
             tx.commit();

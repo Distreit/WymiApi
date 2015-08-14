@@ -49,12 +49,17 @@ public class MessageDaoImpl implements MessageDao {
     }
 
     @Override
-    public List<Balance> getIncoming(Principal principal) {
-        return null;
+    public List<Message> getIncoming(Principal principal) {
+        Session session = this.sessionFactory.openSession();
+        List<Message> postList = session.createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
+                .setParameter("destinationUserName", principal.getName())
+                .list();
+        session.close();
+        return postList;
     }
 
     @Override
-    public List<Balance> getSent(Principal principal) {
+    public List<Message> getSent(Principal principal) {
         return null;
     }
 }
