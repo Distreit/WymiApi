@@ -10,7 +10,7 @@ import java.util.Date;
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String messageId;
+    private Integer messageId;
 
     @ManyToOne
     @JoinColumn(name = "destinationUserId")
@@ -55,11 +55,11 @@ public class Message {
         this.sourceDeleted = sourceDeleted;
     }
 
-    public String getMessageId() {
+    public Integer getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(String messageId) {
+    public void setMessageId(Integer messageId) {
         this.messageId = messageId;
     }
 

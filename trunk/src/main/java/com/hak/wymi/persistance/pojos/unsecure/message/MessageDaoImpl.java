@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.unsecure.message;
 
-import com.hak.wymi.persistance.pojos.unsecure.balance.Balance;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,6 +23,11 @@ public class MessageDaoImpl implements MessageDao {
     @Override
     public boolean save(Message message) {
         return saveOrUpdate(message, true);
+    }
+
+    @Override
+    public boolean update(Message message) {
+        return saveOrUpdate(message, false);
     }
 
     private boolean saveOrUpdate(Message message, boolean save) {
@@ -61,5 +65,17 @@ public class MessageDaoImpl implements MessageDao {
     @Override
     public List<Message> getSent(Principal principal) {
         return null;
+    }
+
+    @Override
+    public Message get(Principal principal, Integer messageId) {
+        Session session = this.sessionFactory.openSession();
+        Message postList = (Message) session
+                .createQuery("from Message where destinationUser.name=:destinationUserName and messageId=:messageId")
+                .setParameter("destinationUserName", principal.getName())
+                .setParameter("messageId", messageId)
+                .uniqueResult();
+        session.close();
+        return postList;
     }
 }

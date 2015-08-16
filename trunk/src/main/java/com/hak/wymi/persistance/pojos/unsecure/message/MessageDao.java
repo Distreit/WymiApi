@@ -6,7 +6,11 @@ import java.util.List;
 public interface MessageDao {
     public boolean save(Message message);
 
+    public boolean update(Message message);
+
     List<Message> getIncoming(Principal principal);
 
     List<Message> getSent(Principal principal);
+
+    Message get(Principal principal, Integer messageId);
 }

@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class SecureMessage {
 
-    private String messageId;
+    private Integer messageId;
 
     private String toUserName;
 
@@ -32,7 +32,7 @@ public class SecureMessage {
         this.created = message.getCreated();
     }
 
-    public String getMessageId() {
+    public Integer getMessageId() {
         return messageId;
     }
 
