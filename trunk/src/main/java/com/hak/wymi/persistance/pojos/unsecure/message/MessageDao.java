@@ -8,9 +8,11 @@ public interface MessageDao {
 
     public boolean update(Message message);
 
-    List<Message> getIncoming(Principal principal);
+    public List<Message> getAllReceived(Principal principal);
 
-    List<Message> getSent(Principal principal);
+    public List<Message> getAllSent(Principal principal);
 
-    Message get(Principal principal, Integer messageId);
+    public Message getReceived(Principal principal, Integer messageId);
+
+    public Message getSent(Principal principal, Integer messageId);
 }

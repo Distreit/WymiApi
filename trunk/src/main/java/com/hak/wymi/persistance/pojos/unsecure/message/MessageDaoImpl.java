@@ -53,7 +53,7 @@ public class MessageDaoImpl implements MessageDao {
     }
 
     @Override
-    public List<Message> getIncoming(Principal principal) {
+    public List<Message> getAllReceived(Principal principal) {
         Session session = this.sessionFactory.openSession();
         List<Message> postList = session.createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
                 .setParameter("destinationUserName", principal.getName())
@@ -63,19 +63,35 @@ public class MessageDaoImpl implements MessageDao {
     }
 
     @Override
-    public List<Message> getSent(Principal principal) {
+    public List<Message> getAllSent(Principal principal) {
         return null;
     }
 
     @Override
-    public Message get(Principal principal, Integer messageId) {
+    public Message getReceived(Principal principal, Integer messageId) {
+        return get(principal, messageId, false);
+    }
+
+    @Override
+    public Message getSent(Principal principal, Integer messageId) {
+        return get(principal, messageId, true);
+    }
+
+    private Message get(Principal principal, Integer messageId, Boolean sent) {
+        String columnName;
+        if (sent) {
+            columnName = "sourceUser";
+        } else {
+            columnName = "destinationUser";
+        }
+
         Session session = this.sessionFactory.openSession();
-        Message postList = (Message) session
-                .createQuery("from Message where destinationUser.name=:destinationUserName and messageId=:messageId")
-                .setParameter("destinationUserName", principal.getName())
+        Message message = (Message) session
+                .createQuery("from Message where " + columnName + ".name=:userName and messageId=:messageId")
+                .setParameter("userName", principal.getName())
                 .setParameter("messageId", messageId)
                 .uniqueResult();
         session.close();
-        return postList;
+        return message;
     }
 }

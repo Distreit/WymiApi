@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Pattern;
 import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class MessageController extends BaseController {
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<List<SecureMessage>> getMessages(Principal principal) {
-        List<Message> messages = messageDao.getIncoming(principal);
+        List<Message> messages = messageDao.getAllReceived(principal);
         List<SecureMessage> secureTopics = messages.stream().map(SecureMessage::new).collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(secureTopics, HttpStatus.ACCEPTED);
@@ -41,13 +42,38 @@ public class MessageController extends BaseController {
             @RequestBody Boolean alreadyRead,
             @PathVariable Integer messageId) {
 
-        Message message = messageDao.get(principal, messageId);
+        Message message = messageDao.getReceived(principal, messageId);
         if (alreadyRead == null) {
             alreadyRead = false;
         }
         message.setAlreadyRead(alreadyRead);
         if (messageDao.update(message)) {
             return new ResponseEntity<>(new SecureMessage(message), HttpStatus.ACCEPTED);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(
+            value = "/message/{messageType}/{messageId}",
+            method = RequestMethod.DELETE,
+            produces = "application/json; charset=utf-8")
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<SecureMessage> deleteMessage(
+            Principal principal,
+            @Pattern(regexp = "(sent)|(recieved)}") @PathVariable String messageType,
+            @PathVariable Integer messageId) {
+
+        Message message;
+        if (messageType.equals("sent")) {
+            message = messageDao.getSent(principal, messageId);
+            message.setSourceDeleted(true);
+        } else {
+            message = messageDao.getReceived(principal, messageId);
+            message.setDestinationDeleted(true);
+        }
+
+        if (messageDao.update(message)) {
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
