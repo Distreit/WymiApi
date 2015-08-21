@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "comment")
@@ -38,9 +39,23 @@ public class Comment {
 
     private String content;
 
+    @OneToMany(mappedBy = "parentComment", fetch = FetchType.EAGER)
+    private Set<Comment> replies;
+
+    @Version
+    private Integer version;
+
     private Date updated;
 
     private Date created;
+
+    public Set<Comment> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(Set<Comment> replies) {
+        this.replies = replies;
+    }
 
     public interface Creation {
     }

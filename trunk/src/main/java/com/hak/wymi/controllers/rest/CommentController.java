@@ -39,16 +39,41 @@ public class CommentController {
             @Validated({Comment.Creation.class}) @RequestBody Comment comment,
             @PathVariable Integer postId
     ) {
-        comment.setAuthor(userDao.get(principal));
-        comment.setPost(postDao.get(postId));
-        comment.setParentComment(null);
-        comment.setDeleted(false);
-        comment.setPoints(0);
-        if (commentDao.save(comment)) {
+        if (saveNewComment(comment, principal, postId, null)) {
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(
+            value = "/comment/{parentCommentId}",
+            method = RequestMethod.POST,
+            produces = "application/json; charset=utf-8")
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<List<SecureComment>> createChildComment(
+            Principal principal,
+            @Validated({Comment.Creation.class}) @RequestBody Comment comment,
+            @PathVariable Integer postId,
+            @PathVariable Integer parentCommentId
+    ) {
+        Comment parentComment = commentDao.get(parentCommentId);
+        if (parentComment != null) {
+            if (saveNewComment(comment, principal, postId, parentComment)) {
+                return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            }
+        }
+
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    public boolean saveNewComment(Comment comment, Principal principal, Integer postId, Comment parentComment) {
+        comment.setAuthor(userDao.get(principal));
+        comment.setPost(postDao.get(postId));
+        comment.setParentComment(parentComment);
+        comment.setDeleted(false);
+        comment.setPoints(0);
+        return commentDao.save(comment);
     }
 
     @RequestMapping(

@@ -37,7 +37,13 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public Comment get(Integer commentId) {
-        return null;
+        Session session = this.sessionFactory.openSession();
+        Comment comment = (Comment) session
+                .createQuery("from Comment where commentId=:commentId")
+                .setParameter("commentId", commentId)
+                .uniqueResult();
+        session.close();
+        return comment;
     }
 
     private boolean saveOrUpdate(Comment comment, boolean save) {
