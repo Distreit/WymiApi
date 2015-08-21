@@ -26,8 +26,8 @@
         <security:form-login authentication-success-handler-ref="mySuccessHandler"
                              authentication-failure-handler-ref="myFailureHandler"/>
         <security:logout/>
-        <security:custom-filter ref="statelessCsrfFilter" before="PRE_AUTH_FILTER"/>
-        <security:custom-filter ref="csrfHeaderFilter" position="CSRF_FILTER"/>
+        <!--<security:custom-filter ref="statelessCsrfFilter" before="PRE_AUTH_FILTER"/>
+        <security:custom-filter ref="csrfHeaderFilter" position="CSRF_FILTER"/>-->
     </security:http>
 
     <beans:bean id="mySuccessHandler" class="com.hak.wymi.security.MySavedRequestAwareAuthenticationSuccessHandler"/>

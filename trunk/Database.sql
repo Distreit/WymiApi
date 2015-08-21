@@ -46,6 +46,29 @@ CREATE TABLE IF NOT EXISTS `callbackcode` (
 -- Data exporting was unselected.
 
 
+-- Dumping structure for table wymi.comment
+CREATE TABLE IF NOT EXISTS `comment` (
+  `commentId` int(10) NOT NULL AUTO_INCREMENT,
+  `authorId` int(10) NOT NULL,
+  `postId` int(10) NOT NULL,
+  `parentCommentId` int(10),
+  `points` bigint(20) NOT NULL DEFAULT '0',
+  `deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `content` varchar(10000) NOT NULL,
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`commentId`),
+  KEY `FK_comment_user` (`authorId`),
+  KEY `FK_comment_post` (`postId`),
+  KEY `FK_comment_comment` (`parentCommentId`),
+  CONSTRAINT `FK_comment_comment` FOREIGN KEY (`parentCommentId`) REFERENCES `comment` (`commentId`),
+  CONSTRAINT `FK_comment_post` FOREIGN KEY (`postId`) REFERENCES `post` (`postId`),
+  CONSTRAINT `FK_comment_user` FOREIGN KEY (`authorId`) REFERENCES `user` (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table wymi.message
 CREATE TABLE IF NOT EXISTS `message` (
   `messageId` int(10) NOT NULL AUTO_INCREMENT,
@@ -71,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `message` (
 
 -- Dumping structure for table wymi.post
 CREATE TABLE IF NOT EXISTS `post` (
-  `postId` int(11) NOT NULL AUTO_INCREMENT,
+  `postId` int(11) NOT NULL,
   `topicId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -102,7 +125,11 @@ CREATE TABLE IF NOT EXISTS `posttransaction` (
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `state` enum('UNPROCESSED','PROCESSED','CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
-  PRIMARY KEY (`postTransactionId`)
+  PRIMARY KEY (`postTransactionId`),
+  KEY `FK_posttransaction_post` (`postId`),
+  KEY `FK_posttransaction_user` (`sourceUserId`),
+  CONSTRAINT `FK_posttransaction_post` FOREIGN KEY (`postId`) REFERENCES `post` (`postId`),
+  CONSTRAINT `FK_posttransaction_user` FOREIGN KEY (`sourceUserId`) REFERENCES `user` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.

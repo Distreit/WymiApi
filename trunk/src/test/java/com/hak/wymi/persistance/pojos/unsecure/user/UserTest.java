@@ -1,6 +1,8 @@
 package com.hak.wymi.persistance.pojos.unsecure.user;
 
 import junit.framework.TestCase;
+import org.junit.Test;
+
 
 public class UserTest extends TestCase {
     private User user;
@@ -12,9 +14,9 @@ public class UserTest extends TestCase {
     }
 
     public void tearDown() throws Exception {
-
     }
 
+    @Test
     public void testGetUserId() throws Exception {
         assertNotNull(user);
         assertEquals(user.getUserId(), new Integer(10));
