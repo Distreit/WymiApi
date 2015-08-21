@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.security.Principal;
 import java.util.List;
 
 @Repository
@@ -44,6 +45,32 @@ public class CommentDaoImpl implements CommentDao {
                 .uniqueResult();
         session.close();
         return comment;
+    }
+
+    @Override
+    public boolean delete(Integer commentId, Principal principal) {
+        Session session = this.sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+        try {
+            Comment comment = (Comment) session
+                    .createQuery("from Comment where commentId=:commentId and author.name=:authorName")
+                    .setParameter("commentId", commentId)
+                    .setParameter("authorName", principal.getName())
+                    .uniqueResult();
+            comment.setDeleted(true);
+            comment.setContent("");
+            session.update(comment);
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            if (tx != null) {
+                tx.rollback();
+            }
+            return false;
+        } finally {
+            session.close();
+        }
     }
 
     private boolean saveOrUpdate(Comment comment, boolean save) {

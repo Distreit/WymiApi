@@ -5,11 +5,12 @@ import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SecureComment {
     private Integer commentId;
 
-    private String AuthorName;
+    private String authorName;
 
     private Integer postId;
 
@@ -20,15 +21,20 @@ public class SecureComment {
     private List<SecureComment> replies;
 
     public SecureComment(Comment comment) {
+        if (!comment.getDeleted()) {
+            this.authorName = comment.getAuthor().getName();
+            this.content = comment.getContent();
+        } else {
+            this.authorName = "[DELETED]";
+            this.content = "[DELETED]";
+        }
+
         this.commentId = comment.getCommentId();
-        this.AuthorName = comment.getAuthor().getName();
         this.postId = comment.getPost().getPostId();
-        this.content = comment.getContent();
         this.created = comment.getCreated();
         replies = new LinkedList<>();
-        for (Comment reply : comment.getReplies()) {
-            replies.add(new SecureComment(reply));
-        }
+
+        replies.addAll(comment.getReplies().stream().map(SecureComment::new).collect(Collectors.toList()));
     }
 
     public Integer getCommentId() {
@@ -36,7 +42,7 @@ public class SecureComment {
     }
 
     public String getAuthorName() {
-        return AuthorName;
+        return authorName;
     }
 
     public Integer getPostId() {

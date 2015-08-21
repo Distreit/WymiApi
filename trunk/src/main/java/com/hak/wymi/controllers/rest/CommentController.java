@@ -32,7 +32,8 @@ public class CommentController {
     @RequestMapping(
             value = "/comment",
             method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8")
+            produces = "application/json; charset=utf-8"
+    )
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<List<SecureComment>> createComment(
             Principal principal,
@@ -49,7 +50,8 @@ public class CommentController {
     @RequestMapping(
             value = "/comment/{parentCommentId}",
             method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8")
+            produces = "application/json; charset=utf-8"
+    )
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<List<SecureComment>> createChildComment(
             Principal principal,
@@ -79,10 +81,24 @@ public class CommentController {
     @RequestMapping(
             value = "/comment",
             method = RequestMethod.GET,
-            produces = "application/json; charset=utf-8")
+            produces = "application/json; charset=utf-8"
+    )
     public ResponseEntity<List<SecureComment>> getComments(@PathVariable Integer postId) {
         List<SecureComment> comments = commentDao.getAll(postId).stream().map(SecureComment::new).collect(Collectors.toCollection(() -> new LinkedList<>()));
         return new ResponseEntity<>(comments, HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(
+            value = "/comment/{commentId}",
+            method = RequestMethod.DELETE,
+            produces = "application/json; charset=utf-8"
+    )
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<List<SecureComment>> deleteComments(@PathVariable Integer commentId, Principal principal) {
+        if (commentDao.delete(commentId, principal)) {
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
