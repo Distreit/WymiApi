@@ -2,13 +2,13 @@ package com.hak.wymi.persistance.pojos.unsecure.comment;
 
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
-import com.hak.wymi.validations.Exists;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "comment")
@@ -40,7 +40,8 @@ public class Comment {
     private String content;
 
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.EAGER)
-    private Set<Comment> replies;
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Comment> replies;
 
     @Version
     private Integer version;
@@ -49,11 +50,11 @@ public class Comment {
 
     private Date created;
 
-    public Set<Comment> getReplies() {
+    public List<Comment> getReplies() {
         return replies;
     }
 
-    public void setReplies(Set<Comment> replies) {
+    public void setReplies(List<Comment> replies) {
         this.replies = replies;
     }
 
