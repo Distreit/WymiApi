@@ -3,6 +3,7 @@ package com.hak.wymi.persistance.pojos.unsecure.post;
 import com.hak.wymi.persistance.pojos.unsecure.topic.Topic;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.validations.UrlOrText;
+import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,11 +13,8 @@ import java.util.Date;
 
 @Entity
 @Table(name = "post")
-@UrlOrText(groups = Post.Creation.class)
+@UrlOrText(groups = Creation.class)
 public class Post {
-    public interface Creation {
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)

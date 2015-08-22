@@ -1,6 +1,6 @@
-package com.hak.wymi.persistance.pojos.unsecure.posttransaction;
+package com.hak.wymi.persistance.pojos.unsecure.commenttransaction;
 
-import com.hak.wymi.persistance.pojos.unsecure.post.Post;
+import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.TransactionState;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
@@ -13,16 +13,16 @@ import javax.validation.groups.Default;
 import java.util.Date;
 
 @Entity
-@Table(name = "postTransaction")
-public class PostTransaction extends BalanceTransaction {
+@Table(name = "commentTransaction")
+public class CommentTransaction extends BalanceTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
-    private Integer postTransactionId;
+    private Integer commentTransactionId;
 
     @ManyToOne
-    @JoinColumn(name = "postId")
-    private Post post;
+    @JoinColumn(name = "commentId")
+    private Comment comment;
 
     @ManyToOne
     @JoinColumn(name = "sourceUserId")
@@ -41,20 +41,20 @@ public class PostTransaction extends BalanceTransaction {
     @Enumerated(EnumType.STRING)
     private TransactionState state;
 
-    public Integer getPostTransactionId() {
-        return postTransactionId;
+    public Integer getCommentTransactionId() {
+        return commentTransactionId;
     }
 
-    public void setPostTransactionId(Integer postTransactionId) {
-        this.postTransactionId = postTransactionId;
+    public void setCommentTransactionId(Integer commentTransactionId) {
+        this.commentTransactionId = commentTransactionId;
     }
 
-    public Post getPost() {
-        return post;
+    public Comment getComment() {
+        return comment;
     }
 
-    public void setPost(Post post) {
-        this.post = post;
+    public void setComment(Comment comment) {
+        this.comment = comment;
     }
 
     public User getSourceUser() {

@@ -6,6 +6,7 @@ import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeDao;
 import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeType;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,7 @@ public class UserController extends BaseController {
             value = "/user",
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
-    public ResponseEntity<User> registerNewUser(@Validated({Default.class, User.Registration.class}) @RequestBody User user) {
+    public ResponseEntity<User> registerNewUser(@Validated({Default.class, Creation.class}) @RequestBody User user) {
         user.setRoles("ROLE_USER");
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
         if (userDao.save(user)) {

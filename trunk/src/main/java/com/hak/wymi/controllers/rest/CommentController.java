@@ -5,6 +5,7 @@ import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
 import com.hak.wymi.persistance.pojos.unsecure.comment.CommentDao;
 import com.hak.wymi.persistance.pojos.unsecure.post.PostDao;
 import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class CommentController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<List<SecureComment>> createComment(
             Principal principal,
-            @Validated({Comment.Creation.class}) @RequestBody Comment comment,
+            @Validated({Creation.class}) @RequestBody Comment comment,
             @PathVariable Integer postId
     ) {
         if (saveNewComment(comment, principal, postId, null)) {
@@ -55,7 +56,7 @@ public class CommentController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<List<SecureComment>> createChildComment(
             Principal principal,
-            @Validated({Comment.Creation.class}) @RequestBody Comment comment,
+            @Validated({Creation.class}) @RequestBody Comment comment,
             @PathVariable Integer postId,
             @PathVariable Integer parentCommentId
     ) {

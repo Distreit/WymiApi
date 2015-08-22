@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.unsecure.user;
 
 import com.hak.wymi.validations.*;
+import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -11,16 +12,13 @@ import java.util.Date;
 
 @Entity
 @Table(name = "user")
-@PasswordsMatch(groups = User.Registration.class)
-@EmailsMatch(groups = User.Registration.class)
-@NameDoesNotExist(groups = User.Registration.class)
+@PasswordsMatch(groups = Creation.class)
+@EmailsMatch(groups = Creation.class)
+@NameDoesNotExist(groups = Creation.class)
 public class User {
-    public static interface Registration {
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Null(groups = Registration.class)
+    @Null(groups = Creation.class)
     private Integer userId;
 
     @NotNull
@@ -33,36 +31,36 @@ public class User {
             min = 8,
             max = 50,
             message = "Password must be between 8 and 50 characters in length",
-            groups = Registration.class
+            groups = Creation.class
     )
-    @Password(groups = Registration.class)
+    @Password(groups = Creation.class)
     private String password;
 
     @Transient
     private String confirmPassword;
 
-    @Null(groups = Registration.class)
+    @Null(groups = Creation.class)
     private String roles;
 
     @NotNull
     @Email
-    @EmailDoesNotExist(groups = Registration.class)
+    @EmailDoesNotExist(groups = Creation.class)
     private String email;
 
     @Transient
     private String confirmEmail;
 
-    @Null(groups = Registration.class)
+    @Null(groups = Creation.class)
     private Boolean validated = false;
 
     @Version
-    @Null(groups = Registration.class)
+    @Null(groups = Creation.class)
     private Integer version;
 
-    @Null(groups = Registration.class)
+    @Null(groups = Creation.class)
     private Date created;
 
-    @Null(groups = Registration.class)
+    @Null(groups = Creation.class)
     private Date updated;
 
     public User() {

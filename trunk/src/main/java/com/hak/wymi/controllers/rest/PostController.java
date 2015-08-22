@@ -8,6 +8,7 @@ import com.hak.wymi.persistance.pojos.unsecure.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
 import com.hak.wymi.utility.AppConfig;
+import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class PostController {
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<Topic> createPost(
-            @Validated(Post.Creation.class) @RequestBody Post post,
+            @Validated(Creation.class) @RequestBody Post post,
             @PathVariable String topicName,
             Principal principal) {
 

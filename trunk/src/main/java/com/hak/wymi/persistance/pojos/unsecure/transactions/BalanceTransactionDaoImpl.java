@@ -22,9 +22,6 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     private SessionFactory sessionFactory;
 
     @Autowired
-    private MessageDao messageDao;
-
-    @Autowired
     private PostTransactionDao postTransactionDao;
 
     LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);

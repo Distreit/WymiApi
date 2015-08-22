@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.unsecure.comment;
 
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
+import com.hak.wymi.validations.groups.Creation;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -56,9 +57,6 @@ public class Comment {
 
     public void setReplies(List<Comment> replies) {
         this.replies = replies;
-    }
-
-    public interface Creation {
     }
 
     public Integer getCommentId() {

@@ -5,6 +5,7 @@ import com.hak.wymi.persistance.pojos.unsecure.topic.Topic;
 import com.hak.wymi.persistance.pojos.unsecure.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public class TopicController extends BaseController {
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<Topic> createTopic(@Validated({Topic.Creation.class}) @RequestBody Topic topic, Principal principal) {
+    public ResponseEntity<Topic> createTopic(@Validated({Creation.class}) @RequestBody Topic topic, Principal principal) {
         User user = userDao.get(principal);
 
         topic.setOwner(user);
