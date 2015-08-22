@@ -8,6 +8,7 @@ import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import javax.validation.constraints.Null;
+import javax.xml.bind.ValidationException;
 import java.util.Date;
 import java.util.List;
 
@@ -129,5 +130,12 @@ public class Comment {
 
     public void setUpdated(Date updated) {
         this.updated = updated;
+    }
+
+    public void addPoints(int amount) throws ValidationException {
+        if (amount < 0) {
+            throw new ValidationException("Not allowed to add negative points");
+        }
+        this.setPoints(this.getPoints() + amount);
     }
 }

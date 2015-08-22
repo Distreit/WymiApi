@@ -1,7 +1,9 @@
 package com.hak.wymi.persistance.pojos.unsecure.transactions;
 
 import com.hak.wymi.persistance.pojos.unsecure.balance.Balance;
-import com.hak.wymi.persistance.pojos.unsecure.message.MessageDao;
+import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
+import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
@@ -22,8 +24,10 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     private SessionFactory sessionFactory;
 
     @Autowired
-    private PostTransactionDao postTransactionDao;
+    private CommentTransactionDao commentTransactionDao;
 
+    @Autowired
+    private PostTransactionDao postTransactionDao;
     LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
     @Override
@@ -66,6 +70,51 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             session.close();
             if (e instanceof ValidationException) {
                 postTransactionDao.cancel(postTransaction);
+            }
+            return false;
+        }
+    }
+
+    @Override
+    public boolean process(CommentTransaction commentTransaction) {
+        Session session = this.sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+        Integer amount = commentTransaction.getAmount();
+
+        try {
+            Balance sourceBalance = (Balance) session.createQuery("from Balance where user.userId=:userId")
+                    .setParameter("userId", commentTransaction.getSourceUser().getUserId())
+                    .setLockOptions(pessimisticWrite).uniqueResult();
+
+            Balance destinationBalance = (Balance) session.createQuery("from Balance where user.userId=:userId")
+                    .setParameter("userId", commentTransaction.getComment().getAuthor().getUserId())
+                    .setLockOptions(pessimisticWrite).uniqueResult();
+
+            Comment comment = (Comment) session.load(Comment.class, commentTransaction.getComment().getCommentId(), pessimisticWrite);
+
+            session.buildLockRequest(pessimisticWrite).lock(commentTransaction);
+
+            sourceBalance.removePoints(amount);
+            destinationBalance.addPoints(amount);
+            comment.addPoints(amount);
+            commentTransaction.setState(TransactionState.PROCESSED);
+
+            session.update(sourceBalance);
+            session.update(destinationBalance);
+            session.update(comment);
+            session.update(commentTransaction);
+
+            tx.commit();
+            session.close();
+            return true;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            if (tx != null) {
+                tx.rollback();
+            }
+            session.close();
+            if (e instanceof ValidationException) {
+                commentTransactionDao.cancel(commentTransaction);
             }
             return false;
         }

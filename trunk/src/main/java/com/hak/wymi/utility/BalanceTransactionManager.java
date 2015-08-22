@@ -1,5 +1,7 @@
 package com.hak.wymi.utility;
 
+import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.BalanceTransaction;
@@ -20,13 +22,15 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     protected static final Logger logger = LoggerFactory.getLogger(PostTransactionDao.class);
 
     @Autowired
+    private CommentTransactionDao commentTransactionDao;
+
+    @Autowired
     private PostTransactionDao postTransactionDao;
 
     @Autowired
     private BalanceTransactionDao balanceTransactionDao;
 
     private BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
-
     private boolean run = false;
 
     public BalanceTransactionManager() {
@@ -53,11 +57,14 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
 
     private void addUnprocessedTransactions() {
         postTransactionDao.getUnprocessed().forEach(this::add);
+        commentTransactionDao.getUnprocessed().forEach(this::add);
     }
 
     private void process(BalanceTransaction t) {
         if (t instanceof PostTransaction) {
             balanceTransactionDao.process((PostTransaction) t);
+        } else if (t instanceof CommentTransaction) {
+            balanceTransactionDao.process((CommentTransaction) t);
         }
     }
 
