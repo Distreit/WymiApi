@@ -21,7 +21,12 @@ public class CallbackCode {
     @Enumerated(EnumType.STRING)
     private CallbackCodeType type;
 
+    @Version
+    private Integer version;
+
     private Date created;
+
+    private Date updated;
 
     public Integer getCallbackCodeId() {
         return callbackCodeId;

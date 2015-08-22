@@ -31,6 +31,9 @@ public class PostTransaction extends BalanceTransaction {
 
     private Integer amount;
 
+    @Version
+    private Integer version;
+
     private Date updated;
 
     private Date created;

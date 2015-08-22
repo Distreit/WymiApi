@@ -54,6 +54,9 @@ public class Topic {
     @Null(groups = Creation.class)
     private Date created;
 
+    @Version
+    private Integer version;
+
     public Integer getTopicId() {
         return topicId;
     }
