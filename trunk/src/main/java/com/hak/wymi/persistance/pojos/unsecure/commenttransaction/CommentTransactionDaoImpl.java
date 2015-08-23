@@ -26,6 +26,7 @@ public class CommentTransactionDaoImpl implements CommentTransactionDao {
         try {
             commentTransaction.setState(TransactionState.UNPROCESSED);
             session.persist(commentTransaction);
+            session.refresh(commentTransaction);
             tx.commit();
             return true;
         } catch (HibernateException e) {

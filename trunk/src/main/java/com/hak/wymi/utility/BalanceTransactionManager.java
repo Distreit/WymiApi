@@ -11,11 +11,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 @Component
 public class BalanceTransactionManager implements Runnable, ApplicationListener<ContextClosedEvent> {
@@ -31,9 +35,28 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     private BalanceTransactionDao balanceTransactionDao;
 
     private BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
+    private PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(50, new Comparator<BalanceTransaction>() {
+        @Override
+        public int compare(BalanceTransaction transactionA, BalanceTransaction transactionB) {
+            return transactionA.getCreated().compareTo(transactionB.getCreated());
+        }
+    });
+
     private boolean run = false;
 
     public BalanceTransactionManager() {
+    }
+
+    @Scheduled(fixedRate = 5000)
+    private void checkPreprocessQueue() {
+        while (preprocessQueueHasValueToProcess()) {
+            queue.add(preprocessQueue.remove());
+        }
+    }
+
+    private boolean preprocessQueueHasValueToProcess() {
+        BalanceTransaction transaction = preprocessQueue.peek();
+        return transaction != null && new Date(transaction.getCreated().getTime() + 60000).before(new Date());
     }
 
     @PostConstruct
@@ -49,8 +72,7 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
             try {
                 process(queue.take());
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                continue;
+                logger.error(e.getMessage());
             }
         }
     }
@@ -69,7 +91,8 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     }
 
     public void add(BalanceTransaction balanceTransaction) {
-        queue.add(balanceTransaction);
+        System.out.println(this);
+        preprocessQueue.add(balanceTransaction);
     }
 
     @Override
