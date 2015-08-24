@@ -12,8 +12,6 @@ import org.springframework.stereotype.Controller;
 public class BaseController {
     protected static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
-/*    @RequestMapping(value = "*//*")
-    public String rootMapping() {
-        return "indexa.html";
-    }*/
+    private BaseController() {
+    }
 }
