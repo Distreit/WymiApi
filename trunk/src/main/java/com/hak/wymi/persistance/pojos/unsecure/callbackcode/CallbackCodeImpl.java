@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.unsecure.callbackcode;
 
+import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -55,21 +56,7 @@ public class CallbackCodeImpl implements CallbackCodeDao {
 
     @Override
     public boolean delete(CallbackCode callbackCode) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-        try {
-            session.delete(callbackCode);
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            return false;
-        } finally {
-            session.close();
-        }
+        return DaoHelper.simpleDelete(callbackCode, this.sessionFactory.openSession());
     }
 
     @Override

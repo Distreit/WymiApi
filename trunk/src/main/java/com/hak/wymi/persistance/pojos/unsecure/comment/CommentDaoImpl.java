@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.unsecure.comment;
 
+import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,25 +72,7 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     private boolean saveOrUpdate(Comment comment, boolean save) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-        try {
-            if (save) {
-                session.persist(comment);
-            } else {
-                session.update(comment);
-            }
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            return false;
-        } finally {
-            session.close();
-        }
+        return DaoHelper.simpleSaveOrUpdate(comment, this.sessionFactory.openSession(), save);
     }
 
 

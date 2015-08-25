@@ -1,8 +1,8 @@
 package com.hak.wymi.persistance.pojos.unsecure.topic;
 
+import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,25 +39,7 @@ public class TopicDaoImpl implements TopicDao {
     }
 
     private boolean saveOrUpdate(Topic topic, boolean save) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-        try {
-            if (save) {
-                session.persist(topic);
-            } else {
-                session.update(topic);
-            }
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            return false;
-        } finally {
-            session.close();
-        }
+        return DaoHelper.simpleSaveOrUpdate(topic, this.sessionFactory.openSession(), save);
     }
 
     @Override

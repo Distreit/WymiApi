@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.unsecure.posttransaction;
 
 import com.hak.wymi.persistance.pojos.unsecure.message.Message;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.TransactionState;
+import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,23 +21,8 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
 
     @Override
     public boolean save(PostTransaction postTransaction) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-
-        try {
-            postTransaction.setState(TransactionState.UNPROCESSED);
-            session.persist(postTransaction);
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            return false;
-        } finally {
-            session.close();
-        }
+        postTransaction.setState(TransactionState.UNPROCESSED);
+        return DaoHelper.simpleSaveOrUpdate(postTransaction, this.sessionFactory.openSession(), true);
     }
 
     @Override
@@ -65,7 +51,6 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
             if (tx != null) {
                 tx.rollback();
             }
-            tx.rollback();
             return false;
         } finally {
             session.close();

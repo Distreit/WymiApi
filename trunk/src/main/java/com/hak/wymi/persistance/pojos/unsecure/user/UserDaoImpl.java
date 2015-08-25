@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.unsecure.user;
 
+import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -21,21 +22,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean save(User user) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-        try {
-            session.persist(user);
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            return false;
-        } finally {
-            session.close();
-        }
+        return DaoHelper.simpleSaveOrUpdate(user, this.sessionFactory.openSession(), true);
     }
 
     @Override

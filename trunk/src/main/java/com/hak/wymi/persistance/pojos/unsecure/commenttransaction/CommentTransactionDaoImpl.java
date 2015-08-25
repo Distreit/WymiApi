@@ -66,7 +66,6 @@ public class CommentTransactionDaoImpl implements CommentTransactionDao {
             if (tx != null) {
                 tx.rollback();
             }
-            tx.rollback();
             return false;
         } finally {
             session.close();
