@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.unsecure.callbackcode;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -14,7 +13,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class CallbackCodeImpl implements CallbackCodeDao {
-    private static final Logger logger = LoggerFactory.getLogger(CallbackCodeImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CallbackCodeImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -28,7 +27,7 @@ public class CallbackCodeImpl implements CallbackCodeDao {
             tx.commit();
             return true;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }
@@ -63,7 +62,7 @@ public class CallbackCodeImpl implements CallbackCodeDao {
             tx.commit();
             return true;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

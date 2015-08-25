@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.unsecure.message;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.security.Principal;
+import java.util.LinkedList;
 import java.util.List;
 
 @Repository
@@ -64,7 +64,7 @@ public class MessageDaoImpl implements MessageDao {
 
     @Override
     public List<Message> getAllSent(Principal principal) {
-        return null;
+        return new LinkedList<>();
     }
 
     @Override

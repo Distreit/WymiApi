@@ -3,9 +3,9 @@ package com.hak.wymi.persistance.pojos.unsecure.post;
 import java.util.List;
 
 public interface PostDao {
-	public boolean save(Post post);
+    public boolean save(Post post);
 
-	public List<Post> getAll(String topicName);
+    public List<Post> getAll(String topicName);
 
-	Post get(Integer id);
+    public Post get(Integer id);
 }

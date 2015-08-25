@@ -9,11 +9,12 @@ import javax.validation.ConstraintValidatorContext;
 public class EmailsMatchValidator implements ConstraintValidator<EmailsMatch, User> {
     @Override
     public void initialize(EmailsMatch emailsMatch) {
+        // Does not take any setup.
     }
 
     @Override
     public boolean isValid(User user, ConstraintValidatorContext cxt) {
-        return user.getEmail().toLowerCase().equals(user.getConfirmEmail().toLowerCase());
+        return user.getEmail().equalsIgnoreCase(user.getConfirmEmail());
     }
 
 }

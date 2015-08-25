@@ -18,7 +18,8 @@ public class NameDoesNotExistValidator implements ConstraintValidator<NameDoesNo
     private TopicDao topicDao;
 
     @Override
-    public void initialize(NameDoesNotExist NameDoesNotExist) {
+    public void initialize(NameDoesNotExist nameDoesNotExist) {
+        // Does not take any setup.
     }
 
     @Override

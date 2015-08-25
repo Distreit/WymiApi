@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.xml.bind.ValidationException;
-
 @Repository
 @SuppressWarnings("unchecked")
 public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
@@ -37,14 +35,8 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         Integer amount = postTransaction.getAmount();
 
         try {
-            Balance sourceBalance = (Balance) session.createQuery("from Balance where user.userId=:userId")
-                    .setParameter("userId", postTransaction.getSourceUser().getUserId())
-                    .setLockOptions(pessimisticWrite).uniqueResult();
-
-            Balance destinationBalance = (Balance) session.createQuery("from Balance where user.userId=:userId")
-                    .setParameter("userId", postTransaction.getPost().getUser().getUserId())
-                    .setLockOptions(pessimisticWrite).uniqueResult();
-
+            Balance sourceBalance = getBalance(session, postTransaction.getSourceUser().getUserId());
+            Balance destinationBalance = getBalance(session, postTransaction.getPost().getUser().getUserId());
             Post post = (Post) session.load(Post.class, postTransaction.getPost().getPostId(), pessimisticWrite);
 
             session.buildLockRequest(pessimisticWrite).lock(postTransaction);
@@ -68,9 +60,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                 tx.rollback();
             }
             session.close();
-            if (e instanceof ValidationException) {
-                postTransactionDao.cancel(postTransaction);
-            }
+            postTransactionDao.cancel(postTransaction);
             return false;
         }
     }
@@ -82,14 +72,8 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         Integer amount = commentTransaction.getAmount();
 
         try {
-            Balance sourceBalance = (Balance) session.createQuery("from Balance where user.userId=:userId")
-                    .setParameter("userId", commentTransaction.getSourceUser().getUserId())
-                    .setLockOptions(pessimisticWrite).uniqueResult();
-
-            Balance destinationBalance = (Balance) session.createQuery("from Balance where user.userId=:userId")
-                    .setParameter("userId", commentTransaction.getComment().getAuthor().getUserId())
-                    .setLockOptions(pessimisticWrite).uniqueResult();
-
+            Balance sourceBalance = getBalance(session, commentTransaction.getSourceUser().getUserId());
+            Balance destinationBalance = getBalance(session, commentTransaction.getComment().getAuthor().getUserId());
             Comment comment = (Comment) session.load(Comment.class, commentTransaction.getComment().getCommentId(), pessimisticWrite);
 
             session.buildLockRequest(pessimisticWrite).lock(commentTransaction);
@@ -113,10 +97,16 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                 tx.rollback();
             }
             session.close();
-            if (e instanceof ValidationException) {
-                commentTransactionDao.cancel(commentTransaction);
-            }
+            commentTransactionDao.cancel(commentTransaction);
             return false;
         }
+    }
+
+    private Balance getBalance(Session session, Integer userId) {
+        return (Balance) session
+                .createQuery("from Balance where user.userId=:userId")
+                .setParameter("userId", userId)
+                .setLockOptions(pessimisticWrite)
+                .uniqueResult();
     }
 }

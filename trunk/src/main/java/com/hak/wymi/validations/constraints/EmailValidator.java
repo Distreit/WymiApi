@@ -8,14 +8,12 @@ import javax.validation.ConstraintValidatorContext;
 public class EmailValidator implements ConstraintValidator<Email, String> {
     @Override
     public void initialize(Email email) {
+        // Does not take any setup.
     }
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext cxt) {
-        if (email == null) {
-            return false;
-        }
-        return email.matches(".+@.+\\..+");
+        return email != null && email.matches(".+@.+\\..+");
     }
 
 }

@@ -16,7 +16,7 @@ public class Balance {
     @JoinColumn(name = "userId")
     private User user;
 
-    private Integer balance;
+    private Integer currentBalance;
 
     @Version
     private Integer version;
@@ -29,12 +29,12 @@ public class Balance {
         this.user = user;
     }
 
-    public Integer getBalance() {
-        return balance;
+    public Integer getCurrentBalance() {
+        return currentBalance;
     }
 
-    public void setBalance(Integer balance) {
-        this.balance = balance;
+    public void setCurrentBalance(Integer balance) {
+        this.currentBalance = balance;
     }
 
     public Integer getVersion() {
@@ -54,15 +54,15 @@ public class Balance {
     }
 
     public Integer removePoints(Integer amount) throws ValidationException {
-        if (this.balance < amount) {
+        if (this.currentBalance < amount) {
             throw new ValidationException("Not enough points.");
         }
-        this.balance -= amount;
-        return this.balance;
+        this.currentBalance -= amount;
+        return this.currentBalance;
     }
 
     public Integer addPoints(Integer amount) {
-        this.balance += amount;
-        return this.balance;
+        this.currentBalance += amount;
+        return this.currentBalance;
     }
 }

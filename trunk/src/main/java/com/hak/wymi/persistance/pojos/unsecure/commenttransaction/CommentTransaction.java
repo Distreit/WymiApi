@@ -81,6 +81,7 @@ public class CommentTransaction extends BalanceTransaction {
         this.updated = updated;
     }
 
+    @Override
     public Date getCreated() {
         return created;
     }
@@ -97,5 +98,13 @@ public class CommentTransaction extends BalanceTransaction {
     @Override
     public TransactionState getState() {
         return this.state;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

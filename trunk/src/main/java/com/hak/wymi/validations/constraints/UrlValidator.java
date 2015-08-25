@@ -8,6 +8,7 @@ import javax.validation.ConstraintValidatorContext;
 public class UrlValidator implements ConstraintValidator<Url, String> {
     @Override
     public void initialize(Url url) {
+        // Does not take any setup.
     }
 
     @Override

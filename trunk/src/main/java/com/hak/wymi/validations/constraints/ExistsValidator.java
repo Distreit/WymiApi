@@ -12,22 +12,15 @@ public class ExistsValidator implements ConstraintValidator<Exists, Object> {
     @Autowired
     private PostDao postDao;
 
-    private boolean shouldExist;
-    private String stringType;
-
     @Override
     public void initialize(Exists exists) {
-        this.shouldExist = exists.shouldExist();
-        this.stringType = exists.stringType();
+        // Does not take any setup.
     }
 
     @Override
     public boolean isValid(Object o, ConstraintValidatorContext constraintValidatorContext) {
-        if (o instanceof Post) {
-            return postDao.get(((Post) o).getPostId()) != null;
-        }
+        return o instanceof Post && postDao.get(((Post) o).getPostId()) != null;
 
-        return false;
     }
 
 }

@@ -32,11 +32,7 @@ public class StatelessCsrfFilter extends OncePerRequestFilter {
 
             String csrfCookieValue = null;
             if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals(CSRF_TOKEN)) {
-                        csrfCookieValue = cookie.getValue();
-                    }
-                }
+                csrfCookieValue = getCsrfCookieValue(cookies);
             }
 
             if (csrfTokenValue == null || !csrfTokenValue.equals(csrfCookieValue)) {
@@ -45,6 +41,15 @@ public class StatelessCsrfFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String getCsrfCookieValue(Cookie[] cookies) {
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(CSRF_TOKEN)) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 
     public static final class DefaultRequiresCsrfMatcher implements RequestMatcher {

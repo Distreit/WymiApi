@@ -30,7 +30,7 @@ public class BalanceDaoImpl implements BalanceDao {
         Session session = this.sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
         try {
-            balance.setBalance(0);
+            balance.setCurrentBalance(0);
             session.persist(balance);
             tx.commit();
             return true;

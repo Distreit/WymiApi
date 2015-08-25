@@ -118,4 +118,12 @@ public class Topic {
     public void setCreated(Date created) {
         this.created = created;
     }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 }

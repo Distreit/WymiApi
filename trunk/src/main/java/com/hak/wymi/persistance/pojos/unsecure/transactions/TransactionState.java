@@ -18,5 +18,6 @@ public enum TransactionState {
         }
     };
 
+    @Override
     public abstract String toString();
 }

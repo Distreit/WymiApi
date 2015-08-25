@@ -10,6 +10,7 @@ import javax.validation.ConstraintValidatorContext;
 public class PasswordsMatchValidator implements ConstraintValidator<PasswordsMatch, Object> {
     @Override
     public void initialize(PasswordsMatch passwordsMatch) {
+        // Does not take any setup.
     }
 
     @Override

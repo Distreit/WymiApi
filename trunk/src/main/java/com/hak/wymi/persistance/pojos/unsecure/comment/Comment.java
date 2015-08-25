@@ -138,4 +138,12 @@ public class Comment {
         }
         this.setPoints(this.getPoints() + amount);
     }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 }

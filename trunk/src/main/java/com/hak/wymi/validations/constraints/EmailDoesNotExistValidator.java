@@ -16,6 +16,7 @@ public class EmailDoesNotExistValidator implements ConstraintValidator<EmailDoes
 
     @Override
     public void initialize(EmailDoesNotExist emailDoesNotExist) {
+        // Does not take any setup.
     }
 
     @Override
