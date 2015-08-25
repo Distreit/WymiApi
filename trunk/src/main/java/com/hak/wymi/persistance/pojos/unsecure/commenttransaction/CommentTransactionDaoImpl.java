@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class CommentTransactionDaoImpl implements CommentTransactionDao {
-    protected static final Logger logger = LoggerFactory.getLogger(CommentTransactionDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentTransactionDao.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -29,8 +29,8 @@ public class CommentTransactionDaoImpl implements CommentTransactionDao {
             session.refresh(commentTransaction);
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }
@@ -61,8 +61,8 @@ public class CommentTransactionDaoImpl implements CommentTransactionDao {
             session.save(message);
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

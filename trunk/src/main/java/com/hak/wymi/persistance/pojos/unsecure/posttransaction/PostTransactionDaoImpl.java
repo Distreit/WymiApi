@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class PostTransactionDaoImpl implements PostTransactionDao {
-    protected static final Logger logger = LoggerFactory.getLogger(PostTransactionDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostTransactionDao.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -28,8 +28,8 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
             session.persist(postTransaction);
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }
@@ -60,8 +60,8 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
             session.save(message);
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

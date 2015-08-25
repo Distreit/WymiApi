@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class CallbackCodeImpl implements CallbackCodeDao {
-    protected static final Logger logger = LoggerFactory.getLogger(CallbackCodeImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(CallbackCodeImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -27,8 +27,8 @@ public class CallbackCodeImpl implements CallbackCodeDao {
             session.persist(callbackCode);
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }
@@ -62,8 +62,8 @@ public class CallbackCodeImpl implements CallbackCodeDao {
             session.delete(callbackCode);
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

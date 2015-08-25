@@ -18,7 +18,7 @@ import javax.xml.bind.ValidationException;
 @Repository
 @SuppressWarnings("unchecked")
 public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
-    protected static final Logger logger = LoggerFactory.getLogger(BalanceTransactionDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionDaoImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -63,7 +63,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             session.close();
             return true;
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }
@@ -108,7 +108,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             session.close();
             return true;
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

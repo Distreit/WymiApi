@@ -27,7 +27,7 @@ public class EmailDoesNotExistValidator implements ConstraintValidator<EmailDoes
             } else if (object instanceof String) {
                 email = (String) object;
             }
-            if (email != null && !email.equals("")) {
+            if (email != null && !"".equals(email)) {
                 return userDao.getFromEmail(email) == null;
             }
         }

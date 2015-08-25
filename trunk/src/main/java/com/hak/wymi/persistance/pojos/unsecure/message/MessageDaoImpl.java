@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class MessageDaoImpl implements MessageDao {
-    protected static final Logger logger = LoggerFactory.getLogger(MessageDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageDaoImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -41,8 +41,8 @@ public class MessageDaoImpl implements MessageDao {
             }
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

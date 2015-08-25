@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class PostDaoImpl implements PostDao {
-    protected static final Logger logger = LoggerFactory.getLogger(PostDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostDaoImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -62,8 +62,8 @@ public class PostDaoImpl implements PostDao {
             }
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

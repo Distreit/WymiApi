@@ -28,9 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-public class UserController extends BaseController {
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
+public class UserController {
     @Autowired
     private UserDao userDao;
 
@@ -49,7 +47,7 @@ public class UserController extends BaseController {
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public Map<String, String> getUser(Principal principal) {
-        if (principal != null && !principal.getName().equals("")) {
+        if (principal != null && !"".equals(principal.getName())) {
             User user = userDao.get(principal);
 
             Map<String, String> result = new HashMap<>();

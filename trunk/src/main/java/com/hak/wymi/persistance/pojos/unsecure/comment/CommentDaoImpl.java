@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class CommentDaoImpl implements CommentDao {
-    protected static final Logger logger = LoggerFactory.getLogger(CommentDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentDaoImpl.class);
 
     @Autowired
     SessionFactory sessionFactory;
@@ -60,7 +60,7 @@ public class CommentDaoImpl implements CommentDao {
             tx.commit();
             return true;
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }
@@ -81,8 +81,8 @@ public class CommentDaoImpl implements CommentDao {
             }
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

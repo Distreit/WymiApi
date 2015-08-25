@@ -27,12 +27,12 @@ public class NameDoesNotExistValidator implements ConstraintValidator<NameDoesNo
             String name;
             if (object instanceof User) {
                 name = ((User) object).getName();
-                if (name != null && !name.equals("")) {
+                if (name != null && !"".equals(name)) {
                     return userDao.getFromName(name) == null;
                 }
             } else if (object instanceof Topic) {
                 name = ((Topic) object).getName();
-                if (name != null && !name.equals("")) {
+                if (name != null && !"".equals(name)) {
                     return topicDao.get(name) == null;
                 }
             }

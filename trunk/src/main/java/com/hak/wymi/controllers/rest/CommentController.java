@@ -61,10 +61,8 @@ public class CommentController {
             @PathVariable Integer parentCommentId
     ) {
         Comment parentComment = commentDao.get(parentCommentId);
-        if (parentComment != null) {
-            if (saveNewComment(comment, principal, postId, parentComment)) {
-                return new ResponseEntity<>(HttpStatus.ACCEPTED);
-            }
+        if (parentComment != null && saveNewComment(comment, principal, postId, parentComment)) {
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

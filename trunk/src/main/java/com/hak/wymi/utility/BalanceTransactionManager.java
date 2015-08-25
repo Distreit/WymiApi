@@ -23,7 +23,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 @Component
 public class BalanceTransactionManager implements Runnable, ApplicationListener<ContextClosedEvent> {
-    protected static final Logger logger = LoggerFactory.getLogger(PostTransactionDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostTransactionDao.class);
 
     @Autowired
     private CommentTransactionDao commentTransactionDao;
@@ -48,7 +48,7 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     }
 
     @Scheduled(fixedRate = 5000)
-    private void checkPreprocessQueue() {
+    public void checkPreprocessQueue() {
         while (preprocessQueueHasValueToProcess()) {
             queue.add(preprocessQueue.remove());
         }
@@ -72,7 +72,7 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
             try {
                 process(queue.take());
             } catch (InterruptedException e) {
-                logger.error(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         }
     }
@@ -91,7 +91,6 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     }
 
     public void add(BalanceTransaction balanceTransaction) {
-        System.out.println(this);
         preprocessQueue.add(balanceTransaction);
     }
 

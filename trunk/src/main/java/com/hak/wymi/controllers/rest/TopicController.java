@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class TopicController extends BaseController {
+public class TopicController {
     @Autowired
     TopicDao topicDao;
 

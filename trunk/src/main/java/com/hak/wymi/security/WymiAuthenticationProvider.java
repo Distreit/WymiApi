@@ -31,8 +31,8 @@ public class WymiAuthenticationProvider implements AuthenticationProvider {
         String userName = authentication.getPrincipal().toString();
         User user = userDao.getFromName(userName);
 
-        if (user == null || !user.getName().toLowerCase().equals(userName.toLowerCase())) {
-            throw new UsernameNotFoundException(String.format("Invalid credentials", authentication.getPrincipal()));
+        if (user == null || !user.getName().equalsIgnoreCase(userName)) {
+            throw new UsernameNotFoundException(String.format("Invalid credentials"));
         }
 
         String suppliedPasswordHash = DigestUtils.sha256Hex(authentication.getCredentials().toString());

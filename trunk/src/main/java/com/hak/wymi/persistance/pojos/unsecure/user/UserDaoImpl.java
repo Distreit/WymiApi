@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class UserDaoImpl implements UserDao {
-    protected static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -28,8 +28,8 @@ public class UserDaoImpl implements UserDao {
             session.persist(user);
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }
@@ -46,7 +46,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getFromName(String name) {
-        if (name != null && !name.equals("")) {
+        if (name != null && !"".equals(name)) {
             Session session = this.sessionFactory.openSession();
             List<User> userList = session.createQuery("from User where lower(name)=:name")
                     .setParameter("name", name.toLowerCase())
@@ -61,7 +61,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getFromEmail(String email) {
-        if (email != null && !email.equals("")) {
+        if (email != null && !"".equals(email)) {
             Session session = this.sessionFactory.openSession();
             List<User> userList = session.createQuery("from User where lower(email)=:email")
                     .setParameter("email", email.toLowerCase())
@@ -82,8 +82,8 @@ public class UserDaoImpl implements UserDao {
             session.update(user);
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }

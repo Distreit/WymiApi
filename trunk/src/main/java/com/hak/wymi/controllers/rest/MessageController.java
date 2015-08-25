@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class MessageController extends BaseController {
+public class MessageController {
     @Autowired
     private MessageDao messageDao;
 
@@ -41,11 +41,8 @@ public class MessageController extends BaseController {
             Principal principal,
             @RequestBody Boolean alreadyRead,
             @PathVariable Integer messageId) {
-
         Message message = messageDao.getReceived(principal, messageId);
-        if (alreadyRead == null) {
-            alreadyRead = false;
-        }
+
         message.setAlreadyRead(alreadyRead);
         if (messageDao.update(message)) {
             return new ResponseEntity<>(new SecureMessage(message), HttpStatus.ACCEPTED);
@@ -64,7 +61,7 @@ public class MessageController extends BaseController {
             @PathVariable Integer messageId) {
 
         Message message;
-        if (messageType.equals("sent")) {
+        if ("sent".equals(messageType)) {
             message = messageDao.getSent(principal, messageId);
             message.setSourceDeleted(true);
         } else {

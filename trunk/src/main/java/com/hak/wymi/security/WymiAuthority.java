@@ -23,13 +23,6 @@ public class WymiAuthority implements GrantedAuthority {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof WymiAuthority)) {
-            return false;
-        }
-
-        return ((WymiAuthority) obj).getAuthority().equals(authority);
+        return !(obj == null || !(obj instanceof WymiAuthority)) && ((WymiAuthority) obj).getAuthority().equals(authority);
     }
 }

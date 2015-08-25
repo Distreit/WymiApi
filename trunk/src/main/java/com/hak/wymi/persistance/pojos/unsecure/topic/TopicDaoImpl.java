@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class TopicDaoImpl implements TopicDao {
-    protected static final Logger logger = LoggerFactory.getLogger(TopicDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TopicDaoImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -50,8 +50,8 @@ public class TopicDaoImpl implements TopicDao {
             }
             tx.commit();
             return true;
-        } catch (HibernateException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             if (tx != null) {
                 tx.rollback();
             }
@@ -63,7 +63,7 @@ public class TopicDaoImpl implements TopicDao {
 
     @Override
     public Topic get(String name) {
-        if (name != null && !name.equals("")) {
+        if (name != null && !"".equals(name)) {
             Session session = this.sessionFactory.openSession();
             List<Topic> topicList = session.createQuery("from Topic where lower(name)=:name")
                     .setParameter("name", name.toLowerCase())
