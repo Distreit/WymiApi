@@ -3,9 +3,6 @@ package com.hak.wymi.persistance.pojos.unsecure.callbackcode;
 import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -14,33 +11,17 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class CallbackCodeImpl implements CallbackCodeDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CallbackCodeImpl.class);
-
     @Autowired
     private SessionFactory sessionFactory;
 
     @Override
     public boolean save(CallbackCode callbackCode) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-        try {
-            session.persist(callbackCode);
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            return false;
-        } finally {
-            session.close();
-        }
+        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> session.persist(callbackCode));
     }
 
     @Override
     public CallbackCode getFromUserName(String userName, String code, CallbackCodeType type) {
-        Session session = this.sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         List<CallbackCode> registerList = session.createQuery(
                 "from CallbackCode c where lower(c.user.name)=:name and c.code=:code and c.type=:type")
                 .setParameter("code", code)
@@ -56,12 +37,12 @@ public class CallbackCodeImpl implements CallbackCodeDao {
 
     @Override
     public boolean delete(CallbackCode callbackCode) {
-        return DaoHelper.simpleDelete(callbackCode, this.sessionFactory.openSession());
+        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> session.delete(callbackCode));
     }
 
     @Override
     public CallbackCode getFromCode(String code, CallbackCodeType type) {
-        Session session = this.sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         List<CallbackCode> registerList = session.createQuery(
                 "from CallbackCode c where c.code=:code and c.type=:type")
                 .setParameter("code", code)

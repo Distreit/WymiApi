@@ -6,6 +6,7 @@ import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeDao;
 import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeType;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.utility.AppConfig;
 import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,8 @@ public class UserController {
             message.setSubject("WYMI password reset request");
             message.setText(
                     String.format(
-                            "Please click here to reset your password: http://10.0.0.3/wymi/password-reset?code=%s",
+                            "Please click here to reset your password: http://%s/wymi/password-reset?code=%s",
+                            AppConfig.get("IP"),
                             code
                     )
             );
@@ -116,7 +118,7 @@ public class UserController {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail());
             message.setSubject("WYMI account validation");
-            message.setText(String.format("Please click here to validate your account: http://10.0.0.3/wymi/api/user/%s/validate/%s", user.getName(), code));
+            message.setText(String.format("Please click here to validate your account: http://%s/wymi/api/user/%s/validate/%s", AppConfig.get("IP"), user.getName(), code));
             mailSender.send(message);
 
             return new ResponseEntity<>(HttpStatus.CREATED);

@@ -2,8 +2,6 @@ package com.hak.wymi.persistance.pojos.unsecure.comment;
 
 import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -13,14 +11,12 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class CommentDaoImpl implements CommentDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommentDaoImpl.class);
-
     @Autowired
     SessionFactory sessionFactory;
 
     @Override
     public List<Comment> getAll(Integer postId) {
-        Session session = this.sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         List<Comment> commentList = session
                 .createQuery("from Comment where post.postId=:postId and parentComment=null")
                 .setParameter("postId", postId)
@@ -30,13 +26,8 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Override
-    public Boolean save(Comment comment) {
-        return saveOrUpdate(comment, true);
-    }
-
-    @Override
     public Comment get(Integer commentId) {
-        Session session = this.sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         Comment comment = (Comment) session
                 .createQuery("from Comment where commentId=:commentId")
                 .setParameter("commentId", commentId)
@@ -46,10 +37,13 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Override
+    public Boolean save(Comment comment) {
+        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> session.save(comment));
+    }
+
+    @Override
     public boolean delete(Integer commentId, Principal principal) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-        try {
+        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             Comment comment = (Comment) session
                     .createQuery("from Comment where commentId=:commentId and author.name=:authorName")
                     .setParameter("commentId", commentId)
@@ -58,22 +52,6 @@ public class CommentDaoImpl implements CommentDao {
             comment.setDeleted(true);
             comment.setContent("");
             session.update(comment);
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            return false;
-        } finally {
-            session.close();
-        }
+        });
     }
-
-    private boolean saveOrUpdate(Comment comment, boolean save) {
-        return DaoHelper.simpleSaveOrUpdate(comment, this.sessionFactory.openSession(), save);
-    }
-
-
 }

@@ -3,8 +3,6 @@ package com.hak.wymi.persistance.pojos.unsecure.message;
 import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -15,28 +13,23 @@ import java.util.List;
 @Repository
 @SuppressWarnings("unchecked")
 public class MessageDaoImpl implements MessageDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageDaoImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
 
     @Override
     public boolean save(Message message) {
-        return saveOrUpdate(message, true);
+        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> session.persist(message));
     }
 
     @Override
     public boolean update(Message message) {
-        return saveOrUpdate(message, false);
-    }
-
-    private boolean saveOrUpdate(Message message, boolean save) {
-        return DaoHelper.simpleSaveOrUpdate(message, this.sessionFactory.openSession(), save);
+        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> session.update(message));
     }
 
     @Override
     public List<Message> getAllReceived(Principal principal) {
-        Session session = this.sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         List<Message> postList = session.createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
                 .setParameter("destinationUserName", principal.getName())
                 .list();
@@ -67,7 +60,7 @@ public class MessageDaoImpl implements MessageDao {
             columnName = "destinationUser";
         }
 
-        Session session = this.sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         Message message = (Message) session
                 .createQuery("from Message where " + columnName + ".name=:userName and messageId=:messageId")
                 .setParameter("userName", principal.getName())

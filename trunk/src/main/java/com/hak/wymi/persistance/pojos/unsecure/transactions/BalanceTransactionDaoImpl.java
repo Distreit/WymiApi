@@ -7,34 +7,28 @@ import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransac
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
+import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @SuppressWarnings("unchecked")
 public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionDaoImpl.class);
+    private final LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
     @Autowired
     private SessionFactory sessionFactory;
 
     @Autowired
     private CommentTransactionDao commentTransactionDao;
-
     @Autowired
     private PostTransactionDao postTransactionDao;
-    LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
     @Override
     public boolean process(PostTransaction postTransaction) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-        Integer amount = postTransaction.getAmount();
-
-        try {
+        boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
+            Integer amount = postTransaction.getAmount();
             Balance sourceBalance = getBalance(session, postTransaction.getSourceUser().getUserId());
             Balance destinationBalance = getBalance(session, postTransaction.getPost().getUser().getUserId());
             Post post = (Post) session.load(Post.class, postTransaction.getPost().getPostId(), pessimisticWrite);
@@ -50,28 +44,18 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             session.update(destinationBalance);
             session.update(post);
             session.update(postTransaction);
-
-            tx.commit();
-            session.close();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            session.close();
+        });
+        if (!result) {
             postTransactionDao.cancel(postTransaction);
-            return false;
         }
+        return result;
     }
 
     @Override
     public boolean process(CommentTransaction commentTransaction) {
-        Session session = this.sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-        Integer amount = commentTransaction.getAmount();
+        boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
+            Integer amount = commentTransaction.getAmount();
 
-        try {
             Balance sourceBalance = getBalance(session, commentTransaction.getSourceUser().getUserId());
             Balance destinationBalance = getBalance(session, commentTransaction.getComment().getAuthor().getUserId());
             Comment comment = (Comment) session.load(Comment.class, commentTransaction.getComment().getCommentId(), pessimisticWrite);
@@ -87,19 +71,11 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             session.update(destinationBalance);
             session.update(comment);
             session.update(commentTransaction);
-
-            tx.commit();
-            session.close();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
-            }
-            session.close();
+        });
+        if (!result) {
             commentTransactionDao.cancel(commentTransaction);
-            return false;
         }
+        return result;
     }
 
     private Balance getBalance(Session session, Integer userId) {
