@@ -3,7 +3,8 @@ package com.hak.wymi.persistance.pojos.unsecure.posttransaction;
 import com.hak.wymi.persistance.pojos.unsecure.message.Message;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.TransactionState;
 import com.hak.wymi.utility.DaoHelper;
-import org.hibernate.*;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +17,7 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
     private SessionFactory sessionFactory;
 
     @Override
-    public boolean save(PostTransaction postTransaction) {
+    public boolean save(PostTransactionAbstract postTransaction) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             postTransaction.setState(TransactionState.UNPROCESSED);
             session.persist(postTransaction);
@@ -24,10 +25,10 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
     }
 
     @Override
-    public boolean cancel(PostTransaction postTransaction) {
+    public boolean cancel(PostTransactionAbstract postTransaction) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             postTransaction.setState(TransactionState.CANCELED);
-            Message message = new Message(
+            final Message message = new Message(
                     postTransaction.getSourceUser(),
                     null,
                     "Transfer failure.",
@@ -36,17 +37,17 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
                             postTransaction.getPost().getTitle(),
                             postTransaction.getPost().getTopic().getName()));
 
-            message.setSourceDeleted(true);
+            message.setSourceDeleted(Boolean.TRUE);
             session.update(postTransaction);
             session.save(message);
         });
     }
 
     @Override
-    public List<PostTransaction> getUnprocessed() {
-        Session session = sessionFactory.openSession();
-        List<PostTransaction> postTransactionList = session
-                .createQuery("from PostTransaction p where p.state=:state")
+    public List<PostTransactionAbstract> getUnprocessed() {
+        final Session session = sessionFactory.openSession();
+        final List<PostTransactionAbstract> postTransactionList = session
+                .createQuery("from PostTransactionAbstract p where p.state=:state")
                 .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
         session.close();

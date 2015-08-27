@@ -5,7 +5,14 @@ import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.validations.UrlOrText;
 import com.hak.wymi.validations.groups.Creation;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.ValidationException;
@@ -128,7 +135,7 @@ public class Post {
     }
 
     public Date getUpdated() {
-        return updated;
+        return (Date) updated.clone();
     }
 
     public void setUpdated(Date updated) {
@@ -136,7 +143,7 @@ public class Post {
     }
 
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 
     public void setCreated(Date created) {

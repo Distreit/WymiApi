@@ -11,7 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.LinkedList;
@@ -60,7 +64,7 @@ public class CommentController {
             @PathVariable Integer postId,
             @PathVariable Integer parentCommentId
     ) {
-        Comment parentComment = commentDao.get(parentCommentId);
+        final Comment parentComment = commentDao.get(parentCommentId);
         if (parentComment != null && saveNewComment(comment, principal, postId, parentComment)) {
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
@@ -72,7 +76,7 @@ public class CommentController {
         comment.setAuthor(userDao.get(principal));
         comment.setPost(postDao.get(postId));
         comment.setParentComment(parentComment);
-        comment.setDeleted(false);
+        comment.setDeleted(Boolean.FALSE);
         comment.setPoints(0);
         return commentDao.save(comment);
     }
@@ -83,7 +87,7 @@ public class CommentController {
             produces = "application/json; charset=utf-8"
     )
     public ResponseEntity<List<SecureComment>> getComments(@PathVariable Integer postId) {
-        List<SecureComment> comments = commentDao.getAll(postId).stream().map(SecureComment::new).collect(Collectors.toCollection(() -> new LinkedList<>()));
+        final List<SecureComment> comments = commentDao.getAll(postId).stream().map(SecureComment::new).collect(Collectors.toCollection(() -> new LinkedList<>()));
         return new ResponseEntity<>(comments, HttpStatus.ACCEPTED);
     }
 

@@ -3,7 +3,8 @@ package com.hak.wymi.persistance.pojos.unsecure.commenttransaction;
 import com.hak.wymi.persistance.pojos.unsecure.message.Message;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.TransactionState;
 import com.hak.wymi.utility.DaoHelper;
-import org.hibernate.*;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +17,7 @@ public class CommentTransactionDaoImpl implements CommentTransactionDao {
     private SessionFactory sessionFactory;
 
     @Override
-    public boolean save(CommentTransaction commentTransaction) {
+    public boolean save(CommentTransactionAbstract commentTransaction) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             commentTransaction.setState(TransactionState.UNPROCESSED);
             session.persist(commentTransaction);
@@ -25,7 +26,7 @@ public class CommentTransactionDaoImpl implements CommentTransactionDao {
     }
 
     @Override
-    public boolean cancel(CommentTransaction commentTransaction) {
+    public boolean cancel(CommentTransactionAbstract commentTransaction) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             commentTransaction.setState(TransactionState.CANCELED);
 
@@ -35,18 +36,18 @@ public class CommentTransactionDaoImpl implements CommentTransactionDao {
                     commentTransaction.getComment().getAuthor().getName(),
                     commentTransaction.getComment().getPost().getTitle());
 
-            Message message = new Message(commentTransaction.getSourceUser(), null, "Transfer failure.", messageString);
-            message.setSourceDeleted(true);
+            final Message message = new Message(commentTransaction.getSourceUser(), null, "Transfer failure.", messageString);
+            message.setSourceDeleted(Boolean.TRUE);
             session.update(commentTransaction);
             session.save(message);
         });
     }
 
     @Override
-    public List<CommentTransaction> getUnprocessed() {
-        Session session = sessionFactory.openSession();
-        List<CommentTransaction> commentTransactionList = session
-                .createQuery("from CommentTransaction p where p.state=:state")
+    public List<CommentTransactionAbstract> getUnprocessed() {
+        final Session session = sessionFactory.openSession();
+        final List<CommentTransactionAbstract> commentTransactionList = session
+                .createQuery("from CommentTransactionAbstract p where p.state=:state")
                 .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
         session.close();

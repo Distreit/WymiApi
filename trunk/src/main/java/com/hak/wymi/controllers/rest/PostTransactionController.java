@@ -2,7 +2,7 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import com.hak.wymi.persistance.pojos.unsecure.post.PostDao;
-import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionAbstract;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
@@ -11,7 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.ValidationException;
 import java.security.Principal;
@@ -38,24 +42,23 @@ public class PostTransactionController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity createPostTransaction(
             Principal principal,
-            @RequestBody PostTransaction postTransaction,
+            @RequestBody PostTransactionAbstract postTransaction,
             @PathVariable Integer postId) throws ValidationException {
 
-        User user = userDao.get(principal);
+        final User user = userDao.get(principal);
         if (user != null) {
-            Post post = postDao.get(postId);
+            final Post post = postDao.get(postId);
             if (post != null) {
-                if (!post.getUser().getUserId().equals(user.getUserId())) {
-                    postTransaction.setPost(post);
-                    postTransaction.setSourceUser(user);
-
-                    postTransactionDao.save(postTransaction);
-
-                    balanceTransactionManager.add(postTransaction);
-                    return new ResponseEntity(HttpStatus.ACCEPTED);
-                } else {
+                if (post.getUser().getUserId().equals(user.getUserId())) {
                     throw new ValidationException("Cannot donate to your own post.");
                 }
+                postTransaction.setPost(post);
+                postTransaction.setSourceUser(user);
+
+                postTransactionDao.save(postTransaction);
+
+                balanceTransactionManager.add(postTransaction);
+                return new ResponseEntity(HttpStatus.ACCEPTED);
             }
         }
 

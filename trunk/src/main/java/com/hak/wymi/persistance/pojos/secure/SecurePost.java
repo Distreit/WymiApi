@@ -5,14 +5,14 @@ import com.hak.wymi.persistance.pojos.unsecure.post.Post;
 import java.util.Date;
 
 public class SecurePost {
-    private Integer id;
-    private String user;
-    private String topic;
-    private String title;
-    private String url;
-    private String text;
-    private Integer points;
-    private Date created;
+    private final Integer id;
+    private final String user;
+    private final String topic;
+    private final String title;
+    private final String url;
+    private final String text;
+    private final Integer points;
+    private final Date created;
 
     public SecurePost(Post post) {
         this.id = post.getPostId();
@@ -29,56 +29,28 @@ public class SecurePost {
         return user;
     }
 
-    public void setUser(String user) {
-        this.user = user;
-    }
-
     public String getTopic() {
         return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getUrl() {
         return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     public String getText() {
         return text;
     }
 
-    public void setText(String text) {
-        this.text = text;
-    }
-
     public Integer getPoints() {
         return points;
     }
 
-    public void setPoints(Integer points) {
-        this.points = points;
-    }
-
     public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
+        return (Date) created.clone();
     }
 
     public Integer getId() {

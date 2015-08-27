@@ -2,7 +2,14 @@ package com.hak.wymi.persistance.pojos.unsecure.balance;
 
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.xml.bind.ValidationException;
 
 @Entity

@@ -13,10 +13,10 @@ public class UrlValidator implements ConstraintValidator<Url, String> {
 
     @Override
     public boolean isValid(String url, ConstraintValidatorContext cxt) {
-        return UrlValidator.isValid(url);
+        return UrlValidator.isValidUrl(url);
     }
 
-    static boolean isValid(String url) {
+    public static boolean isValidUrl(String url) {
         if (url == null) {
             return false;
         }

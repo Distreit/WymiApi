@@ -8,25 +8,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SecureComment {
-    private Integer commentId;
+    private final Integer commentId;
 
-    private String authorName;
+    private final String authorName;
 
-    private Integer postId;
+    private final Integer postId;
 
-    private String content;
+    private final String content;
 
-    private Date created;
+    private final Date created;
 
-    private List<SecureComment> replies;
+    private final List<SecureComment> replies;
 
     public SecureComment(Comment comment) {
-        if (!comment.getDeleted()) {
-            this.authorName = comment.getAuthor().getName();
-            this.content = comment.getContent();
-        } else {
+        if (comment.getDeleted()) {
             this.authorName = "[DELETED]";
             this.content = "[DELETED]";
+        } else {
+            this.authorName = comment.getAuthor().getName();
+            this.content = comment.getContent();
         }
 
         this.commentId = comment.getCommentId();
@@ -54,7 +54,7 @@ public class SecureComment {
     }
 
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 
     public List<SecureComment> getReplies() {

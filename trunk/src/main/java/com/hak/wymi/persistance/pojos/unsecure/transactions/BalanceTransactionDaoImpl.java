@@ -2,13 +2,16 @@ package com.hak.wymi.persistance.pojos.unsecure.transactions;
 
 import com.hak.wymi.persistance.pojos.unsecure.balance.Balance;
 import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
-import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionAbstract;
 import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.post.Post;
-import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionAbstract;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
 import com.hak.wymi.utility.DaoHelper;
-import org.hibernate.*;
+import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -26,12 +29,12 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     private PostTransactionDao postTransactionDao;
 
     @Override
-    public boolean process(PostTransaction postTransaction) {
-        boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            Integer amount = postTransaction.getAmount();
-            Balance sourceBalance = getBalance(session, postTransaction.getSourceUser().getUserId());
-            Balance destinationBalance = getBalance(session, postTransaction.getPost().getUser().getUserId());
-            Post post = (Post) session.load(Post.class, postTransaction.getPost().getPostId(), pessimisticWrite);
+    public boolean process(PostTransactionAbstract postTransaction) {
+        final boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
+            final Integer amount = postTransaction.getAmount();
+            final Balance sourceBalance = getBalance(session, postTransaction.getSourceUser().getUserId());
+            final Balance destinationBalance = getBalance(session, postTransaction.getPost().getUser().getUserId());
+            final Post post = (Post) session.load(Post.class, postTransaction.getPost().getPostId(), pessimisticWrite);
 
             session.buildLockRequest(pessimisticWrite).lock(postTransaction);
 
@@ -52,13 +55,13 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     @Override
-    public boolean process(CommentTransaction commentTransaction) {
-        boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            Integer amount = commentTransaction.getAmount();
+    public boolean process(CommentTransactionAbstract commentTransaction) {
+        final boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
+            final Integer amount = commentTransaction.getAmount();
 
-            Balance sourceBalance = getBalance(session, commentTransaction.getSourceUser().getUserId());
-            Balance destinationBalance = getBalance(session, commentTransaction.getComment().getAuthor().getUserId());
-            Comment comment = (Comment) session.load(Comment.class, commentTransaction.getComment().getCommentId(), pessimisticWrite);
+            final Balance sourceBalance = getBalance(session, commentTransaction.getSourceUser().getUserId());
+            final Balance destinationBalance = getBalance(session, commentTransaction.getComment().getAuthor().getUserId());
+            final Comment comment = (Comment) session.load(Comment.class, commentTransaction.getComment().getCommentId(), pessimisticWrite);
 
             session.buildLockRequest(pessimisticWrite).lock(commentTransaction);
 

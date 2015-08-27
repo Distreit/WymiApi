@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Locale;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -21,12 +22,12 @@ public class CallbackCodeImpl implements CallbackCodeDao {
 
     @Override
     public CallbackCode getFromUserName(String userName, String code, CallbackCodeType type) {
-        Session session = sessionFactory.openSession();
-        List<CallbackCode> registerList = session.createQuery(
+        final Session session = sessionFactory.openSession();
+        final List<CallbackCode> registerList = session.createQuery(
                 "from CallbackCode c where lower(c.user.name)=:name and c.code=:code and c.type=:type")
                 .setParameter("code", code)
                 .setParameter("type", type)
-                .setParameter("name", userName.toLowerCase())
+                .setParameter("name", userName.toLowerCase(Locale.ENGLISH))
                 .list();
         session.close();
         if (registerList.size() == 1) {
@@ -42,8 +43,8 @@ public class CallbackCodeImpl implements CallbackCodeDao {
 
     @Override
     public CallbackCode getFromCode(String code, CallbackCodeType type) {
-        Session session = sessionFactory.openSession();
-        List<CallbackCode> registerList = session.createQuery(
+        final Session session = sessionFactory.openSession();
+        final List<CallbackCode> registerList = session.createQuery(
                 "from CallbackCode c where c.code=:code and c.type=:type")
                 .setParameter("code", code)
                 .setParameter("type", type)

@@ -6,24 +6,26 @@ import java.util.Date;
 
 public class SecureMessage {
 
-    private Integer messageId;
+    private final Integer messageId;
 
-    private String toUserName;
+    private final String toUserName;
 
-    private String fromUserName;
+    private final String fromUserName;
 
-    private String subject;
+    private final String subject;
 
-    private String content;
+    private final String content;
 
-    private boolean alreadyRead;
+    private final boolean alreadyRead;
 
-    private Date created;
+    private final Date created;
 
     public SecureMessage(Message message) {
         this.messageId = message.getMessageId();
         this.toUserName = message.getDestinationUser().getName();
-        if (message.getSourceUser() != null) {
+        if (message.getSourceUser() == null) {
+            this.fromUserName = null;
+        } else {
             this.fromUserName = message.getSourceUser().getName();
         }
         this.subject = message.getSubject();
@@ -57,6 +59,6 @@ public class SecureMessage {
     }
 
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 }

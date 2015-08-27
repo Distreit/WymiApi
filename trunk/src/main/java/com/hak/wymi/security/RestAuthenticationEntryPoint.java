@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * The Entry Point will not redirect to any sort of Login - it will return the 401
+ * The Entry Point will not redirect to any sort of Login - it will return the 401.
  */
 @Component
 public final class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {

@@ -29,8 +29,8 @@ public class MessageDaoImpl implements MessageDao {
 
     @Override
     public List<Message> getAllReceived(Principal principal) {
-        Session session = sessionFactory.openSession();
-        List<Message> postList = session.createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
+        final Session session = sessionFactory.openSession();
+        final List<Message> postList = session.createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
                 .setParameter("destinationUserName", principal.getName())
                 .list();
         session.close();
@@ -44,25 +44,25 @@ public class MessageDaoImpl implements MessageDao {
 
     @Override
     public Message getReceived(Principal principal, Integer messageId) {
-        return get(principal, messageId, false);
+        return get(principal, messageId, Boolean.FALSE);
     }
 
     @Override
     public Message getSent(Principal principal, Integer messageId) {
-        return get(principal, messageId, true);
+        return get(principal, messageId, Boolean.TRUE);
     }
 
     private Message get(Principal principal, Integer messageId, Boolean sent) {
-        String columnName;
+        String query;
         if (sent) {
-            columnName = "sourceUser";
+            query = "from Message where sourceUser.name=:userName and messageId=:messageId";
         } else {
-            columnName = "destinationUser";
+            query = "from Message where destinationUser.name=:userName and messageId=:messageId";
         }
 
-        Session session = sessionFactory.openSession();
-        Message message = (Message) session
-                .createQuery("from Message where " + columnName + ".name=:userName and messageId=:messageId")
+        final Session session = sessionFactory.openSession();
+        final Message message = (Message) session
+                .createQuery(query)
                 .setParameter("userName", principal.getName())
                 .setParameter("messageId", messageId)
                 .uniqueResult();

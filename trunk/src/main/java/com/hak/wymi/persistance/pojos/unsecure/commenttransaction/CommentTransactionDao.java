@@ -3,9 +3,9 @@ package com.hak.wymi.persistance.pojos.unsecure.commenttransaction;
 import java.util.List;
 
 public interface CommentTransactionDao {
-    public boolean save(CommentTransaction commentTransaction);
+    boolean save(CommentTransactionAbstract commentTransaction);
 
-    public boolean cancel(CommentTransaction commentTransaction);
+    boolean cancel(CommentTransactionAbstract commentTransaction);
 
-    public List<CommentTransaction> getUnprocessed();
+    List<CommentTransactionAbstract> getUnprocessed();
 }

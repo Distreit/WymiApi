@@ -1,9 +1,20 @@
 package com.hak.wymi.persistance.pojos.unsecure.user;
 
-import com.hak.wymi.validations.*;
+import com.hak.wymi.validations.Email;
+import com.hak.wymi.validations.EmailDoesNotExist;
+import com.hak.wymi.validations.EmailsMatch;
+import com.hak.wymi.validations.NameDoesNotExist;
+import com.hak.wymi.validations.Password;
+import com.hak.wymi.validations.PasswordsMatch;
 import com.hak.wymi.validations.groups.Creation;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
@@ -51,7 +62,7 @@ public class User {
     private String confirmEmail;
 
     @Null(groups = Creation.class)
-    private Boolean validated = false;
+    private Boolean validated = Boolean.FALSE;
 
     @Version
     @Null(groups = Creation.class)
@@ -64,6 +75,7 @@ public class User {
     private Date updated;
 
     public User() {
+        // Needed for bean creation.
     }
 
     public Integer getUserId() {
@@ -139,7 +151,7 @@ public class User {
     }
 
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 
     public void setCreated(Date created) {
@@ -147,7 +159,7 @@ public class User {
     }
 
     public Date getUpdated() {
-        return updated;
+        return (Date) updated.clone();
     }
 
     public void setUpdated(Date updated) {

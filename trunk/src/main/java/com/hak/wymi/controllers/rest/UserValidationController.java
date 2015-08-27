@@ -13,18 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class UserValidationController {
     @Autowired
-    CallbackCodeDao callbackCodeDao;
+    private CallbackCodeDao callbackCodeDao;
 
     @Autowired
     private UserDao userDao;
 
     @RequestMapping(value = "/user/{userName}/validate/{code}")
     public String validateUser(@PathVariable String userName, @PathVariable String code) {
-        CallbackCode callbackCode = callbackCodeDao.getFromUserName(userName, code, CallbackCodeType.VALIDATION);
+        final CallbackCode callbackCode = callbackCodeDao.getFromUserName(userName, code, CallbackCodeType.VALIDATION);
 
         if (callbackCode != null) {
-            User user = callbackCode.getUser();
-            user.setValidated(true);
+            final User user = callbackCode.getUser();
+            user.setValidated(Boolean.TRUE);
             user.setRoles(user.getRoles() + ",ROLE_VALIDATED");
             if (userDao.update(user)) {
                 callbackCodeDao.delete(callbackCode);

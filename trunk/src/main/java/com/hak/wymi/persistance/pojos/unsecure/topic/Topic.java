@@ -4,7 +4,14 @@ import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.groups.Creation;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -88,7 +95,7 @@ public class Topic {
     }
 
     public Date getRentDueDate() {
-        return rentDueDate;
+        return (Date) rentDueDate.clone();
     }
 
     public void setRentDueDate(Date rentDueDate) {
@@ -112,7 +119,7 @@ public class Topic {
     }
 
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 
     public void setCreated(Date created) {

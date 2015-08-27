@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -28,9 +29,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User getFromName(String name) {
         if (name != null && !"".equals(name)) {
-            Session session = sessionFactory.openSession();
-            List<User> userList = session.createQuery("from User where lower(name)=:name")
-                    .setParameter("name", name.toLowerCase())
+            final Session session = sessionFactory.openSession();
+            final List<User> userList = session.createQuery("from User where lower(name)=:name")
+                    .setParameter("name", name.toLowerCase(Locale.ENGLISH))
                     .list();
             session.close();
             if (userList.size() == 1) {
@@ -43,9 +44,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User getFromEmail(String email) {
         if (email != null && !"".equals(email)) {
-            Session session = sessionFactory.openSession();
-            List<User> userList = session.createQuery("from User where lower(email)=:email")
-                    .setParameter("email", email.toLowerCase())
+            final Session session = sessionFactory.openSession();
+            final List<User> userList = session.createQuery("from User where lower(email)=:email")
+                    .setParameter("email", email.toLowerCase(Locale.ENGLISH))
                     .list();
             session.close();
             if (userList.size() == 1) {

@@ -16,10 +16,10 @@ public class PasswordsMatchValidator implements ConstraintValidator<PasswordsMat
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext cxt) {
         if (object instanceof User) {
-            User user = (User) object;
+            final User user = (User) object;
             return user.getPassword().equals(user.getConfirmPassword());
         } else if (object instanceof PasswordChange) {
-            PasswordChange passwordChange = (PasswordChange) object;
+            final PasswordChange passwordChange = (PasswordChange) object;
             return passwordChange.getPassword().equals(passwordChange.getConfirmPassword());
         } else {
             return false;

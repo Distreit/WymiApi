@@ -15,11 +15,11 @@ public class UrlOrTextValidator implements ConstraintValidator<UrlOrText, Object
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext cxt) {
         if (object instanceof Post) {
-            Post post = (Post) object;
+            final Post post = (Post) object;
             if (post.getIsText()) {
-                return post.getText() != "";
+                return !post.getText().equals("");
             } else {
-                return UrlValidator.isValid(post.getUrl());
+                return UrlValidator.isValidUrl(post.getUrl());
             }
         }
         return false;

@@ -5,11 +5,11 @@ import java.util.List;
 
 public interface CommentDao {
 
-    public List<Comment> getAll(Integer postId);
+    List<Comment> getAll(Integer postId);
 
-    public Boolean save(Comment comment);
+    Boolean save(Comment comment);
 
-    public Comment get(Integer commentId);
+    Comment get(Integer commentId);
 
-    public boolean delete(Integer commentId, Principal principal);
+    boolean delete(Integer commentId, Principal principal);
 }

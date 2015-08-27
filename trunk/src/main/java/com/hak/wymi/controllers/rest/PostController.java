@@ -14,7 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.Date;
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/topic/{topicName}")
 public class PostController {
+    private static final int MILLISECONDS_IN_A_SECOND = 1000;
     @Autowired
     private UserDao userDao;
 
@@ -44,15 +49,15 @@ public class PostController {
             @PathVariable String topicName,
             Principal principal) {
 
-        User user = userDao.get(principal);
-        Topic topic = topicDao.get(topicName);
+        final User user = userDao.get(principal);
+        final Topic topic = topicDao.get(topicName);
 
         if (user != null && topic != null) {
             post.setTopic(topic);
             post.setUser(user);
             post.setPoints(0);
             long score = new Date().getTime();
-            score /= 1000;
+            score /= MILLISECONDS_IN_A_SECOND;
             score -= AppConfig.BASE_TIME;
             post.setScore((double) score);
 
@@ -69,8 +74,8 @@ public class PostController {
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public ResponseEntity<List<SecurePost>> getPosts(@PathVariable String topicName) {
-        List<Post> posts = postDao.getAll(topicName);
-        List<SecurePost> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
+        final List<Post> posts = postDao.getAll(topicName);
+        final List<SecurePost> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(secureTopics, HttpStatus.ACCEPTED);
     }
@@ -80,8 +85,8 @@ public class PostController {
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public ResponseEntity<SecurePost> getPost(@PathVariable Integer postId) {
-        Post post = postDao.get(postId);
-        SecurePost securePost = new SecurePost(post);
+        final Post post = postDao.get(postId);
+        final SecurePost securePost = new SecurePost(post);
 
         return new ResponseEntity<>(securePost, HttpStatus.ACCEPTED);
     }

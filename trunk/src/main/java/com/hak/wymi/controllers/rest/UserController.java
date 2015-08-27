@@ -16,7 +16,11 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.groups.Default;
@@ -25,6 +29,7 @@ import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class UserController {
@@ -32,7 +37,7 @@ public class UserController {
     private UserDao userDao;
 
     @Autowired
-    CallbackCodeDao callbackCodeDao;
+    private CallbackCodeDao callbackCodeDao;
 
     @Autowired
     private SecureRandom secureRandom;
@@ -47,16 +52,15 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public Map<String, String> getUser(Principal principal) {
         if (principal != null && !"".equals(principal.getName())) {
-            User user = userDao.get(principal);
+            final User user = userDao.get(principal);
 
-            Map<String, String> result = new HashMap<>();
+            final Map<String, String> result = new ConcurrentHashMap<>();
             result.put("name", user.getName());
             result.put("email", user.getEmail());
             result.put("validated", user.getValidated().toString());
             return result;
-        } else {
-            return null;
         }
+        return null;
     }
 
     @RequestMapping(
@@ -65,11 +69,11 @@ public class UserController {
             produces = "application/json; charset=utf-8")
     public ResponseEntity<String> getSendPasswordReset(@PathVariable String userName) {
 
-        User user = userDao.getFromName(userName);
+        final User user = userDao.getFromName(userName);
         if (user != null) {
-            String code = getValidationCode(user, CallbackCodeType.PASSWORD_RESET);
+            final String code = getValidationCode(user, CallbackCodeType.PASSWORD_RESET);
 
-            SimpleMailMessage message = new SimpleMailMessage();
+            final SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail());
             message.setSubject("WYMI password reset request");
             message.setText(
@@ -83,9 +87,8 @@ public class UserController {
             mailSender.send(message);
 
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(
@@ -93,10 +96,10 @@ public class UserController {
             method = RequestMethod.PUT,
             produces = "application/json; charset=utf-8")
     public ResponseEntity<String> getSendPasswordChange(@Valid @RequestBody PasswordChange passwordChange) {
-        CallbackCode callbackCode = callbackCodeDao.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);
+        final CallbackCode callbackCode = callbackCodeDao.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);
 
         if (callbackCode != null) {
-            User user = callbackCode.getUser();
+            final User user = callbackCode.getUser();
             user.setPassword(DigestUtils.sha256Hex(passwordChange.getPassword()));
             if (userDao.update(user)) {
                 callbackCodeDao.delete(callbackCode);
@@ -114,21 +117,20 @@ public class UserController {
         user.setRoles("ROLE_USER");
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
         if (userDao.save(user)) {
-            String code = getValidationCode(user, CallbackCodeType.VALIDATION);
-            SimpleMailMessage message = new SimpleMailMessage();
+            final String code = getValidationCode(user, CallbackCodeType.VALIDATION);
+            final SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail());
             message.setSubject("WYMI account validation");
             message.setText(String.format("Please click here to validate your account: http://%s/wymi/api/user/%s/validate/%s", AppConfig.get("IP"), user.getName(), code));
             mailSender.send(message);
 
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private String getValidationCode(User user, CallbackCodeType type) {
-        CallbackCode callbackCode = new CallbackCode();
+        final CallbackCode callbackCode = new CallbackCode();
         callbackCode.setUser(user);
         callbackCode.setCode((new BigInteger(130, secureRandom)).toString(32));
         callbackCode.setType(type);

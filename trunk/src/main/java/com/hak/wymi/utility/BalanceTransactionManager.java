@@ -1,10 +1,10 @@
 package com.hak.wymi.utility;
 
-import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionAbstract;
 import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionDao;
-import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionAbstract;
 import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
-import com.hak.wymi.persistance.pojos.unsecure.transactions.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.transactions.AbstractBalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.BalanceTransactionDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 @Component
 public class BalanceTransactionManager implements Runnable, ApplicationListener<ContextClosedEvent> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostTransactionDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionManager.class);
+    private static final int ONE_MINUTE = 60000;
 
     @Autowired
     private CommentTransactionDao commentTransactionDao;
@@ -34,17 +35,18 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     @Autowired
     private BalanceTransactionDao balanceTransactionDao;
 
-    private BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
-    private PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(50, new Comparator<BalanceTransaction>() {
+    private final BlockingQueue<AbstractBalanceTransaction> queue = new LinkedBlockingQueue<>();
+    private final PriorityBlockingQueue<AbstractBalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(50, new Comparator<AbstractBalanceTransaction>() {
         @Override
-        public int compare(BalanceTransaction transactionA, BalanceTransaction transactionB) {
+        public int compare(AbstractBalanceTransaction transactionA, AbstractBalanceTransaction transactionB) {
             return transactionA.getCreated().compareTo(transactionB.getCreated());
         }
     });
 
-    private boolean run = false;
+    private boolean run;
 
     public BalanceTransactionManager() {
+        // Needed for bean creation.
     }
 
     @Scheduled(fixedRate = 5000)
@@ -55,8 +57,8 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     }
 
     private boolean preprocessQueueHasValueToProcess() {
-        BalanceTransaction transaction = preprocessQueue.peek();
-        return transaction != null && new Date(transaction.getCreated().getTime() + 60000).before(new Date());
+        final AbstractBalanceTransaction transaction = preprocessQueue.peek();
+        return transaction != null && new Date(transaction.getCreated().getTime() + ONE_MINUTE).before(new Date());
     }
 
     @PostConstruct
@@ -82,15 +84,15 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
         commentTransactionDao.getUnprocessed().forEach(this::add);
     }
 
-    private void process(BalanceTransaction t) {
-        if (t instanceof PostTransaction) {
-            balanceTransactionDao.process((PostTransaction) t);
-        } else if (t instanceof CommentTransaction) {
-            balanceTransactionDao.process((CommentTransaction) t);
+    private void process(AbstractBalanceTransaction transaction) {
+        if (transaction instanceof PostTransactionAbstract) {
+            balanceTransactionDao.process((PostTransactionAbstract) transaction);
+        } else if (transaction instanceof CommentTransactionAbstract) {
+            balanceTransactionDao.process((CommentTransactionAbstract) transaction);
         }
     }
 
-    public void add(BalanceTransaction balanceTransaction) {
+    public void add(AbstractBalanceTransaction balanceTransaction) {
         preprocessQueue.add(balanceTransaction);
     }
 

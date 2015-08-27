@@ -1,10 +1,10 @@
 package com.hak.wymi.persistance.pojos.unsecure.transactions;
 
-import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionAbstract;
+import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionAbstract;
 
 public interface BalanceTransactionDao {
-    public boolean process(PostTransaction postTransaction);
+    boolean process(PostTransactionAbstract postTransaction);
 
-    public boolean process(CommentTransaction commentTransaction);
+    boolean process(CommentTransactionAbstract commentTransaction);
 }

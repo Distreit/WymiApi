@@ -25,11 +25,12 @@ import java.util.stream.Collectors;
 
 @RestController
 public class TopicController {
+    private static final int THIRTY_DAYS = 30;
     @Autowired
-    TopicDao topicDao;
+    private TopicDao topicDao;
 
     @Autowired
-    UserDao userDao;
+    private UserDao userDao;
 
     @RequestMapping(
             value = "/topic",
@@ -37,11 +38,11 @@ public class TopicController {
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<Topic> createTopic(@Validated({Creation.class}) @RequestBody Topic topic, Principal principal) {
-        User user = userDao.get(principal);
+        final User user = userDao.get(principal);
 
         topic.setOwner(user);
         topic.setRent(0);
-        topic.setRentDueDate(DateUtils.addDays(new Date(), 30));
+        topic.setRentDueDate(DateUtils.addDays(new Date(), THIRTY_DAYS));
         topic.setSubscribers(0);
         topic.setUnsubscribers(0);
 
@@ -56,8 +57,8 @@ public class TopicController {
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public ResponseEntity<List<SecureTopic>> getTopics() {
-        List<Topic> topics = topicDao.getAll();
-        List<SecureTopic> secureTopics = topics.stream().map(SecureTopic::new).collect(Collectors.toCollection(() -> new LinkedList<>()));
+        final List<Topic> topics = topicDao.getAll();
+        final List<SecureTopic> secureTopics = topics.stream().map(SecureTopic::new).collect(Collectors.toCollection(() -> new LinkedList<>()));
 
         return new ResponseEntity<>(secureTopics, HttpStatus.ACCEPTED);
     }

@@ -2,7 +2,16 @@ package com.hak.wymi.persistance.pojos.unsecure.callbackcode;
 
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import java.util.Date;
 
 @Entity
@@ -61,7 +70,7 @@ public class CallbackCode {
     }
 
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 
     public void setCreated(Date created) {
@@ -77,7 +86,7 @@ public class CallbackCode {
     }
 
     public Date getUpdated() {
-        return updated;
+        return (Date) updated.clone();
     }
 
     public void setUpdated(Date updated) {

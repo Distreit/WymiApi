@@ -6,7 +6,16 @@ import com.hak.wymi.validations.groups.Creation;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.Null;
 import javax.xml.bind.ValidationException;
 import java.util.Date;
@@ -117,7 +126,7 @@ public class Comment {
     }
 
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 
     public void setCreated(Date created) {
@@ -125,7 +134,7 @@ public class Comment {
     }
 
     public Date getUpdated() {
-        return updated;
+        return (Date) updated.clone();
     }
 
     public void setUpdated(Date updated) {
@@ -145,5 +154,9 @@ public class Comment {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Integer getAuthorId() {
+        return this.author.getUserId();
     }
 }

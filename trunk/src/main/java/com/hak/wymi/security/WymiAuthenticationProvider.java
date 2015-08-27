@@ -23,25 +23,26 @@ public class WymiAuthenticationProvider implements AuthenticationProvider {
     private UserDao userDao;
 
     public WymiAuthenticationProvider() {
+        // Only need this for bean creation.
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        String userName = authentication.getPrincipal().toString();
-        User user = userDao.getFromName(userName);
+        final String userName = authentication.getPrincipal().toString();
+        final User user = userDao.getFromName(userName);
 
         if (user == null || !user.getName().equalsIgnoreCase(userName)) {
-            throw new UsernameNotFoundException(String.format("Invalid credentials"));
+            throw new UsernameNotFoundException("Invalid credentials");
         }
 
-        String suppliedPasswordHash = DigestUtils.sha256Hex(authentication.getCredentials().toString());
+        final String suppliedPasswordHash = DigestUtils.sha256Hex(authentication.getCredentials().toString());
 
         if (!user.getPassword().equals(suppliedPasswordHash)) {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        List<WymiAuthority> authorities = new ArrayList<>();
+        final List<WymiAuthority> authorities = new ArrayList<>();
         for (String role : user.getRoles().split(",")) {
             authorities.add(new WymiAuthority(role));
         }

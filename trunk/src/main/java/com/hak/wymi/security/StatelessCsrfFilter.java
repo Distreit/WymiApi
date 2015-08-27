@@ -43,9 +43,9 @@ public class StatelessCsrfFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getCsrfCookieValue(Cookie[] cookies) {
+    private static String getCsrfCookieValue(Cookie[] cookies) {
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(CSRF_TOKEN)) {
+            if (CSRF_TOKEN.equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }

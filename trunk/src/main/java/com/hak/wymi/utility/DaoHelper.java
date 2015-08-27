@@ -7,20 +7,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.ValidationException;
 
-public class DaoHelper {
+public final class DaoHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DaoHelper.class);
 
     private DaoHelper() {
     }
 
-    public static interface TransactionWrapper {
-        void execute(Session session) throws ValidationException;
-    }
-
-    public static boolean genericTransaction(Session session, TransactionWrapper tw) {
+    public static boolean genericTransaction(Session session, TransactionWrapper transactionWrapper) {
         Transaction tx = session.beginTransaction();
         try {
-            tw.execute(session);
+            transactionWrapper.execute(session);
             tx.commit();
             return true;
         } catch (Exception e) {
@@ -32,5 +28,10 @@ public class DaoHelper {
         } finally {
             session.close();
         }
+    }
+
+    @FunctionalInterface
+    public static interface TransactionWrapper {
+        void execute(Session session) throws ValidationException;
     }
 }

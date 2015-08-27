@@ -18,8 +18,8 @@ public class ExistsValidator implements ConstraintValidator<Exists, Object> {
     }
 
     @Override
-    public boolean isValid(Object o, ConstraintValidatorContext constraintValidatorContext) {
-        return o instanceof Post && postDao.get(((Post) o).getPostId()) != null;
+    public boolean isValid(Object object, ConstraintValidatorContext constraintValidatorContext) {
+        return object instanceof Post && postDao.get(((Post) object).getPostId()) != null;
 
     }
 

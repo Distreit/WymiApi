@@ -3,7 +3,7 @@ package com.hak.wymi.utility;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AppConfig {
+public final class AppConfig {
     public static final Integer BASE_TIME = 1438963378;
     private static Map<String, String> values;
 

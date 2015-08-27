@@ -23,7 +23,7 @@ public class CallbackCodeExistsValidator implements ConstraintValidator<Callback
     @Override
     public boolean isValid(String code, ConstraintValidatorContext cxt) {
         if (code != null) {
-            CallbackCode callbackCode = callbackCodeDao.getFromCode(code, callbackCodeExists.type());
+            final CallbackCode callbackCode = callbackCodeDao.getFromCode(code, callbackCodeExists.type());
             if (callbackCode != null) {
                 return true;
             }

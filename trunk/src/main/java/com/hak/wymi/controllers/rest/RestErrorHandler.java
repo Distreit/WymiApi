@@ -16,24 +16,24 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.xml.bind.ValidationException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class RestErrorHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestErrorHandler.class);
-    
+
     private static final String ERRORS = "errors";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public Map<String, Object> processValidationError(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
-        Map<String, Object> values = new HashMap<>();
-        List<String> errorList = new ArrayList<>();
+    public Map<String, Object> processValidationError(MethodArgumentNotValidException exception) {
+        final BindingResult result = exception.getBindingResult();
+        final Map<String, Object> values = new ConcurrentHashMap<>();
+        final List<String> errorList = new ArrayList<>();
         values.put(ERRORS, errorList);
 
         errorList.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList()));
@@ -43,30 +43,16 @@ public class RestErrorHandler {
         return values;
     }
 
-    @ExceptionHandler(ValidationException.class)
+    @ExceptionHandler({ValidationException.class, IllegalArgumentException.class, AccessDeniedException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public Map<String, Object> processValidationError(ValidationException ex) {
-        Map<String, Object> values = new HashMap<>();
+    public Map<String, Object> processValidationError(Exception exception) {
+        final Map<String, Object> values = new ConcurrentHashMap<>();
 
-        List<String> errorList = new ArrayList<>();
+        final List<String> errorList = new ArrayList<>();
         values.put(ERRORS, errorList);
 
-        errorList.add(ex.getMessage());
-
-        return values;
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public Map<String, Object> processAuthenticationError(AccessDeniedException ex) {
-        Map<String, Object> values = new HashMap<>();
-
-        List<String> errorList = new ArrayList<>();
-        values.put(ERRORS, errorList);
-
-        errorList.add(ex.getMessage());
+        errorList.add(exception.getMessage());
 
         return values;
     }
@@ -74,11 +60,11 @@ public class RestErrorHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public Map<String, Object> processException(Exception ex) {
-        LOGGER.error(ExceptionUtils.getStackTrace(ex));
-        Map<String, Object> values = new HashMap<>();
+    public Map<String, Object> processException(Exception exception) {
+        LOGGER.error(ExceptionUtils.getStackTrace(exception));
+        final Map<String, Object> values = new ConcurrentHashMap<>();
 
-        List<String> errorList = new ArrayList<>();
+        final List<String> errorList = new ArrayList<>();
         values.put(ERRORS, errorList);
 
         errorList.add("Unhandled exception.");

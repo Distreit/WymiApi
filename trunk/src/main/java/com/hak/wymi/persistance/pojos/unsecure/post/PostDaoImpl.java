@@ -18,8 +18,8 @@ public class PostDaoImpl implements PostDao {
 
     @Override
     public List<Post> getAll(String topicName) {
-        Session session = sessionFactory.openSession();
-        List<Post> postList = session.createQuery("from Post p where p.topic.name=:topicName")
+        final Session session = sessionFactory.openSession();
+        final List<Post> postList = session.createQuery("from Post p where p.topic.name=:topicName")
                 .setParameter("topicName", topicName)
                 .list();
         session.close();
@@ -27,11 +27,11 @@ public class PostDaoImpl implements PostDao {
     }
 
     @Override
-    public Post get(Integer id) {
-        if (id != null) {
-            Session session = sessionFactory.openSession();
-            List<Post> postList = session.createQuery("from Post where postId=:postId")
-                    .setParameter("postId", id)
+    public Post get(Integer postId) {
+        if (postId != null) {
+            final Session session = sessionFactory.openSession();
+            final List<Post> postList = session.createQuery("from Post where postId=:postId")
+                    .setParameter("postId", postId)
                     .list();
             session.close();
             if (postList.size() == 1) {

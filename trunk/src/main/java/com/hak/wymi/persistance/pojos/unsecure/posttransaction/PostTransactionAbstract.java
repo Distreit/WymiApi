@@ -1,28 +1,37 @@
-package com.hak.wymi.persistance.pojos.unsecure.commenttransaction;
+package com.hak.wymi.persistance.pojos.unsecure.posttransaction;
 
-import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
-import com.hak.wymi.persistance.pojos.unsecure.transactions.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.post.Post;
+import com.hak.wymi.persistance.pojos.unsecure.transactions.AbstractBalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.transactions.TransactionState;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Null;
 import javax.validation.groups.Default;
 import java.util.Date;
 
 @Entity
-@Table(name = "commentTransaction")
-public class CommentTransaction extends BalanceTransaction {
+@Table(name = "postTransaction")
+public class PostTransactionAbstract extends AbstractBalanceTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
-    private Integer commentTransactionId;
+    private Integer postTransactionId;
 
     @ManyToOne
-    @JoinColumn(name = "commentId")
-    private Comment comment;
+    @JoinColumn(name = "postId")
+    private Post post;
 
     @ManyToOne
     @JoinColumn(name = "sourceUserId")
@@ -41,20 +50,20 @@ public class CommentTransaction extends BalanceTransaction {
     @Enumerated(EnumType.STRING)
     private TransactionState state;
 
-    public Integer getCommentTransactionId() {
-        return commentTransactionId;
+    public Integer getPostTransactionId() {
+        return postTransactionId;
     }
 
-    public void setCommentTransactionId(Integer commentTransactionId) {
-        this.commentTransactionId = commentTransactionId;
+    public void setPostTransactionId(Integer postTransactionId) {
+        this.postTransactionId = postTransactionId;
     }
 
-    public Comment getComment() {
-        return comment;
+    public Post getPost() {
+        return post;
     }
 
-    public void setComment(Comment comment) {
-        this.comment = comment;
+    public void setPost(Post post) {
+        this.post = post;
     }
 
     public User getSourceUser() {
@@ -74,7 +83,7 @@ public class CommentTransaction extends BalanceTransaction {
     }
 
     public Date getUpdated() {
-        return updated;
+        return (Date) updated.clone();
     }
 
     public void setUpdated(Date updated) {
@@ -83,7 +92,7 @@ public class CommentTransaction extends BalanceTransaction {
 
     @Override
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 
     public void setCreated(Date created) {

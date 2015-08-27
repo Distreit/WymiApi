@@ -7,7 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Pattern;
 import java.security.Principal;
@@ -26,8 +30,8 @@ public class MessageController {
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<List<SecureMessage>> getMessages(Principal principal) {
-        List<Message> messages = messageDao.getAllReceived(principal);
-        List<SecureMessage> secureTopics = messages.stream().map(SecureMessage::new).collect(Collectors.toCollection(LinkedList::new));
+        final List<Message> messages = messageDao.getAllReceived(principal);
+        final List<SecureMessage> secureTopics = messages.stream().map(SecureMessage::new).collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(secureTopics, HttpStatus.ACCEPTED);
     }
@@ -41,7 +45,7 @@ public class MessageController {
             Principal principal,
             @RequestBody Boolean alreadyRead,
             @PathVariable Integer messageId) {
-        Message message = messageDao.getReceived(principal, messageId);
+        final Message message = messageDao.getReceived(principal, messageId);
 
         message.setAlreadyRead(alreadyRead);
         if (messageDao.update(message)) {
@@ -63,10 +67,10 @@ public class MessageController {
         Message message;
         if ("sent".equals(messageType)) {
             message = messageDao.getSent(principal, messageId);
-            message.setSourceDeleted(true);
+            message.setSourceDeleted(Boolean.TRUE);
         } else {
             message = messageDao.getReceived(principal, messageId);
-            message.setDestinationDeleted(true);
+            message.setDestinationDeleted(Boolean.TRUE);
         }
 
         if (messageDao.update(message)) {

@@ -2,7 +2,14 @@ package com.hak.wymi.persistance.pojos.unsecure.message;
 
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import java.util.Date;
 
 @Entity
@@ -43,12 +50,13 @@ public class Message {
         this.subject = subject;
         this.content = content;
 
-        this.alreadyRead = false;
-        this.destinationDeleted = false;
-        this.sourceDeleted = false;
+        this.alreadyRead = Boolean.FALSE;
+        this.destinationDeleted = Boolean.FALSE;
+        this.sourceDeleted = Boolean.FALSE;
     }
 
     public Message() {
+        // Needed for bean creation.
     }
 
     public void setSourceDeleted(Boolean sourceDeleted) {
@@ -124,7 +132,7 @@ public class Message {
     }
 
     public Date getUpdated() {
-        return updated;
+        return (Date) updated.clone();
     }
 
     public void setUpdated(Date updated) {
@@ -132,7 +140,7 @@ public class Message {
     }
 
     public Date getCreated() {
-        return created;
+        return (Date) created.clone();
     }
 
     public void setCreated(Date created) {

@@ -2,7 +2,7 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
 import com.hak.wymi.persistance.pojos.unsecure.comment.CommentDao;
-import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionAbstract;
 import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.user.User;
 import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
@@ -13,9 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.xml.bind.ValidationException;
 import java.security.Principal;
 
 @RestController
@@ -40,23 +43,24 @@ public class CommentTransactionController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity createCommentTransaction(
             Principal principal,
-            @Validated(Creation.class) @RequestBody CommentTransaction commentTransaction,
-            @PathVariable Integer commentId) throws ValidationException {
+            @Validated(Creation.class) @RequestBody CommentTransactionAbstract commentTransaction,
+            @PathVariable Integer commentId) throws IllegalArgumentException {
 
-        User user = userDao.get(principal);
-        Comment comment = commentDao.get(commentId);
+        final User user = userDao.get(principal);
+        final Comment comment = commentDao.get(commentId);
+
         if (user != null && comment != null) {
-            if (!comment.getAuthor().getUserId().equals(user.getUserId())) {
-                commentTransaction.setComment(comment);
-                commentTransaction.setSourceUser(user);
-
-                commentTransactionDao.save(commentTransaction);
-
-                balanceTransactionManager.add(commentTransaction);
-                return new ResponseEntity(HttpStatus.ACCEPTED);
-            } else {
-                throw new ValidationException("Cannot donate to your own comment.");
+            if (comment.getAuthorId().equals(user.getUserId())) {
+                throw new IllegalArgumentException("Cannot donate to your own comment.");
             }
+
+            commentTransaction.setComment(comment);
+            commentTransaction.setSourceUser(user);
+
+            commentTransactionDao.save(commentTransaction);
+
+            balanceTransactionManager.add(commentTransaction);
+            return new ResponseEntity(HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
