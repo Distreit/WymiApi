@@ -1,12 +1,12 @@
 package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.persistance.pojos.secure.SecurePost;
-import com.hak.wymi.persistance.pojos.unsecure.post.Post;
-import com.hak.wymi.persistance.pojos.unsecure.post.PostDao;
-import com.hak.wymi.persistance.pojos.unsecure.topic.Topic;
-import com.hak.wymi.persistance.pojos.unsecure.topic.TopicDao;
-import com.hak.wymi.persistance.pojos.unsecure.user.User;
-import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.Post;
+import com.hak.wymi.persistance.pojos.unsecure.Topic;
+import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.PostDao;
+import com.hak.wymi.persistance.pojos.unsecure.dao.TopicDao;
+import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
 import com.hak.wymi.utility.AppConfig;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;

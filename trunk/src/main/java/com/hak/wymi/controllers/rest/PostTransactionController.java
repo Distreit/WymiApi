@@ -1,11 +1,11 @@
 package com.hak.wymi.controllers.rest;
 
-import com.hak.wymi.persistance.pojos.unsecure.post.Post;
-import com.hak.wymi.persistance.pojos.unsecure.post.PostDao;
-import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionAbstract;
-import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
-import com.hak.wymi.persistance.pojos.unsecure.user.User;
-import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.Post;
+import com.hak.wymi.persistance.pojos.unsecure.PostTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.PostDao;
+import com.hak.wymi.persistance.pojos.unsecure.dao.PostTransactionDao;
+import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
 import com.hak.wymi.utility.BalanceTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,7 +42,7 @@ public class PostTransactionController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity createPostTransaction(
             Principal principal,
-            @RequestBody PostTransactionAbstract postTransaction,
+            @RequestBody PostTransaction postTransaction,
             @PathVariable Integer postId) throws ValidationException {
 
         final User user = userDao.get(principal);

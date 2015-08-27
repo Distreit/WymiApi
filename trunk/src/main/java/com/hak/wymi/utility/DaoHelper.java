@@ -14,24 +14,27 @@ public final class DaoHelper {
     }
 
     public static boolean genericTransaction(Session session, TransactionWrapper transactionWrapper) {
-        Transaction tx = session.beginTransaction();
+        final Transaction transaction = session.beginTransaction();
         try {
-            transactionWrapper.execute(session);
-            tx.commit();
-            return true;
+            if (transactionWrapper.execute(session)) {
+                transaction.commit();
+                return true;
+            } else if (transaction != null) {
+                transaction.rollback();
+            }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            if (tx != null) {
-                tx.rollback();
+            if (transaction != null) {
+                transaction.rollback();
             }
-            return false;
         } finally {
             session.close();
         }
+        return false;
     }
 
     @FunctionalInterface
     public static interface TransactionWrapper {
-        void execute(Session session) throws ValidationException;
+        boolean execute(Session session) throws ValidationException;
     }
 }

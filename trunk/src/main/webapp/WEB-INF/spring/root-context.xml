@@ -48,7 +48,7 @@
 
     <bean id="secureRandom" class="java.security.SecureRandom"/>
 
-    <bean id="userDao" class="com.hak.wymi.persistance.pojos.unsecure.user.UserDaoImpl"/>
+    <bean id="userDao" class="com.hak.wymi.persistance.pojos.unsecure.dao.UserDaoImpl"/>
 
-    <bean id="callbackCodeDao" class="com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeImpl"/>
+    <bean id="callbackCodeDao" class="com.hak.wymi.persistance.pojos.unsecure.dao.CallbackCodeImpl"/>
 </beans>

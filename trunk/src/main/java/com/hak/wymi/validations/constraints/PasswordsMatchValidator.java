@@ -1,7 +1,7 @@
 package com.hak.wymi.validations.constraints;
 
 import com.hak.wymi.persistance.pojos.PasswordChange;
-import com.hak.wymi.persistance.pojos.unsecure.user.User;
+import com.hak.wymi.persistance.pojos.unsecure.User;
 import com.hak.wymi.validations.PasswordsMatch;
 
 import javax.validation.ConstraintValidator;

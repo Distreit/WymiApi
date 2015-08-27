@@ -1,11 +1,11 @@
 package com.hak.wymi.controllers.rest;
 
-import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
-import com.hak.wymi.persistance.pojos.unsecure.comment.CommentDao;
-import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionAbstract;
-import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionDao;
-import com.hak.wymi.persistance.pojos.unsecure.user.User;
-import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.Comment;
+import com.hak.wymi.persistance.pojos.unsecure.dao.CommentDao;
+import com.hak.wymi.persistance.pojos.unsecure.CommentTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.dao.CommentTransactionDao;
+import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
 import com.hak.wymi.utility.BalanceTransactionManager;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class CommentTransactionController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity createCommentTransaction(
             Principal principal,
-            @Validated(Creation.class) @RequestBody CommentTransactionAbstract commentTransaction,
+            @Validated(Creation.class) @RequestBody CommentTransaction commentTransaction,
             @PathVariable Integer commentId) throws IllegalArgumentException {
 
         final User user = userDao.get(principal);

@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.secure;
 
-import com.hak.wymi.persistance.pojos.unsecure.message.Message;
+import com.hak.wymi.persistance.pojos.unsecure.Message;
 
 import java.util.Date;
 

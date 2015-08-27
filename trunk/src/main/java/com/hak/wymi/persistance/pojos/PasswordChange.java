@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos;
 
-import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeType;
+import com.hak.wymi.persistance.pojos.unsecure.CallbackCodeType;
 import com.hak.wymi.validations.CallbackCodeExists;
 import com.hak.wymi.validations.Password;
 import com.hak.wymi.validations.PasswordsMatch;

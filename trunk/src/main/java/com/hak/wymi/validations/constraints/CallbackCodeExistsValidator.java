@@ -1,7 +1,7 @@
 package com.hak.wymi.validations.constraints;
 
-import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCode;
-import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeDao;
+import com.hak.wymi.persistance.pojos.unsecure.CallbackCode;
+import com.hak.wymi.persistance.pojos.unsecure.dao.CallbackCodeDao;
 import com.hak.wymi.validations.CallbackCodeExists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

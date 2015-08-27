@@ -1,11 +1,12 @@
 package com.hak.wymi.utility;
 
-import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionAbstract;
-import com.hak.wymi.persistance.pojos.unsecure.commenttransaction.CommentTransactionDao;
-import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionAbstract;
-import com.hak.wymi.persistance.pojos.unsecure.posttransaction.PostTransactionDao;
-import com.hak.wymi.persistance.pojos.unsecure.transactions.AbstractBalanceTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.transactions.BalanceTransactionDao;
+import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.CommentTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.PostTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.dao.CommentTransactionDao;
+import com.hak.wymi.persistance.pojos.unsecure.dao.PostTransactionDao;
+import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceTransactionDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,10 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     @Autowired
     private BalanceTransactionDao balanceTransactionDao;
 
-    private final BlockingQueue<AbstractBalanceTransaction> queue = new LinkedBlockingQueue<>();
-    private final PriorityBlockingQueue<AbstractBalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(50, new Comparator<AbstractBalanceTransaction>() {
+    private final BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
+    private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(50, new Comparator<BalanceTransaction>() {
         @Override
-        public int compare(AbstractBalanceTransaction transactionA, AbstractBalanceTransaction transactionB) {
+        public int compare(BalanceTransaction transactionA, BalanceTransaction transactionB) {
             return transactionA.getCreated().compareTo(transactionB.getCreated());
         }
     });
@@ -57,7 +58,7 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     }
 
     private boolean preprocessQueueHasValueToProcess() {
-        final AbstractBalanceTransaction transaction = preprocessQueue.peek();
+        final BalanceTransaction transaction = preprocessQueue.peek();
         return transaction != null && new Date(transaction.getCreated().getTime() + ONE_MINUTE).before(new Date());
     }
 
@@ -84,15 +85,11 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
         commentTransactionDao.getUnprocessed().forEach(this::add);
     }
 
-    private void process(AbstractBalanceTransaction transaction) {
-        if (transaction instanceof PostTransactionAbstract) {
-            balanceTransactionDao.process((PostTransactionAbstract) transaction);
-        } else if (transaction instanceof CommentTransactionAbstract) {
-            balanceTransactionDao.process((CommentTransactionAbstract) transaction);
-        }
+    private void process(BalanceTransaction transaction) {
+            balanceTransactionDao.process(transaction);
     }
 
-    public void add(AbstractBalanceTransaction balanceTransaction) {
+    public void add(BalanceTransaction balanceTransaction) {
         preprocessQueue.add(balanceTransaction);
     }
 

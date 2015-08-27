@@ -1,11 +1,11 @@
 package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.persistance.pojos.PasswordChange;
-import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCode;
-import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeDao;
-import com.hak.wymi.persistance.pojos.unsecure.callbackcode.CallbackCodeType;
-import com.hak.wymi.persistance.pojos.unsecure.user.User;
-import com.hak.wymi.persistance.pojos.unsecure.user.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.CallbackCode;
+import com.hak.wymi.persistance.pojos.unsecure.CallbackCodeType;
+import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.CallbackCodeDao;
+import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
 import com.hak.wymi.utility.AppConfig;
 import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -27,7 +27,6 @@ import javax.validation.groups.Default;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.unsecure.user;
 
+import com.hak.wymi.persistance.pojos.unsecure.User;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;

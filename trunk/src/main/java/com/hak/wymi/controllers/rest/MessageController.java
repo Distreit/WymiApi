@@ -1,8 +1,8 @@
 package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.persistance.pojos.secure.SecureMessage;
-import com.hak.wymi.persistance.pojos.unsecure.message.Message;
-import com.hak.wymi.persistance.pojos.unsecure.message.MessageDao;
+import com.hak.wymi.persistance.pojos.unsecure.Message;
+import com.hak.wymi.persistance.pojos.unsecure.dao.MessageDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

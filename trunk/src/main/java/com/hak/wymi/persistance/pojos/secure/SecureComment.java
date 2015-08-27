@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.secure;
 
-import com.hak.wymi.persistance.pojos.unsecure.comment.Comment;
+import com.hak.wymi.persistance.pojos.unsecure.Comment;
 
 import java.util.Date;
 import java.util.LinkedList;
