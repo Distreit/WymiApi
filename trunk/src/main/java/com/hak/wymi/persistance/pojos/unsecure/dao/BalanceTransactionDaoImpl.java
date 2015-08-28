@@ -5,7 +5,6 @@ import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.Message;
 import com.hak.wymi.persistance.pojos.unsecure.TransactionState;
 import com.hak.wymi.persistance.pojos.unsecure.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;

@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.utility;
+package com.hak.wymi.persistance.pojos.unsecure.dao;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JSONConverter {
+public final class JSONConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JSONConverter.class);
     private static ObjectMapper mapper = new ObjectMapper();
 
