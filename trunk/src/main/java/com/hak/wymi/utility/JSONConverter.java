@@ -1,0 +1,29 @@
+package com.hak.wymi.utility;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class JSONConverter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JSONConverter.class);
+    private static ObjectMapper mapper = new ObjectMapper();
+
+    public static String getJSON(Object object, Boolean prettyPrint) {
+        String result = null;
+        try {
+            if (prettyPrint) {
+                mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            } else {
+                mapper.disable(SerializationFeature.INDENT_OUTPUT);
+            }
+
+            result = mapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Failed to convert object to json", e);
+        }
+
+        return result;
+    }
+}
