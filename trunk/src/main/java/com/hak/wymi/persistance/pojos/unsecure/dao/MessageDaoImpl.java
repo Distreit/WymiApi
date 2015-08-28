@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.unsecure.dao;
 
 import com.hak.wymi.persistance.pojos.unsecure.Message;
-import com.hak.wymi.utility.DaoHelper;
+import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

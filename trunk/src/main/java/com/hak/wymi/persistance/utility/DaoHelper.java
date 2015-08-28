@@ -1,4 +1,4 @@
-package com.hak.wymi.utility;
+package com.hak.wymi.persistance.utility;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;

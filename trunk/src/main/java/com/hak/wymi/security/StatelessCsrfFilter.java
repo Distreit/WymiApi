@@ -21,6 +21,15 @@ public class StatelessCsrfFilter extends OncePerRequestFilter {
     private final RequestMatcher requireCsrfProtectionMatcher = new DefaultRequiresCsrfMatcher();
     private final AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
+    private static String getCsrfCookieValue(Cookie... cookies) {
+        for (Cookie cookie : cookies) {
+            if (CSRF_TOKEN.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -41,15 +50,6 @@ public class StatelessCsrfFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-    }
-
-    private static String getCsrfCookieValue(Cookie[] cookies) {
-        for (Cookie cookie : cookies) {
-            if (CSRF_TOKEN.equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-        }
-        return null;
     }
 
     public static final class DefaultRequiresCsrfMatcher implements RequestMatcher {

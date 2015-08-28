@@ -1,12 +1,12 @@
 package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.persistance.pojos.unsecure.Comment;
-import com.hak.wymi.persistance.pojos.unsecure.dao.CommentDao;
 import com.hak.wymi.persistance.pojos.unsecure.CommentTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.dao.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.CommentDao;
+import com.hak.wymi.persistance.pojos.unsecure.dao.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.persistance.utility.BalanceTransactionManager;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

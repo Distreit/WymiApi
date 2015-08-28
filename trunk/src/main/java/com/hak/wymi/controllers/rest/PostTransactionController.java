@@ -7,7 +7,7 @@ import com.hak.wymi.persistance.pojos.unsecure.User;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.persistance.utility.BalanceTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
