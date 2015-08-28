@@ -18,6 +18,16 @@ public class UniversalResponse {
         this.entries = new ConcurrentHashMap<>(INITIAL_SIZE);
     }
 
+    @JsonValue
+    public ConcurrentMap<String, Object> getData() {
+        return entries;
+    }
+
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+        this.entries.put(DATA, secureToSend);
+        return this;
+    }
+
     public UniversalResponse setData(SecureToSend secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
@@ -38,16 +48,6 @@ public class UniversalResponse {
 
     public UniversalResponse addError(String errorMessage) {
         this.addError(new ResponseError(errorMessage));
-        return this;
-    }
-
-    @JsonValue
-    public ConcurrentMap<String, Object> getData() {
-        return entries;
-    }
-
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
-        this.entries.put(DATA, secureToSend);
         return this;
     }
 }
