@@ -32,8 +32,7 @@
 
     <beans:bean id="mySuccessHandler" class="com.hak.wymi.security.MySavedRequestAwareAuthenticationSuccessHandler"/>
 
-    <beans:bean id="myFailureHandler"
-                class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler"/>
+    <beans:bean id="myFailureHandler" class="com.hak.wymi.security.RestAuthenticationFailureHandler"/>
 
     <beans:bean id="wymiAuthenticationProvider" class=" com.hak.wymi.security.WymiAuthenticationProvider"/>
 

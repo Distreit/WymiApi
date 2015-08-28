@@ -1,9 +1,19 @@
 package com.hak.wymi.controllers.rest.helpers;
 
+import org.springframework.validation.ObjectError;
+
 public class ResponseError {
-    String message;
+    private String message;
 
     public ResponseError(String message) {
         this.message = message;
+    }
+
+    public ResponseError(ObjectError error) {
+        this.message = error.getDefaultMessage();
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

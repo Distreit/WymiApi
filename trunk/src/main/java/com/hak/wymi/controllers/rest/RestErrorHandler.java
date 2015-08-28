@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.xml.bind.ValidationException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -28,8 +31,11 @@ public class RestErrorHandler {
         final BindingResult result = exception.getBindingResult();
         final ErrorList errorList = new ErrorList();
 
-        errorList.addAll(result.getFieldErrors().stream().map((f) -> new ResponseError(f.getDefaultMessage())).collect(Collectors.toList()));
-        errorList.addAll(result.getGlobalErrors().stream().map((f) -> new ResponseError(f.getDefaultMessage())).collect(Collectors.toList()));
+        final List<ObjectError> errors = new LinkedList<>();
+        errors.addAll(result.getGlobalErrors());
+        errors.addAll(result.getFieldErrors());
+
+        errorList.addAll(errors.stream().map(ResponseError::new).collect(Collectors.toList()));
 
         return errorList;
     }
@@ -38,7 +44,6 @@ public class RestErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorList processValidationError(Exception exception) {
-        LOGGER.error(ExceptionUtils.getStackTrace(exception));
         return new ErrorList(exception.getMessage());
     }
 

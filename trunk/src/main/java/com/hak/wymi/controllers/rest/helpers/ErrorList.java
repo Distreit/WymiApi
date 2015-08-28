@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ErrorList {
-    List<ResponseError> responseErrors = new LinkedList<>();
+    private final List<ResponseError> responseErrors = new LinkedList<>();
 
     public ErrorList() {
         // Allow no arguments.
@@ -18,12 +18,16 @@ public class ErrorList {
         this.responseErrors.add(responseError);
     }
 
-    public void add(String message) {
+    final public void add(String message) {
         ResponseError responseError = new ResponseError(message);
         responseErrors.add(responseError);
     }
 
     public void addAll(List<ResponseError> newResponseErrors) {
         responseErrors.addAll(newResponseErrors);
+    }
+
+    public List<ResponseError> getResponseErrors() {
+        return responseErrors;
     }
 }
