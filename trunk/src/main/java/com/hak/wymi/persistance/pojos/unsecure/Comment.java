@@ -124,6 +124,9 @@ public class Comment implements HasPointsBalance {
     }
 
     public Date getCreated() {
+        if (this.created == null) {
+            return null;
+        }
         return (Date) created.clone();
     }
 

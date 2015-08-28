@@ -1,10 +1,12 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.secure.SecureComment;
 import com.hak.wymi.persistance.pojos.unsecure.Comment;
 import com.hak.wymi.persistance.pojos.unsecure.dao.CommentDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,16 +42,18 @@ public class CommentController {
             produces = "application/json; charset=utf-8"
     )
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<List<SecureComment>> createComment(
+    public ResponseEntity<UniversalResponse> createComment(
             Principal principal,
             @Validated({Creation.class}) @RequestBody Comment comment,
             @PathVariable Integer postId
     ) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+
         if (saveNewComment(comment, principal, postId, null)) {
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(universalResponse.setData(new SecureComment(comment)), HttpStatus.ACCEPTED);
         }
 
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(
@@ -58,18 +62,20 @@ public class CommentController {
             produces = "application/json; charset=utf-8"
     )
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<List<SecureComment>> createChildComment(
+    public ResponseEntity<UniversalResponse> createChildComment(
             Principal principal,
             @Validated({Creation.class}) @RequestBody Comment comment,
             @PathVariable Integer postId,
             @PathVariable Integer parentCommentId
     ) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+
         final Comment parentComment = commentDao.get(parentCommentId);
         if (parentComment != null && saveNewComment(comment, principal, postId, parentComment)) {
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(universalResponse.setData(new SecureComment(comment)), HttpStatus.ACCEPTED);
         }
 
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     public boolean saveNewComment(Comment comment, Principal principal, Integer postId, Comment parentComment) {
@@ -86,9 +92,13 @@ public class CommentController {
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8"
     )
-    public ResponseEntity<List<SecureComment>> getComments(@PathVariable Integer postId) {
-        final List<SecureComment> comments = commentDao.getAll(postId).stream().map(SecureComment::new).collect(Collectors.toCollection(() -> new LinkedList<>()));
-        return new ResponseEntity<>(comments, HttpStatus.ACCEPTED);
+    public ResponseEntity<UniversalResponse> getComments(@PathVariable Integer postId) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final List<SecureToSend> comments = commentDao.getAll(postId)
+                .stream()
+                .map(SecureComment::new)
+                .collect(Collectors.toCollection(LinkedList::new));
+        return new ResponseEntity<>(universalResponse.setData(comments), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(
@@ -97,11 +107,12 @@ public class CommentController {
             produces = "application/json; charset=utf-8"
     )
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<List<SecureComment>> deleteComments(@PathVariable Integer commentId, Principal principal) {
+    public ResponseEntity<UniversalResponse> deleteComments(@PathVariable Integer commentId, Principal principal) {
+        final UniversalResponse universalResponse = new UniversalResponse();
         if (commentDao.delete(commentId, principal)) {
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

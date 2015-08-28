@@ -41,6 +41,7 @@ public class CommentDaoImpl implements CommentDao {
     public Boolean save(Comment comment) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             session.save(comment);
+            session.refresh(comment);
             return true;
         });
     }

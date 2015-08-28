@@ -1,13 +1,14 @@
 package com.hak.wymi.persistance.pojos.secure;
 
 import com.hak.wymi.persistance.pojos.unsecure.Comment;
+import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SecureComment {
+public class SecureComment implements SecureToSend {
     private final Integer commentId;
 
     private final String authorName;
@@ -34,7 +35,9 @@ public class SecureComment {
         this.created = comment.getCreated();
         replies = new LinkedList<>();
 
-        replies.addAll(comment.getReplies().stream().map(SecureComment::new).collect(Collectors.toList()));
+        if (comment.getReplies() != null) {
+            replies.addAll(comment.getReplies().stream().map(SecureComment::new).collect(Collectors.toList()));
+        }
     }
 
     public Integer getCommentId() {
@@ -54,6 +57,9 @@ public class SecureComment {
     }
 
     public Date getCreated() {
+        if (this.created == null) {
+            return null;
+        }
         return (Date) created.clone();
     }
 
