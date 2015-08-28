@@ -34,7 +34,7 @@ public final class DaoHelper {
     }
 
     @FunctionalInterface
-    public static interface TransactionWrapper {
+    public interface TransactionWrapper {
         boolean execute(Session session) throws ValidationException;
     }
 }

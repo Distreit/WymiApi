@@ -10,7 +10,7 @@ public final class AppConfig {
     private AppConfig() {
     }
 
-    public static String get(String key) {
+    public static synchronized String get(String key) {
         if (values == null) {
             values = new HashMap<>();
             values.put("IP", "10.0.0.3");

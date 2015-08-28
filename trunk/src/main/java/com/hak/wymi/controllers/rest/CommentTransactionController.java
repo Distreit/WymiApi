@@ -44,7 +44,8 @@ public class CommentTransactionController {
     public ResponseEntity createCommentTransaction(
             Principal principal,
             @Validated(Creation.class) @RequestBody CommentTransaction commentTransaction,
-            @PathVariable Integer commentId) throws IllegalArgumentException {
+            @PathVariable Integer commentId
+    ) {
 
         final User user = userDao.get(principal);
         final Comment comment = commentDao.get(commentId);

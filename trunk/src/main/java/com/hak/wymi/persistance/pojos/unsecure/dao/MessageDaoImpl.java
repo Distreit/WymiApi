@@ -60,19 +60,21 @@ public class MessageDaoImpl implements MessageDao {
     }
 
     private Message get(Principal principal, Integer messageId, Boolean sent) {
-        String query;
-        if (sent) {
-            query = "from Message where sourceUser.name=:userName and messageId=:messageId";
-        } else {
-            query = "from Message where destinationUser.name=:userName and messageId=:messageId";
-        }
-
         final Session session = sessionFactory.openSession();
-        final Message message = (Message) session
-                .createQuery(query)
-                .setParameter("userName", principal.getName())
-                .setParameter("messageId", messageId)
-                .uniqueResult();
+        final Message message;
+        if (sent) {
+            message = (Message) session
+                    .createQuery("from Message where sourceUser.name=:userName and messageId=:messageId")
+                    .setParameter("userName", principal.getName())
+                    .setParameter("messageId", messageId)
+                    .uniqueResult();
+        } else {
+            message = (Message) session
+                    .createQuery("from Message where destinationUser.name=:userName and messageId=:messageId")
+                    .setParameter("userName", principal.getName())
+                    .setParameter("messageId", messageId)
+                    .uniqueResult();
+        }
         session.close();
         return message;
     }

@@ -8,7 +8,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-import javax.xml.bind.ValidationException;
 
 @Entity
 @Table(name = "balance")
@@ -58,6 +57,7 @@ public class Balance implements HasPointsBalance {
         this.balanceId = balanceId;
     }
 
+    @Override
     public boolean removePoints(Integer amount) {
         if (amount >= 0 && this.currentBalance >= amount) {
             this.currentBalance -= amount;
@@ -66,6 +66,7 @@ public class Balance implements HasPointsBalance {
         return false;
     }
 
+    @Override
     public boolean addPoints(Integer amount) {
         if (amount >= 0) {
             this.currentBalance += amount;

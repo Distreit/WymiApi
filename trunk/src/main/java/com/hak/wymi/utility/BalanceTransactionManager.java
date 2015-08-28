@@ -1,11 +1,8 @@
 package com.hak.wymi.utility;
 
 import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.CommentTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.dao.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostTransactionDao;
-import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceTransactionDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -37,18 +33,9 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     private BalanceTransactionDao balanceTransactionDao;
 
     private final BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
-    private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(50, new Comparator<BalanceTransaction>() {
-        @Override
-        public int compare(BalanceTransaction transactionA, BalanceTransaction transactionB) {
-            return transactionA.getCreated().compareTo(transactionB.getCreated());
-        }
-    });
+    private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(50, (a, b) -> a.getCreated().compareTo(b.getCreated()));
 
-    private boolean run;
-
-    public BalanceTransactionManager() {
-        // Needed for bean creation.
-    }
+    private boolean runThread;
 
     @Scheduled(fixedRate = 5000)
     public void checkPreprocessQueue() {
@@ -65,13 +52,13 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     @PostConstruct
     public void start() {
         addUnprocessedTransactions();
-        run = true;
+        runThread = true;
         new Thread(this).start();
     }
 
     @Override
     public void run() {
-        while (run) {
+        while (runThread) {
             try {
                 process(queue.take());
             } catch (InterruptedException e) {
@@ -86,7 +73,7 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
     }
 
     private void process(BalanceTransaction transaction) {
-            balanceTransactionDao.process(transaction);
+        balanceTransactionDao.process(transaction);
     }
 
     public void add(BalanceTransaction balanceTransaction) {
@@ -95,6 +82,6 @@ public class BalanceTransactionManager implements Runnable, ApplicationListener<
 
     @Override
     public void onApplicationEvent(ContextClosedEvent contextClosedEvent) {
-        run = false;
+        runThread = false;
     }
 }

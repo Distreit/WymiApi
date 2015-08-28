@@ -13,7 +13,6 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import javax.xml.bind.ValidationException;
 import java.util.Date;
 
 @Entity

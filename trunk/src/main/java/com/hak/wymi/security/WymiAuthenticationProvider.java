@@ -13,7 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component(value = "authenticationProvider")
@@ -21,10 +23,6 @@ public class WymiAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private UserDao userDao;
-
-    public WymiAuthenticationProvider() {
-        // Only need this for bean creation.
-    }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -42,10 +40,10 @@ public class WymiAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        final List<WymiAuthority> authorities = new ArrayList<>();
-        for (String role : user.getRoles().split(",")) {
-            authorities.add(new WymiAuthority(role));
-        }
+        final List<WymiAuthority> authorities = Arrays
+                .stream(user.getRoles().split(","))
+                .map(WymiAuthority::new)
+                .collect(Collectors.toList());
 
         return new UsernamePasswordAuthenticationToken(userName, null, authorities);
     }

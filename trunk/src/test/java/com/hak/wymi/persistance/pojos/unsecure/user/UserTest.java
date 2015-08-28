@@ -23,7 +23,7 @@ public class UserTest extends TestCase {
 
     @Test
     public void testGetUserId() throws Exception {
-        assertNotNull(user);
-        assertEquals(user.getUserId(), new Integer(10));
+        assertNotNull("User should not be null", user);
+        assertEquals("User id should match the one just created should not be null", user.getUserId(), new Integer(10));
     }
 }

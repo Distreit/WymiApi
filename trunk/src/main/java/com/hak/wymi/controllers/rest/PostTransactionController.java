@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.ErrorList;
 import com.hak.wymi.persistance.pojos.unsecure.Post;
 import com.hak.wymi.persistance.pojos.unsecure.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.User;
@@ -43,14 +44,14 @@ public class PostTransactionController {
     public ResponseEntity createPostTransaction(
             Principal principal,
             @RequestBody PostTransaction postTransaction,
-            @PathVariable Integer postId) throws ValidationException {
+            @PathVariable Integer postId) {
 
         final User user = userDao.get(principal);
         if (user != null) {
             final Post post = postDao.get(postId);
             if (post != null) {
                 if (post.getUser().getUserId().equals(user.getUserId())) {
-                    throw new ValidationException("Cannot donate to your own post.");
+                    return new ResponseEntity(new ErrorList("Cannot donate to your own post."), HttpStatus.BAD_REQUEST);
                 }
                 postTransaction.setPost(post);
                 postTransaction.setSourceUser(user);

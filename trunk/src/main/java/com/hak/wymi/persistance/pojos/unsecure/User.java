@@ -74,10 +74,6 @@ public class User {
     @Null(groups = Creation.class)
     private Date updated;
 
-    public User() {
-        // Needed for bean creation.
-    }
-
     public Integer getUserId() {
         return userId;
     }

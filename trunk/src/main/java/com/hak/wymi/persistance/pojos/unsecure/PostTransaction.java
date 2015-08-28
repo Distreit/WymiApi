@@ -62,6 +62,7 @@ public class PostTransaction implements BalanceTransaction {
         this.post = post;
     }
 
+    @Override
     public User getSourceUser() {
         return sourceUser;
     }
@@ -72,11 +73,11 @@ public class PostTransaction implements BalanceTransaction {
         return "http://localhost/wymi/home";
     }
 
-
     public void setSourceUser(User sourceUser) {
         this.sourceUser = sourceUser;
     }
 
+    @Override
     public Integer getAmount() {
         return amount;
     }
@@ -133,5 +134,9 @@ public class PostTransaction implements BalanceTransaction {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public TransactionState getState() {
+        return state;
     }
 }

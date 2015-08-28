@@ -54,6 +54,7 @@ public class CommentTransaction implements BalanceTransaction {
         this.comment = comment;
     }
 
+    @Override
     public User getSourceUser() {
         return sourceUser;
     }
@@ -68,6 +69,7 @@ public class CommentTransaction implements BalanceTransaction {
         this.sourceUser = sourceUser;
     }
 
+    @Override
     public Integer getAmount() {
         return amount;
     }

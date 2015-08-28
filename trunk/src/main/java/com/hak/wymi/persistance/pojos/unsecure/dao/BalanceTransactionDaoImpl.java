@@ -33,22 +33,17 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     public boolean process(BalanceTransaction transaction) {
         final boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             final Integer amount = transaction.getAmount();
-
             final Balance sourceBalance = getBalance(session, transaction.getSourceUserId());
             final Balance destinationBalance = getBalance(session, transaction.getDestinationUserId());
-
             final HasPointsBalance target = (HasPointsBalance) session.load(transaction.getTargetClass(), transaction.getTargetId(), pessimisticWrite);
-
             session.buildLockRequest(pessimisticWrite).lock(transaction);
 
             if (sourceBalance.removePoints(amount) && destinationBalance.addPoints(amount) && target.addPoints(amount)) {
                 transaction.setState(TransactionState.PROCESSED);
-
                 session.update(sourceBalance);
                 session.update(destinationBalance);
                 session.update(target);
                 session.update(transaction);
-
                 return true;
             }
             return false;

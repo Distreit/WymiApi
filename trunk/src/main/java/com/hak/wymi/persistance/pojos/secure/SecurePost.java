@@ -5,7 +5,7 @@ import com.hak.wymi.persistance.pojos.unsecure.Post;
 import java.util.Date;
 
 public class SecurePost {
-    private final Integer id;
+    private final Integer postId;
     private final String user;
     private final String topic;
     private final String title;
@@ -15,7 +15,7 @@ public class SecurePost {
     private final Date created;
 
     public SecurePost(Post post) {
-        this.id = post.getPostId();
+        this.postId = post.getPostId();
         this.user = post.getUser().getName();
         this.topic = post.getTopic().getName();
         this.title = post.getTitle();
@@ -53,7 +53,7 @@ public class SecurePost {
         return (Date) created.clone();
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getPostId() {
+        return postId;
     }
 }
