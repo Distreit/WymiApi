@@ -1,8 +1,9 @@
 package com.hak.wymi.persistance.pojos.secure;
 
 import com.hak.wymi.persistance.pojos.unsecure.Topic;
+import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 
-public class SecureTopic {
+public class SecureTopic implements SecureToSend {
 
     private final String name;
     private final String owner;

@@ -1,6 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
-import com.hak.wymi.controllers.rest.helpers.ErrorList;
+import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.unsecure.Post;
 import com.hak.wymi.persistance.pojos.unsecure.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.User;
@@ -40,17 +40,18 @@ public class PostTransactionController {
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity createPostTransaction(
+    public ResponseEntity<UniversalResponse> createPostTransaction(
             Principal principal,
             @RequestBody PostTransaction postTransaction,
-            @PathVariable Integer postId) {
-
+            @PathVariable Integer postId
+    ) {
+        final UniversalResponse universalResponse = new UniversalResponse();
         final User user = userDao.get(principal);
         if (user != null) {
             final Post post = postDao.get(postId);
             if (post != null) {
                 if (post.getUser().getUserId().equals(user.getUserId())) {
-                    return new ResponseEntity(new ErrorList("Cannot donate to your own post."), HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(universalResponse.addError("Cannot donate to your own post."), HttpStatus.BAD_REQUEST);
                 }
                 postTransaction.setPost(post);
                 postTransaction.setSourceUser(user);
@@ -58,10 +59,10 @@ public class PostTransactionController {
                 postTransactionDao.save(postTransaction);
 
                 balanceTransactionManager.add(postTransaction);
-                return new ResponseEntity(HttpStatus.ACCEPTED);
+                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }
         }
 
-        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

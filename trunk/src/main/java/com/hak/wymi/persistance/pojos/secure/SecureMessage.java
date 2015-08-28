@@ -1,10 +1,11 @@
 package com.hak.wymi.persistance.pojos.secure;
 
 import com.hak.wymi.persistance.pojos.unsecure.Message;
+import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 
 import java.util.Date;
 
-public class SecureMessage {
+public class SecureMessage implements SecureToSend {
 
     private final Integer messageId;
 

@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.secure.SecurePost;
 import com.hak.wymi.persistance.pojos.unsecure.Post;
 import com.hak.wymi.persistance.pojos.unsecure.Topic;
@@ -7,6 +8,7 @@ import com.hak.wymi.persistance.pojos.unsecure.User;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.TopicDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
+import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 import com.hak.wymi.utility.AppConfig;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +46,12 @@ public class PostController {
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<Topic> createPost(
+    public ResponseEntity<UniversalResponse> createPost(
             @Validated(Creation.class) @RequestBody Post post,
             @PathVariable String topicName,
-            Principal principal) {
-
+            Principal principal
+    ) {
+        final UniversalResponse universalResponse = new UniversalResponse();
         final User user = userDao.get(principal);
         final Topic topic = topicDao.get(topicName);
 
@@ -62,32 +65,35 @@ public class PostController {
             post.setScore((double) score);
 
             if (postDao.save(post)) {
-                return new ResponseEntity<>(HttpStatus.ACCEPTED);
+                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }
         }
 
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(
             value = "/post",
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
-    public ResponseEntity<List<SecurePost>> getPosts(@PathVariable String topicName) {
-        final List<Post> posts = postDao.getAll(topicName);
-        final List<SecurePost> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
+    public ResponseEntity<UniversalResponse> getPosts(@PathVariable String topicName) {
+        final UniversalResponse universalResponse = new UniversalResponse();
 
-        return new ResponseEntity<>(secureTopics, HttpStatus.ACCEPTED);
+        final List<Post> posts = postDao.getAll(topicName);
+        final List<SecureToSend> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
+
+        return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(
             value = "/post/{postId}",
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
-    public ResponseEntity<SecurePost> getPost(@PathVariable Integer postId) {
+    public ResponseEntity<UniversalResponse> getPost(@PathVariable Integer postId) {
+        final UniversalResponse universalResponse = new UniversalResponse();
         final Post post = postDao.get(postId);
         final SecurePost securePost = new SecurePost(post);
 
-        return new ResponseEntity<>(securePost, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(universalResponse.setData(securePost), HttpStatus.ACCEPTED);
     }
 }

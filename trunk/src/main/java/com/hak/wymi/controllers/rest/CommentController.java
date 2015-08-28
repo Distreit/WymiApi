@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.secure.SecureComment;
 import com.hak.wymi.persistance.pojos.unsecure.Comment;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "post/{postId}")
+@RequestMapping(value = "post/{postId}/comment")
 public class CommentController {
     @Autowired
     private CommentDao commentDao;
@@ -36,11 +37,7 @@ public class CommentController {
     @Autowired
     private PostDao postDao;
 
-    @RequestMapping(
-            value = "/comment",
-            method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8"
-    )
+    @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createComment(
             Principal principal,
@@ -56,11 +53,7 @@ public class CommentController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(
-            value = "/comment/{parentCommentId}",
-            method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8"
-    )
+    @RequestMapping(value = "/{parentCommentId}", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createChildComment(
             Principal principal,
@@ -87,11 +80,7 @@ public class CommentController {
         return commentDao.save(comment);
     }
 
-    @RequestMapping(
-            value = "/comment",
-            method = RequestMethod.GET,
-            produces = "application/json; charset=utf-8"
-    )
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getComments(@PathVariable Integer postId) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final List<SecureToSend> comments = commentDao.getAll(postId)
@@ -101,11 +90,7 @@ public class CommentController {
         return new ResponseEntity<>(universalResponse.setData(comments), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(
-            value = "/comment/{commentId}",
-            method = RequestMethod.DELETE,
-            produces = "application/json; charset=utf-8"
-    )
+    @RequestMapping(value = "/{commentId}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> deleteComments(@PathVariable Integer commentId, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();

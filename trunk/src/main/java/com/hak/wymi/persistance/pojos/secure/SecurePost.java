@@ -1,10 +1,11 @@
 package com.hak.wymi.persistance.pojos.secure;
 
 import com.hak.wymi.persistance.pojos.unsecure.Post;
+import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 
 import java.util.Date;
 
-public class SecurePost {
+public class SecurePost implements SecureToSend {
     private final Integer postId;
     private final String user;
     private final String topic;

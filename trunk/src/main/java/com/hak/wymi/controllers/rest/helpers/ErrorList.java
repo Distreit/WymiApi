@@ -1,5 +1,7 @@
 package com.hak.wymi.controllers.rest.helpers;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class ErrorList {
         responseErrors.addAll(newResponseErrors);
     }
 
+    @JsonValue
     public List<ResponseError> getResponseErrors() {
         return responseErrors;
     }

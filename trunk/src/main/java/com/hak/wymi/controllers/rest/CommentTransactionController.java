@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.unsecure.Comment;
 import com.hak.wymi.persistance.pojos.unsecure.CommentTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.User;
@@ -41,11 +42,12 @@ public class CommentTransactionController {
             method = RequestMethod.POST,
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity createCommentTransaction(
+    public ResponseEntity<UniversalResponse> createCommentTransaction(
             Principal principal,
             @Validated(Creation.class) @RequestBody CommentTransaction commentTransaction,
             @PathVariable Integer commentId
     ) {
+        final UniversalResponse universalResponse = new UniversalResponse();
 
         final User user = userDao.get(principal);
         final Comment comment = commentDao.get(commentId);
@@ -61,9 +63,9 @@ public class CommentTransactionController {
             commentTransactionDao.save(commentTransaction);
 
             balanceTransactionManager.add(commentTransaction);
-            return new ResponseEntity(HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }
 
-        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

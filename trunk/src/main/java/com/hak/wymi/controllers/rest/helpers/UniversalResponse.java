@@ -10,15 +10,16 @@ import java.util.concurrent.ConcurrentMap;
 public class UniversalResponse {
     private static final String DATA = "data";
     private static final String ERRORS = "errors";
+    private static final int INITIAL_SIZE = 2;
 
-    private final ConcurrentMap<String, Object> data;
+    private final ConcurrentMap<String, Object> entries;
 
     public UniversalResponse() {
-        this.data = new ConcurrentHashMap<>(2);
+        this.entries = new ConcurrentHashMap<>(INITIAL_SIZE);
     }
 
     public UniversalResponse setData(SecureToSend secureToSend) {
-        this.data.put(DATA, secureToSend);
+        this.entries.put(DATA, secureToSend);
         return this;
     }
 
@@ -28,20 +29,25 @@ public class UniversalResponse {
     }
 
     public UniversalResponse addError(ResponseError responseError) {
-        if (!this.data.containsKey(ERRORS)) {
-            this.data.put(ERRORS, new ErrorList());
+        if (!this.entries.containsKey(ERRORS)) {
+            this.entries.put(ERRORS, new ErrorList());
         }
-        ((ErrorList) this.data.get(ERRORS)).add(responseError);
+        ((ErrorList) this.entries.get(ERRORS)).add(responseError);
+        return this;
+    }
+
+    public UniversalResponse addError(String errorMessage) {
+        this.addError(new ResponseError(errorMessage));
         return this;
     }
 
     @JsonValue
     public ConcurrentMap<String, Object> getData() {
-        return data;
+        return entries;
     }
 
     public UniversalResponse setData(List<SecureToSend> secureToSend) {
-        this.data.put(DATA, secureToSend);
+        this.entries.put(DATA, secureToSend);
         return this;
     }
 }
