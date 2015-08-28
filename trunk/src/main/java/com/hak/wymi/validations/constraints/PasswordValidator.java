@@ -22,19 +22,19 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
 
         int total = 0;
         if (password.matches(".*[a-z].*")) {
-            total++;
+            total += 1;
         }
 
         if (password.matches(".*[A-Z].*")) {
-            total++;
+            total += 1;
         }
 
         if (password.matches(".*[0-9].*")) {
-            total++;
+            total += 1;
         }
 
         if (password.matches(".*[~!@#$%^&*()_+|}{\":?><`\\-=\\]\\[;'\\\\,./ ].*")) {
-            total++;
+            total += 1;
         }
 
         return total >= MIN_LENGTH && password.length() >= MAX_LENGTH;

@@ -23,7 +23,7 @@ public final class DaoHelper {
                 transaction.rollback();
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("SQL transaction failed and is being rolled back.", e);
             if (transaction != null) {
                 transaction.rollback();
             }

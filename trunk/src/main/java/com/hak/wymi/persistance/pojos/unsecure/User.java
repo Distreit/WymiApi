@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.unsecure;
 
+import com.hak.wymi.persistance.pojos.unsecure.interfaces.HasPassword;
 import com.hak.wymi.validations.Email;
 import com.hak.wymi.validations.EmailDoesNotExist;
 import com.hak.wymi.validations.EmailsMatch;
@@ -26,7 +27,7 @@ import java.util.Date;
 @PasswordsMatch(groups = Creation.class)
 @EmailsMatch(groups = Creation.class)
 @NameDoesNotExist(groups = Creation.class)
-public class User {
+public class User implements HasPassword {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
@@ -160,5 +161,10 @@ public class User {
 
     public void setUpdated(Date updated) {
         this.updated = updated;
+    }
+
+    @Override
+    public boolean passwordsMatch() {
+        return this.password.matches(this.confirmPassword);
     }
 }

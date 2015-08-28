@@ -2,9 +2,9 @@ package com.hak.wymi.persistance.pojos.unsecure.dao;
 
 import com.hak.wymi.persistance.pojos.unsecure.Balance;
 import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.unsecure.Message;
 import com.hak.wymi.persistance.pojos.unsecure.TransactionState;
+import com.hak.wymi.persistance.pojos.unsecure.interfaces.HasPointsBalance;
 import com.hak.wymi.utility.DaoHelper;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;

@@ -27,11 +27,17 @@ import javax.validation.groups.Default;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @RestController
 public class UserController {
+    // I think, but I'm not sure, this is the number of characters that the output will have.
+    private static final int NUMBER_OF_CHARACTERS = 130;
+
+    // Not sure about this either. Mostly magic.
+    private static final int RADIX = 32;
+
     @Autowired
     private UserDao userDao;
 
@@ -49,11 +55,11 @@ public class UserController {
             method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public Map<String, String> getUser(Principal principal) {
+    public ConcurrentMap<String, String> getUser(Principal principal) {
         if (principal != null && !"".equals(principal.getName())) {
             final User user = userDao.get(principal);
 
-            final Map<String, String> result = new ConcurrentHashMap<>();
+            final ConcurrentMap<String, String> result = new ConcurrentHashMap<>();
             result.put("name", user.getName());
             result.put("email", user.getEmail());
             result.put("validated", user.getValidated().toString());
@@ -131,7 +137,7 @@ public class UserController {
     private String getValidationCode(User user, CallbackCodeType type) {
         final CallbackCode callbackCode = new CallbackCode();
         callbackCode.setUser(user);
-        callbackCode.setCode((new BigInteger(130, secureRandom)).toString(32));
+        callbackCode.setCode((new BigInteger(NUMBER_OF_CHARACTERS, secureRandom)).toString(RADIX));
         callbackCode.setType(type);
         callbackCodeDao.save(callbackCode);
         return callbackCode.getCode();

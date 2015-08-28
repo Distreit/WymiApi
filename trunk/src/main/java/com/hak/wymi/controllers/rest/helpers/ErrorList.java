@@ -18,9 +18,8 @@ public class ErrorList {
         this.responseErrors.add(responseError);
     }
 
-    final public void add(String message) {
-        ResponseError responseError = new ResponseError(message);
-        responseErrors.add(responseError);
+    public final void add(String message) {
+        responseErrors.add(new ResponseError(message));
     }
 
     public void addAll(List<ResponseError> newResponseErrors) {

@@ -1,15 +1,15 @@
 package com.hak.wymi.controllers.rest.helpers;
 
-import org.springframework.validation.ObjectError;
+import org.springframework.context.MessageSourceResolvable;
 
 public class ResponseError {
-    private String message;
+    private final String message;
 
     public ResponseError(String message) {
         this.message = message;
     }
 
-    public ResponseError(ObjectError error) {
+    public ResponseError(MessageSourceResolvable error) {
         this.message = error.getDefaultMessage();
     }
 

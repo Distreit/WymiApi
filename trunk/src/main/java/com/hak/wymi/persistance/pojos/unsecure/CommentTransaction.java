@@ -59,19 +59,23 @@ public class CommentTransaction implements BalanceTransaction {
         return sourceUser;
     }
 
+    public void setSourceUser(User sourceUser) {
+        this.sourceUser = sourceUser;
+    }
+
     @Override
     public String getTargetUrl() {
         // TODO: CREATE URL
         return "http://localhost/wymi/home";
     }
 
-    public void setSourceUser(User sourceUser) {
-        this.sourceUser = sourceUser;
-    }
-
     @Override
     public Integer getAmount() {
         return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 
     @Override
@@ -94,10 +98,6 @@ public class CommentTransaction implements BalanceTransaction {
         return this.comment.getClass();
     }
 
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
     public Date getUpdated() {
         return (Date) updated.clone();
     }
@@ -115,13 +115,13 @@ public class CommentTransaction implements BalanceTransaction {
         this.created = created;
     }
 
+    public TransactionState getState() {
+        return this.state;
+    }
+
     @Override
     public void setState(TransactionState state) {
         this.state = state;
-    }
-
-    public TransactionState getState() {
-        return this.state;
     }
 
     public Integer getVersion() {
@@ -130,5 +130,9 @@ public class CommentTransaction implements BalanceTransaction {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Integer getCommentTransactionId() {
+        return commentTransactionId;
     }
 }

@@ -16,8 +16,8 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        PrintWriter writer = response.getWriter();
-        writer.write(JSONConverter.getJSON(new ErrorList(exception.getMessage()), true));
+        final PrintWriter writer = response.getWriter();
+        writer.write(JSONConverter.getJSON(new ErrorList(exception.getMessage()), Boolean.TRUE));
         writer.flush();
     }
 }

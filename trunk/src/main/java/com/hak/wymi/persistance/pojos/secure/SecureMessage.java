@@ -23,7 +23,7 @@ public class SecureMessage {
     public SecureMessage(Message message) {
         this.messageId = message.getMessageId();
         this.toUserName = message.getDestinationUser().getName();
-        if (message.getSourceUser() != null) {
+        if (message.getSourceUser() == null) {
             this.fromUserName = "";
         } else {
             this.fromUserName = message.getSourceUser().getName();

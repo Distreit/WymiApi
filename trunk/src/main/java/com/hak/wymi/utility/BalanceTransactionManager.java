@@ -1,9 +1,9 @@
 package com.hak.wymi.utility;
 
 import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostTransactionDao;
-import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceTransactionDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +22,15 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class BalanceTransactionManager implements Runnable, ApplicationListener<ContextClosedEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionManager.class);
     private static final int ONE_MINUTE = 60000;
-
+    private static final int QUEUE_START_SIZE = 50;
+    private final BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
+    private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(QUEUE_START_SIZE, (first, second) -> first.getCreated().compareTo(second.getCreated()));
     @Autowired
     private CommentTransactionDao commentTransactionDao;
-
     @Autowired
     private PostTransactionDao postTransactionDao;
-
     @Autowired
     private BalanceTransactionDao balanceTransactionDao;
-
-    private final BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
-    private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(50, (a, b) -> a.getCreated().compareTo(b.getCreated()));
-
     private boolean runThread;
 
     @Scheduled(fixedRate = 5000)

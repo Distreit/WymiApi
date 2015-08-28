@@ -10,6 +10,10 @@ public class JSONConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JSONConverter.class);
     private static ObjectMapper mapper = new ObjectMapper();
 
+    private JSONConverter() {
+        // Static only.
+    }
+
     public static String getJSON(Object object, Boolean prettyPrint) {
         String result = null;
         try {
