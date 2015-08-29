@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.unsecure.Comment;
 import com.hak.wymi.persistance.pojos.unsecure.CommentTransaction;
@@ -37,10 +38,7 @@ public class CommentTransactionController {
     @Autowired
     private CommentTransactionDao commentTransactionDao;
 
-    @RequestMapping(
-            value = "/donation",
-            method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/donation", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createCommentTransaction(
             Principal principal,

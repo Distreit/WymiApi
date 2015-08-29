@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.unsecure.Post;
 import com.hak.wymi.persistance.pojos.unsecure.PostTransaction;
@@ -35,10 +36,7 @@ public class PostTransactionController {
     @Autowired
     private PostTransactionDao postTransactionDao;
 
-    @RequestMapping(
-            value = "/donation",
-            method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/donation", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createPostTransaction(
             Principal principal,

@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.secure.SecurePost;
 import com.hak.wymi.persistance.pojos.unsecure.Post;
@@ -41,10 +42,7 @@ public class PostController {
     @Autowired
     private TopicDao topicDao;
 
-    @RequestMapping(
-            value = "/post",
-            method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/post", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createPost(
             @Validated(Creation.class) @RequestBody Post post,
@@ -75,7 +73,7 @@ public class PostController {
     @RequestMapping(
             value = "/post",
             method = RequestMethod.GET,
-            produces = "application/json; charset=utf-8")
+            produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPosts(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
@@ -88,7 +86,7 @@ public class PostController {
     @RequestMapping(
             value = "/post/{postId}",
             method = RequestMethod.GET,
-            produces = "application/json; charset=utf-8")
+            produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPost(@PathVariable Integer postId) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final Post post = postDao.get(postId);

@@ -1,6 +1,9 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.Constants;
+import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.PasswordChange;
+import com.hak.wymi.persistance.pojos.secure.SecureCurrentUser;
 import com.hak.wymi.persistance.pojos.unsecure.CallbackCode;
 import com.hak.wymi.persistance.pojos.unsecure.CallbackCodeType;
 import com.hak.wymi.persistance.pojos.unsecure.User;
@@ -27,10 +30,9 @@ import javax.validation.groups.Default;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @RestController
+@RequestMapping(value = "/user")
 public class UserController {
     // I think, but I'm not sure, this is the number of characters that the output will have.
     private static final int NUMBER_OF_CHARACTERS = 130;
@@ -50,31 +52,22 @@ public class UserController {
     @Autowired
     private JavaMailSender mailSender;
 
-    @RequestMapping(
-            value = "/user",
-            method = RequestMethod.GET,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/current", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ConcurrentMap<String, String> getUser(Principal principal) {
+    public ResponseEntity<UniversalResponse> getUser(Principal principal) {
+        final UniversalResponse universalResponse = new UniversalResponse();
         if (principal != null && !"".equals(principal.getName())) {
-            final User user = userDao.get(principal);
-
-            final ConcurrentMap<String, String> result = new ConcurrentHashMap<>();
-            result.put("name", user.getName());
-            result.put("email", user.getEmail());
-            result.put("validated", user.getValidated().toString());
-            return result;
+            final SecureCurrentUser user = new SecureCurrentUser(userDao.get(principal), principal);
+            return new ResponseEntity<>(universalResponse.setData(user), HttpStatus.ACCEPTED);
         }
-        return null;
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.UNAUTHORIZED);
     }
 
-    @RequestMapping(
-            value = "/user/name/{userName}/password-reset",
-            method = RequestMethod.GET,
-            produces = "application/json; charset=utf-8")
-    public ResponseEntity<String> getSendPasswordReset(@PathVariable String userName) {
-
+    @RequestMapping(value = "/name/{userName}/password-reset", method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> getSendPasswordReset(@PathVariable String userName) {
+        final UniversalResponse universalResponse = new UniversalResponse();
         final User user = userDao.getFromName(userName);
+
         if (user != null) {
             final String code = getValidationCode(user, CallbackCodeType.PASSWORD_RESET);
 
@@ -91,16 +84,15 @@ public class UserController {
 
             mailSender.send(message);
 
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(
-            value = "/user/password",
-            method = RequestMethod.PUT,
-            produces = "application/json; charset=utf-8")
-    public ResponseEntity<String> getSendPasswordChange(@Valid @RequestBody PasswordChange passwordChange) {
+    @RequestMapping(value = "/password", method = RequestMethod.PUT, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> getSendPasswordChange(@Valid @RequestBody PasswordChange passwordChange) {
+        final UniversalResponse universalResponse = new UniversalResponse();
         final CallbackCode callbackCode = callbackCodeDao.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);
 
         if (callbackCode != null) {
@@ -108,17 +100,15 @@ public class UserController {
             user.setPassword(DigestUtils.sha256Hex(passwordChange.getPassword()));
             if (userDao.update(user)) {
                 callbackCodeDao.delete(callbackCode);
-                return new ResponseEntity<>(HttpStatus.ACCEPTED);
+                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(
-            value = "/user",
-            method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8")
-    public ResponseEntity<User> registerNewUser(@Validated({Default.class, Creation.class}) @RequestBody User user) {
+    @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> registerNewUser(@Validated({Default.class, Creation.class}) @RequestBody User user) {
+        final UniversalResponse universalResponse = new UniversalResponse();
         user.setRoles("ROLE_USER");
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
         if (userDao.save(user)) {
@@ -129,9 +119,9 @@ public class UserController {
             message.setText(String.format("Please click here to validate your account: http://%s/wymi/api/user/%s/validate/%s", AppConfig.get("IP"), user.getName(), code));
             mailSender.send(message);
 
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(universalResponse, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private String getValidationCode(User user, CallbackCodeType type) {

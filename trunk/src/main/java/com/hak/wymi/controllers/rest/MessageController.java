@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.secure.SecureMessage;
 import com.hak.wymi.persistance.pojos.unsecure.Message;
@@ -21,14 +22,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping(value = "/message")
 public class MessageController {
     @Autowired
     private MessageDao messageDao;
 
-    @RequestMapping(
-            value = "/message",
-            method = RequestMethod.GET,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> getMessages(Principal principal) {
         final List<SecureToSend> secureMessages = messageDao
@@ -40,10 +39,7 @@ public class MessageController {
         return new ResponseEntity<>(new UniversalResponse().setData(secureMessages), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(
-            value = "/message/{messageId}/alreadyRead",
-            method = RequestMethod.PUT,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/{messageId}/alreadyRead", method = RequestMethod.PUT, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> updateAlreadyRead(
             Principal principal,
@@ -60,10 +56,7 @@ public class MessageController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(
-            value = "/message/{messageType}/{messageId}",
-            method = RequestMethod.DELETE,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/{messageType}/{messageId}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> deleteMessage(
             Principal principal,

@@ -1,5 +1,6 @@
 package com.hak.wymi.controllers.rest;
 
+import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.secure.SecureTopic;
 import com.hak.wymi.persistance.pojos.unsecure.Topic;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping(value = "/topic")
 public class TopicController {
     private static final int THIRTY_DAYS = 30;
     @Autowired
@@ -34,10 +36,7 @@ public class TopicController {
     @Autowired
     private UserDao userDao;
 
-    @RequestMapping(
-            value = "/topic",
-            method = RequestMethod.POST,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createTopic(@Validated({Creation.class}) @RequestBody Topic topic, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
@@ -55,10 +54,7 @@ public class TopicController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(
-            value = "/topic",
-            method = RequestMethod.GET,
-            produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getTopics() {
         final UniversalResponse universalResponse = new UniversalResponse();
         final List<SecureToSend> secureTopics = topicDao.getAll()
