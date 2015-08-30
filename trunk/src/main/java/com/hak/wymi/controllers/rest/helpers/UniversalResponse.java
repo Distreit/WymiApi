@@ -16,8 +16,8 @@ public class UniversalResponse {
 
     private final ConcurrentMap<String, Object> entries;
 
-    ErrorList errorList;
-    LinkedList<String> messages;
+    private ErrorList errorList;
+    private LinkedList<String> messageList;
 
     public UniversalResponse() {
         this.entries = new ConcurrentHashMap<>(INITIAL_SIZE);
@@ -28,12 +28,12 @@ public class UniversalResponse {
         return entries;
     }
 
-    public UniversalResponse setData(SecureToSend secureToSend) {
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
 
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+    public UniversalResponse setData(SecureToSend secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
@@ -59,10 +59,10 @@ public class UniversalResponse {
 
     public UniversalResponse addMessage(String message) {
         if (!this.entries.containsKey(MESSAGES)) {
-            messages = new LinkedList<>();
-            this.entries.put(MESSAGES, messages);
+            messageList = new LinkedList<>();
+            this.entries.put(MESSAGES, messageList);
         }
-        messages.add(message);
+        messageList.add(message);
         return this;
     }
 }

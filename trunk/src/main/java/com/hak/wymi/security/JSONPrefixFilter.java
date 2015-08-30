@@ -17,33 +17,33 @@ import java.io.OutputStream;
 public class JSONPrefixFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
+        final ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 
         filterChain.doFilter(request, responseWrapper);
 
-        String responseContent = new String(responseWrapper.getDataStream());
+        final String responseContent = new String(responseWrapper.getDataStream(), "UTF-8");
 
-        String fullResponse = ")]}',\n" + responseContent;
+        final String fullResponse = ")]}',\n" + responseContent;
 
-        byte[] responseToSend = fullResponse.getBytes();
+        final byte[] responseToSend = fullResponse.getBytes("UTF-8");
 
         response.getOutputStream().write(responseToSend);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // Not used;
+        // Not used.
     }
 
     @Override
     public void destroy() {
-        // Not used
+        // Not used.
     }
 
-    public class ResponseWrapper extends HttpServletResponseWrapper {
+    private static class ResponseWrapper extends HttpServletResponseWrapper {
 
-        ByteArrayOutputStream output;
-        FilterServletOutputStream filterOutput;
+        private final ByteArrayOutputStream output;
+        private FilterServletOutputStream filterOutput;
 
         public ResponseWrapper(HttpServletResponse response) {
             super(response);
@@ -63,11 +63,11 @@ public class JSONPrefixFilter implements Filter {
         }
     }
 
-    public class FilterServletOutputStream extends ServletOutputStream {
-
-        DataOutputStream output;
+    private static class FilterServletOutputStream extends ServletOutputStream {
+        private final DataOutputStream output;
 
         public FilterServletOutputStream(OutputStream output) {
+            super();
             this.output = new DataOutputStream(output);
         }
 
