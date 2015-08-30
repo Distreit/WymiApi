@@ -33,10 +33,17 @@ public class RestErrorHandler {
         return universalResponse;
     }
 
-    @ExceptionHandler({ValidationException.class, AccessDeniedException.class})
+    @ExceptionHandler({ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public UniversalResponse processValidationError(Exception exception) {
+        return new UniversalResponse().addError(exception.getMessage());
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public UniversalResponse processAccessDenied(Exception exception) {
         return new UniversalResponse().addError(exception.getMessage());
     }
 

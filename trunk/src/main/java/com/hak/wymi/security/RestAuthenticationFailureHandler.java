@@ -1,6 +1,6 @@
 package com.hak.wymi.security;
 
-import com.hak.wymi.controllers.rest.helpers.ErrorList;
+import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.utility.JSONConverter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -17,7 +17,7 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         final PrintWriter writer = response.getWriter();
-        writer.write(JSONConverter.getJSON(new ErrorList(exception.getMessage()), Boolean.TRUE));
+        writer.write(JSONConverter.getJSON(new UniversalResponse(), Boolean.TRUE));
         writer.flush();
     }
 }

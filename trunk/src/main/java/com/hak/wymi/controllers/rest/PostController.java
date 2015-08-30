@@ -70,10 +70,7 @@ public class PostController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(
-            value = "/post",
-            method = RequestMethod.GET,
-            produces = Constants.JSON)
+    @RequestMapping(value = "/post", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPosts(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
@@ -83,10 +80,7 @@ public class PostController {
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(
-            value = "/post/{postId}",
-            method = RequestMethod.GET,
-            produces = Constants.JSON)
+    @RequestMapping(value = "/post/{postId}", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPost(@PathVariable Integer postId) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final Post post = postDao.get(postId);
