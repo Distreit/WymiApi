@@ -63,7 +63,7 @@ public class PostController {
             post.setScore((double) score);
 
             if (postDao.save(post)) {
-                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
+                return new ResponseEntity<>(universalResponse.setData(new SecurePost(post)), HttpStatus.ACCEPTED);
             }
         }
 
