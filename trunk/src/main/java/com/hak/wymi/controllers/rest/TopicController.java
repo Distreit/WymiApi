@@ -60,7 +60,6 @@ public class TopicController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> updateTopic(@Validated({Update.class}) @RequestBody Topic topic, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final User user = userDao.get(principal);
 
         if (topicDao.update(topic.getTopicId(), principal) != null) {
             return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.CREATED);
