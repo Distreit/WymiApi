@@ -9,12 +9,14 @@ import com.hak.wymi.persistance.pojos.unsecure.dao.TopicDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
 import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 import com.hak.wymi.validations.groups.Creation;
+import com.hak.wymi.validations.groups.Update;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,6 +56,18 @@ public class TopicController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @RequestMapping(value = "", method = RequestMethod.PUT, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> updateTopic(@Validated({Update.class}) @RequestBody Topic topic, Principal principal) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final User user = userDao.get(principal);
+
+        if (topicDao.update(topic.getTopicId(), principal) != null) {
+            return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getTopics() {
         final UniversalResponse universalResponse = new UniversalResponse();
@@ -61,6 +75,14 @@ public class TopicController {
                 .stream()
                 .map(SecureTopic::new)
                 .collect(Collectors.toCollection(LinkedList::new));
+
+        return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "{topicName}", method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> getTopic(@PathVariable String topicName) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final SecureToSend secureTopics = new SecureTopic(topicDao.get(topicName));
 
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
     }

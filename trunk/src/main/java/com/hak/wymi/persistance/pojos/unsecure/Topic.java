@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.unsecure;
 
 import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.groups.Creation;
+import com.hak.wymi.validations.groups.Update;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,6 +12,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -24,6 +28,7 @@ public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
+    @NotNull(groups = Update.class)
     private Integer topicId;
 
     @Size(
@@ -36,26 +41,36 @@ public class Topic {
             groups = {Default.class, Creation.class},
             regexp = "[0-9a-zA-Z][0-9a-zA-Z-]+"
     )
+    @Null(groups = Update.class)
     private String name;
 
     @ManyToOne
     @JoinColumn(name = "owner")
-    @Null(groups = Creation.class)
+    @Null(groups = {Creation.class, Update.class})
     private User owner;
 
-    @Null(groups = Creation.class)
+    @NotNull(groups = {Default.class, Creation.class, Update.class})
+    @Min(groups = {Default.class, Creation.class, Update.class}, value = 0)
+    private Integer feeFlat;
+
+    @NotNull(groups = {Default.class, Creation.class, Update.class})
+    @Min(groups = {Default.class, Creation.class, Update.class}, value = 0)
+    @Max(groups = {Default.class, Creation.class, Update.class}, value = 100)
+    private Integer feePercent;
+
+    @Null(groups = {Creation.class, Update.class})
     private Integer rent;
 
-    @Null(groups = Creation.class)
+    @Null(groups = {Creation.class, Update.class})
     private Date rentDueDate;
 
-    @Null(groups = Creation.class)
+    @Null(groups = {Creation.class, Update.class})
     private Integer subscribers;
 
-    @Null(groups = Creation.class)
+    @Null(groups = {Creation.class, Update.class})
     private Integer unsubscribers;
 
-    @Null(groups = Creation.class)
+    @Null(groups = {Creation.class, Update.class})
     private Date created;
 
     @Version
@@ -131,5 +146,21 @@ public class Topic {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Integer getFeeFlat() {
+        return feeFlat;
+    }
+
+    public void setFeeFlat(Integer feeFlat) {
+        this.feeFlat = feeFlat;
+    }
+
+    public Integer getFeePercent() {
+        return feePercent;
+    }
+
+    public void setFeePercent(Integer feePercent) {
+        this.feePercent = feePercent;
     }
 }

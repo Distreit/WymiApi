@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,6 +23,11 @@ public class TopicDaoImpl implements TopicDao {
             session.update(topic);
             return true;
         });
+    }
+
+    @Override
+    public Topic update(Integer topicId, Principal principal) {
+        return null;
     }
 
     @Override
