@@ -20,6 +20,7 @@ public class PostTransactionDaoImpl implements PostTransactionDao {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             postTransaction.setState(TransactionState.UNPROCESSED);
             session.persist(postTransaction);
+            session.refresh(postTransaction);
             return true;
         });
     }

@@ -20,4 +20,6 @@ public interface BalanceTransaction {
     User getSourceUser();
 
     String getTargetUrl();
+
+    User getDestinationUser();
 }

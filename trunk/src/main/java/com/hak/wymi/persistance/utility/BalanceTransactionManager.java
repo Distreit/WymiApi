@@ -12,7 +12,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -25,6 +29,8 @@ public class BalanceTransactionManager {
 
     private final BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
     private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(QUEUE_START_SIZE, (first, second) -> first.getCreated().compareTo(second.getCreated()));
+
+    private ConcurrentMap<Integer, Set<BalanceTransaction>> userTransactions = new ConcurrentHashMap<>();
 
     @Autowired
     private CommentTransactionDao commentTransactionDao;
@@ -71,10 +77,29 @@ public class BalanceTransactionManager {
     }
 
     private void process(BalanceTransaction transaction) {
+        final Integer userId = transaction.getSourceUserId();
+        if (userTransactions.containsKey(userId)) {
+            userTransactions.get(userId).remove(transaction);
+        }
+
         balanceTransactionDao.process(transaction);
     }
 
-    public void add(BalanceTransaction balanceTransaction) {
-        preprocessQueue.add(balanceTransaction);
+    public void add(BalanceTransaction transaction) {
+        addToUserMap(transaction);
+        preprocessQueue.add(transaction);
+    }
+
+    private void addToUserMap(BalanceTransaction transaction) {
+        final Integer userId = transaction.getSourceUserId();
+        if (!userTransactions.containsKey(userId)) {
+            userTransactions.put(userId, new HashSet<>());
+        }
+
+        userTransactions.get(userId).add(transaction);
+    }
+
+    public Set<BalanceTransaction> getTransactionsForUser(Integer userId) {
+        return userTransactions.get(userId);
     }
 }

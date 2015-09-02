@@ -70,6 +70,11 @@ public class CommentTransaction implements BalanceTransaction {
     }
 
     @Override
+    public User getDestinationUser() {
+        return this.comment.getAuthor();
+    }
+
+    @Override
     public Integer getAmount() {
         return amount;
     }

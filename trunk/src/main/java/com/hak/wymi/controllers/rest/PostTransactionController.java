@@ -2,6 +2,8 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
+import com.hak.wymi.persistance.pojos.secure.SecureTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.Post;
 import com.hak.wymi.persistance.pojos.unsecure.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.User;
@@ -20,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/topic/{topicName}/post/{postId}")
@@ -38,7 +43,7 @@ public class PostTransactionController {
 
     @RequestMapping(value = "/donation", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<UniversalResponse> createPostTransaction(
+    public ResponseEntity createPostTransaction(
             Principal principal,
             @RequestBody PostTransaction postTransaction,
             @PathVariable Integer postId
@@ -57,6 +62,16 @@ public class PostTransactionController {
                 postTransactionDao.save(postTransaction);
 
                 balanceTransactionManager.add(postTransaction);
+
+                final Set<BalanceTransaction> userTransactions = balanceTransactionManager
+                        .getTransactionsForUser(user.getUserId());
+
+                if (userTransactions != null) {
+                    universalResponse.addTransactions(userTransactions.stream()
+                            .map(SecureTransaction::new)
+                            .collect(Collectors.toCollection(HashSet::new)));
+                }
+
                 return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }
         }

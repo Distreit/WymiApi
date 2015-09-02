@@ -67,19 +67,28 @@ public class PostTransaction implements BalanceTransaction {
         return sourceUser;
     }
 
+    public void setSourceUser(User sourceUser) {
+        this.sourceUser = sourceUser;
+    }
+
     @Override
     public String getTargetUrl() {
         // TODO: CREATE URL
         return "http://localhost/wymi/home";
     }
 
-    public void setSourceUser(User sourceUser) {
-        this.sourceUser = sourceUser;
+    @Override
+    public User getDestinationUser() {
+        return this.getPost().getUser();
     }
 
     @Override
     public Integer getAmount() {
         return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 
     @Override
@@ -89,7 +98,7 @@ public class PostTransaction implements BalanceTransaction {
 
     @Override
     public Integer getDestinationUserId() {
-        return this.post.getPostId();
+        return this.post.getUser().getUserId();
     }
 
     @Override
@@ -100,10 +109,6 @@ public class PostTransaction implements BalanceTransaction {
     @Override
     public Class getTargetClass() {
         return this.post.getClass();
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
     }
 
     public Date getUpdated() {
@@ -123,11 +128,6 @@ public class PostTransaction implements BalanceTransaction {
         this.created = created;
     }
 
-    @Override
-    public void setState(TransactionState state) {
-        this.state = state;
-    }
-
     public Integer getVersion() {
         return version;
     }
@@ -138,5 +138,10 @@ public class PostTransaction implements BalanceTransaction {
 
     public TransactionState getState() {
         return state;
+    }
+
+    @Override
+    public void setState(TransactionState state) {
+        this.state = state;
     }
 }

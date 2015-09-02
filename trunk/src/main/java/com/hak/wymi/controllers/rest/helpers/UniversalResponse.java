@@ -5,6 +5,7 @@ import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -12,12 +13,14 @@ public class UniversalResponse {
     private static final String DATA = "data";
     private static final String ERRORS = "errors";
     private static final String MESSAGES = "messages";
-    private static final int INITIAL_SIZE = 2;
+    private static final String TRANSACTIONS = "transactions";
+    private static final int INITIAL_SIZE = 3;
 
     private final ConcurrentMap<String, Object> entries;
 
     private ErrorList errorList;
     private LinkedList<String> messageList;
+    private Set<SecureToSend> transactionSet;
 
     public UniversalResponse() {
         this.entries = new ConcurrentHashMap<>(INITIAL_SIZE);
@@ -28,12 +31,12 @@ public class UniversalResponse {
         return entries;
     }
 
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+    public UniversalResponse setData(SecureToSend secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
 
-    public UniversalResponse setData(SecureToSend secureToSend) {
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
@@ -63,6 +66,11 @@ public class UniversalResponse {
             this.entries.put(MESSAGES, messageList);
         }
         messageList.add(message);
+        return this;
+    }
+
+    public UniversalResponse addTransactions(Set<SecureToSend> transactionsForUser) {
+        this.entries.put(TRANSACTIONS, transactionsForUser);
         return this;
     }
 }

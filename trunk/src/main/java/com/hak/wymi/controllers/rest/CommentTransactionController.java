@@ -2,6 +2,8 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
+import com.hak.wymi.persistance.pojos.secure.SecureTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.Comment;
 import com.hak.wymi.persistance.pojos.unsecure.CommentTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.User;
@@ -22,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/comment/{commentId}")
@@ -52,7 +57,7 @@ public class CommentTransactionController {
 
         if (user != null && comment != null) {
             if (comment.getAuthorId().equals(user.getUserId())) {
-                throw new IllegalArgumentException("Cannot donate to your own comment.");
+                return new ResponseEntity<>(universalResponse.addError("Cannot donate to your own comment."), HttpStatus.BAD_REQUEST);
             }
 
             commentTransaction.setComment(comment);
@@ -61,6 +66,16 @@ public class CommentTransactionController {
             commentTransactionDao.save(commentTransaction);
 
             balanceTransactionManager.add(commentTransaction);
+
+            final Set<BalanceTransaction> userTransactions = balanceTransactionManager
+                    .getTransactionsForUser(user.getUserId());
+
+            if (userTransactions != null) {
+                universalResponse.addTransactions(userTransactions.stream()
+                        .map(SecureTransaction::new)
+                        .collect(Collectors.toCollection(HashSet::new)));
+            }
+
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }
 
