@@ -30,7 +30,7 @@ public class BalanceTransactionManager {
     private final BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
     private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(QUEUE_START_SIZE, (first, second) -> first.getCreated().compareTo(second.getCreated()));
 
-    private ConcurrentMap<Integer, Set<BalanceTransaction>> userTransactions = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, Set<BalanceTransaction>> userTransactions = new ConcurrentHashMap<>();
 
     @Autowired
     private CommentTransactionDao commentTransactionDao;

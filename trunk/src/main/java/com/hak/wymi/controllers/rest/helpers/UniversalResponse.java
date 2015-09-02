@@ -20,7 +20,6 @@ public class UniversalResponse {
 
     private ErrorList errorList;
     private LinkedList<String> messageList;
-    private Set<SecureToSend> transactionSet;
 
     public UniversalResponse() {
         this.entries = new ConcurrentHashMap<>(INITIAL_SIZE);
@@ -31,12 +30,12 @@ public class UniversalResponse {
         return entries;
     }
 
-    public UniversalResponse setData(SecureToSend secureToSend) {
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
 
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+    public UniversalResponse setData(SecureToSend secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }

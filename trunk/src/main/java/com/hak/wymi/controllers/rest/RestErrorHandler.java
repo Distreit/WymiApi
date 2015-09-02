@@ -43,7 +43,7 @@ public class RestErrorHandler {
     @ExceptionHandler({AccessDeniedException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public UniversalResponse processAccessDenied(Exception exception) {
+    public UniversalResponse processAccessDenied() {
         return new UniversalResponse();
     }
 
