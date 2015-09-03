@@ -1,6 +1,7 @@
 package com.hak.wymi.controllers.rest.helpers;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.hak.wymi.persistance.pojos.secure.SecureBalance;
 import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 
 import java.util.LinkedList;
@@ -14,7 +15,8 @@ public class UniversalResponse {
     private static final String ERRORS = "errors";
     private static final String MESSAGES = "messages";
     private static final String TRANSACTIONS = "transactions";
-    private static final int INITIAL_SIZE = 3;
+    private static final String BALANCE = "balance";
+    private static final int INITIAL_SIZE = 5;
 
     private final ConcurrentMap<String, Object> entries;
 
@@ -30,12 +32,12 @@ public class UniversalResponse {
         return entries;
     }
 
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+    public UniversalResponse setData(SecureToSend secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
 
-    public UniversalResponse setData(SecureToSend secureToSend) {
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
@@ -71,5 +73,9 @@ public class UniversalResponse {
     public UniversalResponse addTransactions(Set<SecureToSend> transactionsForUser) {
         this.entries.put(TRANSACTIONS, transactionsForUser);
         return this;
+    }
+
+    public void addBalance(SecureBalance balance) {
+        this.entries.put(BALANCE, balance.getCurrentBalance());
     }
 }

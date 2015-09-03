@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.unsecure.dao;
 
 import com.hak.wymi.persistance.pojos.unsecure.Balance;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -16,7 +17,12 @@ public class BalanceDaoImpl implements BalanceDao {
 
     @Override
     public Balance get(Principal principal) {
-        return null;
+        final Session session = sessionFactory.openSession();
+        final Balance balance = (Balance) session.createQuery("from Balance where user.name=:userName")
+                .setParameter("userName", principal.getName())
+                .uniqueResult();
+        session.close();
+        return balance;
     }
 
     @Override

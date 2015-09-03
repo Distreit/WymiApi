@@ -4,8 +4,6 @@ import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.PasswordChange;
 import com.hak.wymi.persistance.pojos.secure.SecureCurrentUser;
-import com.hak.wymi.persistance.pojos.secure.SecureTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.CallbackCode;
 import com.hak.wymi.persistance.pojos.unsecure.CallbackCodeType;
 import com.hak.wymi.persistance.pojos.unsecure.User;
@@ -33,9 +31,6 @@ import javax.validation.groups.Default;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -63,20 +58,13 @@ public class UserController {
 
     @RequestMapping(value = "/current", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<UniversalResponse> getUser(Principal principal) {
+    public ResponseEntity<UniversalResponse> getCurrentUser(Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
         if (principal != null && !"".equals(principal.getName())) {
             final User user = userDao.get(principal);
             final SecureCurrentUser secureUser = new SecureCurrentUser(user, principal);
 
-            final Set<BalanceTransaction> userTransactions = balanceTransactionManager
-                    .getTransactionsForUser(user.getUserId());
-
-            if (userTransactions != null) {
-                universalResponse.addTransactions(userTransactions.stream()
-                        .map(SecureTransaction::new)
-                        .collect(Collectors.toCollection(HashSet::new)));
-            }
+            balanceTransactionManager.addTransactionsToResponse(principal, universalResponse, user);
 
             return new ResponseEntity<>(universalResponse.setData(secureUser), HttpStatus.ACCEPTED);
         }
