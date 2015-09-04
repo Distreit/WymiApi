@@ -47,7 +47,7 @@ public class PostTransaction implements BalanceTransaction {
     private TransactionState state;
 
     public Integer getPostTransactionId() {
-        return postTransactionId;
+        return this.postTransactionId;
     }
 
     public void setPostTransactionId(Integer postTransactionId) {
@@ -55,7 +55,7 @@ public class PostTransaction implements BalanceTransaction {
     }
 
     public Post getPost() {
-        return post;
+        return this.post;
     }
 
     public void setPost(Post post) {
@@ -64,7 +64,7 @@ public class PostTransaction implements BalanceTransaction {
 
     @Override
     public User getSourceUser() {
-        return sourceUser;
+        return this.sourceUser;
     }
 
     public void setSourceUser(User sourceUser) {
@@ -80,6 +80,11 @@ public class PostTransaction implements BalanceTransaction {
     @Override
     public User getDestinationUser() {
         return this.getPost().getUser();
+    }
+
+    @Override
+    public Integer getTransactionId() {
+        return this.getPostTransactionId();
     }
 
     @Override
@@ -136,6 +141,7 @@ public class PostTransaction implements BalanceTransaction {
         this.version = version;
     }
 
+    @Override
     public TransactionState getState() {
         return state;
     }

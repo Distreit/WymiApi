@@ -5,12 +5,14 @@ import com.hak.wymi.persistance.pojos.secure.SecureBalance;
 import com.hak.wymi.persistance.pojos.secure.SecureTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.Balance;
 import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.TransactionState;
 import com.hak.wymi.persistance.pojos.unsecure.User;
 import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
+import com.hak.wymi.utility.JSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +92,11 @@ public class BalanceTransactionManager {
         if (userTransactions.containsKey(userId)) {
             userTransactions.get(userId).remove(transaction);
         }
-
-        balanceTransactionDao.process(transaction);
+        if (transaction.getState().equals(TransactionState.UNPROCESSED)) {
+            balanceTransactionDao.process(transaction);
+        } else {
+            LOGGER.error("Transaction without UNPROCESSED state trying to be processed. " + JSONConverter.getJSON(transaction, true));
+        }
     }
 
     public void add(BalanceTransaction transaction) {
@@ -135,5 +140,21 @@ public class BalanceTransactionManager {
         if (balance != null) {
             universalResponse.addBalance(new SecureBalance(balance));
         }
+    }
+
+    public boolean cancel(User user, int transactionId) {
+        final boolean[] result = {false};
+        userTransactions.get(user.getUserId())
+                .stream()
+                .filter(bt -> bt.getTransactionId().equals(transactionId) && bt.getState().equals(TransactionState.UNPROCESSED))
+                .findFirst()
+                .ifPresent(transaction -> {
+                    if (preprocessQueue.remove(transaction)) {
+                        userTransactions.get(user.getUserId()).remove(transaction);
+                        balanceTransactionDao.cancel(transaction);
+                        result[0] = true;
+                    }
+                });
+        return result[0];
     }
 }

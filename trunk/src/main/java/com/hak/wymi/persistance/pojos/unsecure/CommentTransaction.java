@@ -75,6 +75,11 @@ public class CommentTransaction implements BalanceTransaction {
     }
 
     @Override
+    public Integer getTransactionId() {
+        return this.getCommentTransactionId();
+    }
+
+    @Override
     public Integer getAmount() {
         return amount;
     }
@@ -120,6 +125,7 @@ public class CommentTransaction implements BalanceTransaction {
         this.created = created;
     }
 
+    @Override
     public TransactionState getState() {
         return this.state;
     }
@@ -138,6 +144,6 @@ public class CommentTransaction implements BalanceTransaction {
     }
 
     public Integer getCommentTransactionId() {
-        return commentTransactionId;
+        return this.commentTransactionId;
     }
 }

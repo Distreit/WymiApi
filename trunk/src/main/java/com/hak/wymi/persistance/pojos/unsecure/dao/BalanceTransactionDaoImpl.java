@@ -53,6 +53,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         return result;
     }
 
+    @Override
     public boolean cancel(BalanceTransaction transaction) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             transaction.setState(TransactionState.CANCELED);
@@ -60,9 +61,11 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                     transaction.getSourceUser(),
                     null,
                     "Transfer failure",
-                    String.format("Failed to transfer %d points to %s, transaction was canceled.",
-                            transaction.getAmount(),
-                            transaction.getTargetUrl()));
+                    String.format(
+                            "Transaction from to %s for %d canceled.",
+                            transaction.getTargetUrl(),
+                            transaction.getAmount()
+                    ));
 
             message.setSourceDeleted(Boolean.TRUE);
             session.update(transaction);

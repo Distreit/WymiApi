@@ -8,6 +8,10 @@ import java.util.Date;
 
 public class SecureTransaction implements SecureToSend {
 
+    private final Integer transactionId;
+
+    private final String transactionType;
+
     private final Integer amount;
 
     private final String recipientName;
@@ -19,6 +23,8 @@ public class SecureTransaction implements SecureToSend {
     private final Date commitTime;
 
     public SecureTransaction(BalanceTransaction transaction) {
+        this.transactionId = transaction.getTransactionId();
+        this.transactionType = transaction.getClass().getSimpleName().replace("Transaction", "");
         this.amount = transaction.getAmount();
         this.recipientName = transaction.getDestinationUser().getName();
         this.url = transaction.getTargetUrl();
@@ -44,5 +50,13 @@ public class SecureTransaction implements SecureToSend {
 
     public Date getCommitTime() {
         return commitTime;
+    }
+
+    public Integer getTransactionId() {
+        return transactionId;
+    }
+
+    public String getTransactionType() {
+        return transactionType;
     }
 }
