@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class BalanceTransactionManager {
-    public static final int TRANSACTION_WAIT_PERIOD = 60000;
+    public static final int TRANSACTION_WAIT_PERIOD = 15000;
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionManager.class);
     private static final int QUEUE_START_SIZE = 50;
 
