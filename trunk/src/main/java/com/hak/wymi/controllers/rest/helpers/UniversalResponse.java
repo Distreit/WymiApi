@@ -2,13 +2,13 @@ package com.hak.wymi.controllers.rest.helpers;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-import com.hak.wymi.persistance.pojos.secure.SecureBalance;
-import com.hak.wymi.persistance.pojos.secure.SecureTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.Balance;
-import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
-import com.hak.wymi.persistance.pojos.unsecure.User;
-import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
-import com.hak.wymi.persistance.utility.BalanceTransactionManager;
+import com.hak.wymi.persistance.pojos.balance.Balance;
+import com.hak.wymi.persistance.pojos.balance.BalanceDao;
+import com.hak.wymi.persistance.pojos.balance.SecureBalance;
+import com.hak.wymi.persistance.pojos.transactions.SecureTransaction;
+import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.utility.BalanceTransactionManager;
 
 import java.security.Principal;
 import java.util.HashSet;
@@ -42,12 +42,12 @@ public class UniversalResponse {
         return entries;
     }
 
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+    public UniversalResponse setData(SecureToSend secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
 
-    public UniversalResponse setData(SecureToSend secureToSend) {
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }

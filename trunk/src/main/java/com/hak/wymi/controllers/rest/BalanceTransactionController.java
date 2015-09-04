@@ -2,10 +2,10 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
-import com.hak.wymi.persistance.pojos.unsecure.User;
-import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
-import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
-import com.hak.wymi.persistance.utility.BalanceTransactionManager;
+import com.hak.wymi.persistance.pojos.balance.BalanceDao;
+import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.utility.BalanceTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

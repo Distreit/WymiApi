@@ -1,10 +1,10 @@
 package com.hak.wymi.controllers.rest;
 
-import com.hak.wymi.persistance.pojos.unsecure.CallbackCode;
-import com.hak.wymi.persistance.pojos.unsecure.CallbackCodeType;
-import com.hak.wymi.persistance.pojos.unsecure.User;
-import com.hak.wymi.persistance.pojos.unsecure.dao.CallbackCodeDao;
-import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
+import com.hak.wymi.persistance.pojos.callbackcode.CallbackCode;
+import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeType;
+import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeDao;
+import com.hak.wymi.persistance.pojos.user.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,6 +1,6 @@
 package com.hak.wymi.validations.constraints;
 
-import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.EmailsMatch;
 
 import javax.validation.ConstraintValidator;

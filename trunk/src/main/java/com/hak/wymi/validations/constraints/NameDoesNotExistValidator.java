@@ -1,9 +1,9 @@
 package com.hak.wymi.validations.constraints;
 
-import com.hak.wymi.persistance.pojos.unsecure.Topic;
-import com.hak.wymi.persistance.pojos.unsecure.User;
-import com.hak.wymi.persistance.pojos.unsecure.dao.TopicDao;
-import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
+import com.hak.wymi.persistance.pojos.topic.Topic;
+import com.hak.wymi.persistance.pojos.topic.TopicDao;
+import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.validations.NameDoesNotExist;
 import org.springframework.beans.factory.annotation.Autowired;
 

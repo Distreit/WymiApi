@@ -1,6 +1,6 @@
 package com.hak.wymi.validations.constraints;
 
-import com.hak.wymi.persistance.pojos.unsecure.Post;
+import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.validations.UrlOrText;
 
 import javax.validation.ConstraintValidator;

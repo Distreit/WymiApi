@@ -1,7 +1,7 @@
 package com.hak.wymi.validations.constraints;
 
-import com.hak.wymi.persistance.pojos.unsecure.Post;
-import com.hak.wymi.persistance.pojos.unsecure.dao.PostDao;
+import com.hak.wymi.persistance.pojos.post.Post;
+import com.hak.wymi.persistance.pojos.post.PostDao;
 import com.hak.wymi.validations.Exists;
 import org.springframework.beans.factory.annotation.Autowired;
 
