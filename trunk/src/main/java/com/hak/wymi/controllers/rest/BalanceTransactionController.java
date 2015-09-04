@@ -30,8 +30,7 @@ public class BalanceTransactionController {
         final UniversalResponse universalResponse = new UniversalResponse();
         final User user = userDao.get(principal);
         if (user != null && balanceTransactionManager.cancel(user, transactionId)) {
-            balanceTransactionManager.addTransactionsToResponse(principal, universalResponse);
-            balanceTransactionManager.addBalanceToResponse(principal, universalResponse);
+            universalResponse.addTransactions(principal, user);
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }
 

@@ -62,7 +62,7 @@ public class CommentTransactionController {
 
             balanceTransactionManager.add(commentTransaction);
 
-            balanceTransactionManager.addTransactionsToResponse(principal, universalResponse, user);
+            universalResponse.addTransactions(principal, user);
 
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }

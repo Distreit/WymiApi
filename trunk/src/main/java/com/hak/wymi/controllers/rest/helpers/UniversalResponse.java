@@ -2,13 +2,23 @@ package com.hak.wymi.controllers.rest.helpers;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.pojos.secure.SecureBalance;
+import com.hak.wymi.persistance.pojos.secure.SecureTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.Balance;
+import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
 import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
+import com.hak.wymi.persistance.utility.BalanceTransactionManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.Principal;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 public class UniversalResponse {
     private static final String DATA = "data";
@@ -17,9 +27,11 @@ public class UniversalResponse {
     private static final String TRANSACTIONS = "transactions";
     private static final String BALANCE = "balance";
     private static final int INITIAL_SIZE = 5;
-
     private final ConcurrentMap<String, Object> entries;
-
+    @Autowired
+    private BalanceTransactionManager balanceTransactionManager;
+    @Autowired
+    private BalanceDao balanceDao;
     private ErrorList errorList;
     private LinkedList<String> messageList;
 
@@ -32,12 +44,12 @@ public class UniversalResponse {
         return entries;
     }
 
-    public UniversalResponse setData(SecureToSend secureToSend) {
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
 
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+    public UniversalResponse setData(SecureToSend secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
@@ -75,7 +87,30 @@ public class UniversalResponse {
         return this;
     }
 
-    public void addBalance(SecureBalance balance) {
+    public UniversalResponse addTransactions(Principal principal, User user) {
+        if (principal.getName().equalsIgnoreCase(user.getName())) {
+            final Set<BalanceTransaction> userTransactions = balanceTransactionManager.getTransactionsForUser(user.getUserId());
+
+            if (userTransactions != null) {
+                this.addTransactions(userTransactions.stream()
+                        .map(SecureTransaction::new)
+                        .collect(Collectors.toCollection(HashSet::new)));
+            }
+            this.addBalance(principal);
+        }
+        return this;
+    }
+
+    public UniversalResponse addBalance(SecureBalance balance) {
         this.entries.put(BALANCE, balance.getCurrentBalance());
+        return this;
+    }
+
+    public UniversalResponse addBalance(Principal principal) {
+        final Balance balance = balanceDao.get(principal);
+        if (balance != null) {
+            this.addBalance(new SecureBalance(balance));
+        }
+        return this;
     }
 }

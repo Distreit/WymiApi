@@ -57,7 +57,7 @@ public class PostTransactionController {
                 postTransactionDao.save(postTransaction);
 
                 balanceTransactionManager.add(postTransaction);
-                balanceTransactionManager.addTransactionsToResponse(principal, universalResponse, user);
+                universalResponse.addTransactions(principal, user);
 
                 return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }
