@@ -1,12 +1,11 @@
-package com.hak.wymi.persistance.pojos.transactions;
+package com.hak.wymi.persistance.pojos.transactions.balance;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransaction;
 import com.hak.wymi.utility.BalanceTransactionManager;
 
 import java.util.Date;
 
-public class SecureTransaction implements SecureToSend {
+public class SecureBalanceTransaction implements SecureToSend {
 
     private final Integer transactionId;
 
@@ -22,7 +21,7 @@ public class SecureTransaction implements SecureToSend {
 
     private final Date commitTime;
 
-    public SecureTransaction(BalanceTransaction transaction) {
+    public SecureBalanceTransaction(BalanceTransaction transaction) {
         this.transactionId = transaction.getTransactionId();
         this.transactionType = transaction.getClass().getSimpleName().replace("Transaction", "");
         this.amount = transaction.getAmount();
