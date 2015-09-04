@@ -18,6 +18,7 @@
 
     <context:component-scan base-package="com.hak.wymi.persistance"/>
     <context:component-scan base-package="com.hak.wymi.utility"/>
+    <context:component-scan base-package="com.hak.wymi.controllers.rest.helpers"/>
 
     <import resource="/**/web-security-config.xml"/>
 

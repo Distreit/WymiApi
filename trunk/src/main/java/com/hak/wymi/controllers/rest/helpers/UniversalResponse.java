@@ -1,15 +1,14 @@
 package com.hak.wymi.controllers.rest.helpers;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.secure.SecureBalance;
 import com.hak.wymi.persistance.pojos.secure.SecureTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.Balance;
 import com.hak.wymi.persistance.pojos.unsecure.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.User;
 import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
-import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 import com.hak.wymi.persistance.utility.BalanceTransactionManager;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.security.Principal;
 import java.util.HashSet;
@@ -27,12 +26,11 @@ public class UniversalResponse {
     private static final String TRANSACTIONS = "transactions";
     private static final String BALANCE = "balance";
     private static final int INITIAL_SIZE = 5;
+
     private final ConcurrentMap<String, Object> entries;
-    @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
-    @Autowired
-    private BalanceDao balanceDao;
+
     private ErrorList errorList;
+
     private LinkedList<String> messageList;
 
     public UniversalResponse() {
@@ -87,7 +85,7 @@ public class UniversalResponse {
         return this;
     }
 
-    public UniversalResponse addTransactions(Principal principal, User user) {
+    public UniversalResponse addTransactions(Principal principal, User user, BalanceTransactionManager balanceTransactionManager, BalanceDao balanceDao) {
         if (principal.getName().equalsIgnoreCase(user.getName())) {
             final Set<BalanceTransaction> userTransactions = balanceTransactionManager.getTransactionsForUser(user.getUserId());
 
@@ -96,7 +94,9 @@ public class UniversalResponse {
                         .map(SecureTransaction::new)
                         .collect(Collectors.toCollection(HashSet::new)));
             }
-            this.addBalance(principal);
+            if (balanceDao != null) {
+                this.addBalance(principal, balanceDao);
+            }
         }
         return this;
     }
@@ -106,7 +106,7 @@ public class UniversalResponse {
         return this;
     }
 
-    public UniversalResponse addBalance(Principal principal) {
+    public UniversalResponse addBalance(Principal principal, BalanceDao balanceDao) {
         final Balance balance = balanceDao.get(principal);
         if (balance != null) {
             this.addBalance(new SecureBalance(balance));

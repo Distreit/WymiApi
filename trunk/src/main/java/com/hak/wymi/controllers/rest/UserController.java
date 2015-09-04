@@ -7,8 +7,10 @@ import com.hak.wymi.persistance.pojos.secure.SecureCurrentUser;
 import com.hak.wymi.persistance.pojos.unsecure.CallbackCode;
 import com.hak.wymi.persistance.pojos.unsecure.CallbackCodeType;
 import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.CallbackCodeDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
+import com.hak.wymi.persistance.utility.BalanceTransactionManager;
 import com.hak.wymi.utility.AppConfig;
 import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -52,6 +54,12 @@ public class UserController {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private BalanceTransactionManager balanceTransactionManager;
+
+    @Autowired
+    private BalanceDao balanceDao;
+
     @RequestMapping(value = "/current", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> getCurrentUser(Principal principal) {
@@ -60,7 +68,7 @@ public class UserController {
             final User user = userDao.get(principal);
             final SecureCurrentUser secureUser = new SecureCurrentUser(user, principal);
 
-            universalResponse.addTransactions(principal, user);
+            universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
 
             return new ResponseEntity<>(universalResponse.setData(secureUser), HttpStatus.ACCEPTED);
         }

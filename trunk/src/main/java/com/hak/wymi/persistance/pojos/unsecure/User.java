@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.unsecure;
 
-import com.hak.wymi.persistance.pojos.unsecure.interfaces.HasPassword;
+import com.hak.wymi.persistance.interfaces.HasPassword;
 import com.hak.wymi.validations.Email;
 import com.hak.wymi.validations.EmailDoesNotExist;
 import com.hak.wymi.validations.EmailsMatch;

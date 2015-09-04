@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.unsecure.interfaces;
+package com.hak.wymi.persistance.interfaces;
 
 @FunctionalInterface
 public interface HasPassword {

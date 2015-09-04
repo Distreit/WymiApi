@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.unsecure;
 
-import com.hak.wymi.persistance.pojos.unsecure.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

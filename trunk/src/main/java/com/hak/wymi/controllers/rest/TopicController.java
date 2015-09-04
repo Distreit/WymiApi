@@ -2,12 +2,12 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
+import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.secure.SecureTopic;
 import com.hak.wymi.persistance.pojos.unsecure.Topic;
 import com.hak.wymi.persistance.pojos.unsecure.User;
 import com.hak.wymi.persistance.pojos.unsecure.dao.TopicDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
-import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 import com.hak.wymi.validations.groups.Creation;
 import com.hak.wymi.validations.groups.Update;
 import org.apache.commons.lang3.time.DateUtils;

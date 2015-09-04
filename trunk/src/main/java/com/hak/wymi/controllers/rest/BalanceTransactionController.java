@@ -3,6 +3,7 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
 import com.hak.wymi.persistance.utility.BalanceTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +25,16 @@ public class BalanceTransactionController {
     @Autowired
     private BalanceTransactionManager balanceTransactionManager;
 
+    @Autowired
+    private BalanceDao balanceDao;
+
     @RequestMapping(value = "/donation/{transactionId}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> cancelCommentTransaction(Principal principal, @PathVariable int transactionId) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final User user = userDao.get(principal);
         if (user != null && balanceTransactionManager.cancel(user, transactionId)) {
-            universalResponse.addTransactions(principal, user);
+            universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }
 

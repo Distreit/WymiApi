@@ -5,6 +5,7 @@ import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.unsecure.Comment;
 import com.hak.wymi.persistance.pojos.unsecure.CommentTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.CommentDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.CommentTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
@@ -31,6 +32,9 @@ public class CommentTransactionController {
 
     @Autowired
     private CommentDao commentDao;
+
+    @Autowired
+    private BalanceDao balanceDao;
 
     @Autowired
     private BalanceTransactionManager balanceTransactionManager;
@@ -62,7 +66,7 @@ public class CommentTransactionController {
 
             balanceTransactionManager.add(commentTransaction);
 
-            universalResponse.addTransactions(principal, user);
+            universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
 
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }

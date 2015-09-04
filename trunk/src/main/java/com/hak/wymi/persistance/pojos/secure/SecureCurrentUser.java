@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.secure;
 
+import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.unsecure.User;
-import com.hak.wymi.persistance.pojos.unsecure.interfaces.SecureToSend;
 
 import java.security.Principal;
 

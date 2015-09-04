@@ -5,6 +5,7 @@ import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.unsecure.Post;
 import com.hak.wymi.persistance.pojos.unsecure.PostTransaction;
 import com.hak.wymi.persistance.pojos.unsecure.User;
+import com.hak.wymi.persistance.pojos.unsecure.dao.BalanceDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.PostTransactionDao;
 import com.hak.wymi.persistance.pojos.unsecure.dao.UserDao;
@@ -29,6 +30,9 @@ public class PostTransactionController {
 
     @Autowired
     private PostDao postDao;
+
+    @Autowired
+    private BalanceDao balanceDao;
 
     @Autowired
     private BalanceTransactionManager balanceTransactionManager;
@@ -57,7 +61,7 @@ public class PostTransactionController {
                 postTransactionDao.save(postTransaction);
 
                 balanceTransactionManager.add(postTransaction);
-                universalResponse.addTransactions(principal, user);
+                universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
 
                 return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }

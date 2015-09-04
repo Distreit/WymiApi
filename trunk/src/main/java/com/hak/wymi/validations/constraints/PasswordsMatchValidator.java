@@ -1,6 +1,6 @@
 package com.hak.wymi.validations.constraints;
 
-import com.hak.wymi.persistance.pojos.unsecure.interfaces.HasPassword;
+import com.hak.wymi.persistance.interfaces.HasPassword;
 import com.hak.wymi.validations.PasswordsMatch;
 
 import javax.validation.ConstraintValidator;
