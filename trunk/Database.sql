@@ -164,6 +164,8 @@ CREATE TABLE IF NOT EXISTS `topic` (
   `topicId` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL,
   `owner` int(11) DEFAULT NULL,
+  `feeFlat`    INT(11) UNSIGNED NOT NULL DEFAULT '0',
+  `feePercent` INT(11) UNSIGNED NOT NULL DEFAULT '0',
   `rent` bigint(20) NOT NULL DEFAULT '0',
   `rentDueDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `subscribers` int(11) NOT NULL DEFAULT '0',
