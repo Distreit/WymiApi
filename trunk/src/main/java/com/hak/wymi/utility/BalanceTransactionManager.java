@@ -41,8 +41,12 @@ public class BalanceTransactionManager {
     @Scheduled(fixedRate = 5000)
     public void checkPreprocessQueue() {
         while (preprocessQueueHasValueToProcess()) {
-            queue.add(preprocessQueue.remove());
+            addToProcessQueue(preprocessQueue.remove());
         }
+    }
+
+    public void addToProcessQueue(BalanceTransaction balanceTransaction) {
+        queue.add(balanceTransaction);
     }
 
     private boolean preprocessQueueHasValueToProcess() {

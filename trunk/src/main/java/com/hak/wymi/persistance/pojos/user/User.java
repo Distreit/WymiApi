@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.user;
 
 import com.hak.wymi.persistance.interfaces.HasPassword;
+import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.validations.Email;
 import com.hak.wymi.validations.EmailDoesNotExist;
 import com.hak.wymi.validations.EmailsMatch;
@@ -27,7 +28,7 @@ import java.util.Date;
 @PasswordsMatch(groups = Creation.class)
 @EmailsMatch(groups = Creation.class)
 @NameDoesNotExist(groups = Creation.class)
-public class User implements HasPassword {
+public class User implements HasPassword, HasPointsBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
@@ -166,5 +167,15 @@ public class User implements HasPassword {
     @Override
     public boolean passwordsMatch() {
         return this.password.matches(this.confirmPassword);
+    }
+
+    @Override
+    public boolean addPoints(Integer amount) {
+        return true;
+    }
+
+    @Override
+    public boolean removePoints(Integer amount) {
+        return true;
     }
 }
