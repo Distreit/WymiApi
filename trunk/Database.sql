@@ -72,8 +72,8 @@ CREATE TABLE IF NOT EXISTS `comment` (
 -- Data exporting was unselected.
 
 
--- Dumping structure for table wymi.commenttransaction
-CREATE TABLE IF NOT EXISTS `commenttransaction` (
+-- Dumping structure for table wymi.commentdonation
+CREATE TABLE IF NOT EXISTS `commentdonation` (
   `commentTransactionId` int(11) NOT NULL AUTO_INCREMENT,
   `commentId` int(11) NOT NULL,
   `sourceUserId` int(11) NOT NULL,
@@ -139,8 +139,8 @@ CREATE TABLE IF NOT EXISTS `post` (
 -- Data exporting was unselected.
 
 
--- Dumping structure for table wymi.posttransaction
-CREATE TABLE IF NOT EXISTS `posttransaction` (
+-- Dumping structure for table wymi.postdonation
+CREATE TABLE IF NOT EXISTS `postdonation` (
   `postTransactionId` int(11) NOT NULL AUTO_INCREMENT,
   `postId` int(11) NOT NULL,
   `sourceUserId` int(11) NOT NULL,

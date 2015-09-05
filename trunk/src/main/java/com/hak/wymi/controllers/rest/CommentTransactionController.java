@@ -5,8 +5,8 @@ import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.balance.BalanceDao;
 import com.hak.wymi.persistance.pojos.comment.Comment;
 import com.hak.wymi.persistance.pojos.comment.CommentDao;
-import com.hak.wymi.persistance.pojos.transactions.comment.CommentTransaction;
-import com.hak.wymi.persistance.pojos.transactions.comment.CommentTransactionDao;
+import com.hak.wymi.persistance.pojos.transactions.comment.CommentDonation;
+import com.hak.wymi.persistance.pojos.transactions.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.BalanceTransactionManager;
@@ -40,13 +40,13 @@ public class CommentTransactionController {
     private BalanceTransactionManager balanceTransactionManager;
 
     @Autowired
-    private CommentTransactionDao commentTransactionDao;
+    private CommentDonationDao commentDonationDao;
 
     @RequestMapping(value = "/donation", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createCommentTransaction(
             Principal principal,
-            @Validated(Creation.class) @RequestBody CommentTransaction commentTransaction,
+            @Validated(Creation.class) @RequestBody CommentDonation commentDonation,
             @PathVariable Integer commentId
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
@@ -59,12 +59,12 @@ public class CommentTransactionController {
                 return new ResponseEntity<>(universalResponse.addError("Cannot donate to your own comment."), HttpStatus.BAD_REQUEST);
             }
 
-            commentTransaction.setComment(comment);
-            commentTransaction.setSourceUser(user);
+            commentDonation.setComment(comment);
+            commentDonation.setSourceUser(user);
 
-            commentTransactionDao.save(commentTransaction);
+            commentDonationDao.save(commentDonation);
 
-            balanceTransactionManager.add(commentTransaction);
+            balanceTransactionManager.add(commentDonation);
 
             universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
 

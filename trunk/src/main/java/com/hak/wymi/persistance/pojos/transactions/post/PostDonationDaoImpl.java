@@ -11,28 +11,28 @@ import java.util.List;
 
 @Repository
 @SuppressWarnings("unchecked")
-public class PostTransactionDaoImpl implements PostTransactionDao {
+public class PostDonationDaoImpl implements PostDonationDao {
     @Autowired
     private SessionFactory sessionFactory;
 
     @Override
-    public boolean save(PostTransaction postTransaction) {
+    public boolean save(PostDonation postDonation) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            postTransaction.setState(TransactionState.UNPROCESSED);
-            session.persist(postTransaction);
-            session.refresh(postTransaction);
+            postDonation.setState(TransactionState.UNPROCESSED);
+            session.persist(postDonation);
+            session.refresh(postDonation);
             return true;
         });
     }
 
     @Override
-    public List<PostTransaction> getUnprocessed() {
+    public List<PostDonation> getUnprocessed() {
         final Session session = sessionFactory.openSession();
-        final List<PostTransaction> postTransactionList = session
-                .createQuery("from PostTransaction p where p.state=:state")
+        final List<PostDonation> postDonationList = session
+                .createQuery("from PostDonation p where p.state=:state")
                 .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
         session.close();
-        return postTransactionList;
+        return postDonationList;
     }
 }

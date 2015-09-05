@@ -3,8 +3,8 @@ package com.hak.wymi.utility;
 import com.hak.wymi.persistance.pojos.transactions.TransactionState;
 import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransactionDao;
-import com.hak.wymi.persistance.pojos.transactions.comment.CommentTransactionDao;
-import com.hak.wymi.persistance.pojos.transactions.post.PostTransactionDao;
+import com.hak.wymi.persistance.pojos.transactions.comment.CommentDonationDao;
+import com.hak.wymi.persistance.pojos.transactions.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +31,9 @@ public class BalanceTransactionManager {
     private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(QUEUE_START_SIZE, (first, second) -> first.getCreated().compareTo(second.getCreated()));
     private final ConcurrentMap<Integer, Set<BalanceTransaction>> userTransactions = new ConcurrentHashMap<>();
     @Autowired
-    private CommentTransactionDao commentTransactionDao;
+    private CommentDonationDao commentDonationDao;
     @Autowired
-    private PostTransactionDao postTransactionDao;
+    private PostDonationDao postDonationDao;
     @Autowired
     private BalanceTransactionDao balanceTransactionDao;
     private boolean processQueue;
@@ -68,8 +68,8 @@ public class BalanceTransactionManager {
     }
 
     private void addUnprocessedTransactions() {
-        postTransactionDao.getUnprocessed().forEach(this::add);
-        commentTransactionDao.getUnprocessed().forEach(this::add);
+        postDonationDao.getUnprocessed().forEach(this::add);
+        commentDonationDao.getUnprocessed().forEach(this::add);
     }
 
     private void process(BalanceTransaction transaction) {

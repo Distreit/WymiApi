@@ -5,8 +5,8 @@ import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.balance.BalanceDao;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.PostDao;
-import com.hak.wymi.persistance.pojos.transactions.post.PostTransaction;
-import com.hak.wymi.persistance.pojos.transactions.post.PostTransactionDao;
+import com.hak.wymi.persistance.pojos.transactions.post.PostDonation;
+import com.hak.wymi.persistance.pojos.transactions.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.BalanceTransactionManager;
@@ -38,13 +38,13 @@ public class PostTransactionController {
     private BalanceTransactionManager balanceTransactionManager;
 
     @Autowired
-    private PostTransactionDao postTransactionDao;
+    private PostDonationDao postDonationDao;
 
     @RequestMapping(value = "/donation", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity createPostTransaction(
             Principal principal,
-            @RequestBody PostTransaction postTransaction,
+            @RequestBody PostDonation postDonation,
             @PathVariable Integer postId
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
@@ -55,12 +55,12 @@ public class PostTransactionController {
                 if (post.getUser().getUserId().equals(user.getUserId())) {
                     return new ResponseEntity<>(universalResponse.addError("Cannot donate to your own post."), HttpStatus.BAD_REQUEST);
                 }
-                postTransaction.setPost(post);
-                postTransaction.setSourceUser(user);
+                postDonation.setPost(post);
+                postDonation.setSourceUser(user);
 
-                postTransactionDao.save(postTransaction);
+                postDonationDao.save(postDonation);
 
-                balanceTransactionManager.add(postTransaction);
+                balanceTransactionManager.add(postDonation);
                 universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
 
                 return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);

@@ -22,8 +22,8 @@ import javax.validation.groups.Default;
 import java.util.Date;
 
 @Entity
-@Table(name = "postTransaction")
-public class PostTransaction implements BalanceTransaction {
+@Table(name = "postdonation")
+public class PostDonation implements BalanceTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
