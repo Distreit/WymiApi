@@ -29,4 +29,6 @@ public interface BalanceTransaction {
     User getDestinationUser();
 
     Integer getTransactionId();
+
+    Object getDependent();
 }

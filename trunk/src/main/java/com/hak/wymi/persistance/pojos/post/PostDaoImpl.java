@@ -1,10 +1,8 @@
 package com.hak.wymi.persistance.pojos.post;
 
-import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,15 +37,5 @@ public class PostDaoImpl implements PostDao {
             }
         }
         return null;
-    }
-
-    @Override
-    @Secured("ROLE_VALIDATED")
-    public boolean save(Post post) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            session.persist(post);
-            session.refresh(post);
-            return true;
-        });
     }
 }

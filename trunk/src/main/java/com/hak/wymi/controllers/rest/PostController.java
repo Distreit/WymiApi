@@ -74,8 +74,7 @@ public class PostController {
                 && postCreation.getFeePercent().equals(topic.getFeePercent())
                 && postCreation.getFeeFlat().equals(topic.getFeeFlat())) {
 
-            PostCreation transaction = new PostCreation();
-            transaction.setAuthor(user);
+            final PostCreation transaction = new PostCreation();
             transaction.setState(TransactionState.UNPROCESSED);
             transaction.setFeeFlat(topic.getFeeFlat());
             transaction.setFeePercent(topic.getFeePercent());

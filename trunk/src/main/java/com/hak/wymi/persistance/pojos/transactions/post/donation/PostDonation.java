@@ -92,6 +92,11 @@ public class PostDonation implements BalanceTransaction {
     }
 
     @Override
+    public Object getDependent() {
+        return null;
+    }
+
+    @Override
     public Integer getAmount() {
         return amount;
     }

@@ -6,8 +6,15 @@ import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.comment.Comment;
 import com.hak.wymi.persistance.pojos.comment.CommentDao;
 import com.hak.wymi.persistance.pojos.comment.SecureComment;
+import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.PostDao;
+import com.hak.wymi.persistance.pojos.topic.Topic;
+import com.hak.wymi.persistance.pojos.transactions.TransactionState;
+import com.hak.wymi.persistance.pojos.transactions.comment.creation.CommentCreation;
+import com.hak.wymi.persistance.pojos.transactions.comment.creation.CommentCreationDao;
+import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.utility.BalanceTransactionManager;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +41,12 @@ public class CommentController {
     private CommentDao commentDao;
 
     @Autowired
+    private CommentCreationDao commentCreationDao;
+
+    @Autowired
+    private BalanceTransactionManager balanceTransactionManager;
+
+    @Autowired
     private UserDao userDao;
 
     @Autowired
@@ -41,13 +56,13 @@ public class CommentController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createComment(
             Principal principal,
-            @Validated({Creation.class}) @RequestBody Comment comment,
+            @Validated({Creation.class}) @RequestBody CommentAndTransaction commentAndTransaction,
             @PathVariable Integer postId
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        if (saveNewComment(comment, principal, postId, null)) {
-            return new ResponseEntity<>(universalResponse.setData(new SecureComment(comment)), HttpStatus.ACCEPTED);
+        if (saveNewComment(commentAndTransaction, principal, postId, null)) {
+            return new ResponseEntity<>(universalResponse.setData(new SecureComment(commentAndTransaction.getComment())), HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -57,27 +72,47 @@ public class CommentController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createChildComment(
             Principal principal,
-            @Validated({Creation.class}) @RequestBody Comment comment,
+            @Validated({Creation.class}) @RequestBody CommentAndTransaction commentAndTransaction,
             @PathVariable Integer postId,
             @PathVariable Integer parentCommentId
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
         final Comment parentComment = commentDao.get(parentCommentId);
-        if (parentComment != null && saveNewComment(comment, principal, postId, parentComment)) {
-            return new ResponseEntity<>(universalResponse.setData(new SecureComment(comment)), HttpStatus.ACCEPTED);
+        if (parentComment != null && saveNewComment(commentAndTransaction, principal, postId, parentComment)) {
+            return new ResponseEntity<>(universalResponse.setData(new SecureComment(commentAndTransaction.getComment())), HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public boolean saveNewComment(Comment comment, Principal principal, Integer postId, Comment parentComment) {
-        comment.setAuthor(userDao.get(principal));
-        comment.setPost(postDao.get(postId));
-        comment.setParentComment(parentComment);
-        comment.setDeleted(Boolean.FALSE);
-        comment.setPoints(0);
-        return commentDao.save(comment);
+    public boolean saveNewComment(CommentAndTransaction commentAndTransaction, Principal principal, Integer postId, Comment parentComment) {
+        final User user = userDao.get(principal);
+        final Post post = postDao.get(postId);
+        final Topic topic = post.getTopic();
+
+        final CommentCreation commentCreation = commentAndTransaction.getCommentCreation();
+
+        if (topic.getFeeFlat().equals(commentCreation.getFeeFlat()) && topic.getFeePercent().equals(commentCreation.getFeePercent())) {
+            final Comment comment = commentAndTransaction.getComment();
+
+            final CommentCreation transaction = new CommentCreation();
+            transaction.setFeePercent(topic.getFeePercent());
+            transaction.setFeeFlat(topic.getFeeFlat());
+            transaction.setState(TransactionState.UNPROCESSED);
+            transaction.setComment(comment);
+
+            comment.setAuthor(user);
+            comment.setPost(post);
+            comment.setParentComment(parentComment);
+            comment.setDeleted(Boolean.FALSE);
+            comment.setPoints(0);
+            if (commentCreationDao.save(transaction)) {
+                balanceTransactionManager.addToProcessQueue(transaction);
+                return true;
+            }
+        }
+        return false;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
@@ -100,4 +135,29 @@ public class CommentController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    private static class CommentAndTransaction {
+        @NotNull
+        @Valid
+        private Comment comment;
+
+        @NotNull
+        @Valid
+        private CommentCreation commentCreation;
+
+        public CommentCreation getCommentCreation() {
+            return commentCreation;
+        }
+
+        public void setCommentCreation(CommentCreation commentCreation) {
+            this.commentCreation = commentCreation;
+        }
+
+        public Comment getComment() {
+            return comment;
+        }
+
+        public void setComment(Comment comment) {
+            this.comment = comment;
+        }
+    }
 }

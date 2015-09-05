@@ -67,6 +67,10 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                             transaction.getAmount()
                     ));
 
+            if (transaction.getDependent() != null) {
+                session.delete(transaction.getDependent());
+            }
+
             message.setSourceDeleted(Boolean.TRUE);
             session.update(transaction);
             session.save(message);
