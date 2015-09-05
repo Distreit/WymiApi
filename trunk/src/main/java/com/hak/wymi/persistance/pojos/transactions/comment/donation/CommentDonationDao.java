@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.transactions.comment;
+package com.hak.wymi.persistance.pojos.transactions.comment.donation;
 
 import java.util.List;
 

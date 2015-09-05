@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.transactions.comment;
+package com.hak.wymi.persistance.pojos.transactions.comment.donation;
 
 import com.hak.wymi.persistance.pojos.comment.Comment;
 import com.hak.wymi.persistance.pojos.transactions.TransactionState;
@@ -27,7 +27,7 @@ public class CommentDonation implements BalanceTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
-    private Integer commentTransactionId;
+    private Integer commentDonationId;
 
     @ManyToOne
     @JoinColumn(name = "commentId")
@@ -80,7 +80,7 @@ public class CommentDonation implements BalanceTransaction {
 
     @Override
     public Integer getTransactionId() {
-        return this.getCommentTransactionId();
+        return this.getCommentDonationId();
     }
 
     @Override
@@ -147,7 +147,7 @@ public class CommentDonation implements BalanceTransaction {
         this.version = version;
     }
 
-    public Integer getCommentTransactionId() {
-        return this.commentTransactionId;
+    public Integer getCommentDonationId() {
+        return this.commentDonationId;
     }
 }

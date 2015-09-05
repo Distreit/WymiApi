@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.transactions.post;
+package com.hak.wymi.persistance.pojos.transactions.post.donation;
 
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.transactions.TransactionState;
@@ -27,7 +27,7 @@ public class PostDonation implements BalanceTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
-    private Integer postTransactionId;
+    private Integer postDonationId;
 
     @ManyToOne
     @JoinColumn(name = "postId")
@@ -50,12 +50,12 @@ public class PostDonation implements BalanceTransaction {
     @Enumerated(EnumType.STRING)
     private TransactionState state;
 
-    public Integer getPostTransactionId() {
-        return this.postTransactionId;
+    public Integer getPostDonationId() {
+        return this.postDonationId;
     }
 
-    public void setPostTransactionId(Integer postTransactionId) {
-        this.postTransactionId = postTransactionId;
+    public void setPostDonationId(Integer postTransactionId) {
+        this.postDonationId = postTransactionId;
     }
 
     public Post getPost() {
@@ -88,7 +88,7 @@ public class PostDonation implements BalanceTransaction {
 
     @Override
     public Integer getTransactionId() {
-        return this.getPostTransactionId();
+        return this.getPostDonationId();
     }
 
     @Override

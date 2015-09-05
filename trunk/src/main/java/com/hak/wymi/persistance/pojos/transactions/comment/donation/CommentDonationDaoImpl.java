@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.transactions.comment;
+package com.hak.wymi.persistance.pojos.transactions.comment.donation;
 
 import com.hak.wymi.persistance.pojos.transactions.TransactionState;
 import com.hak.wymi.persistance.utility.DaoHelper;
