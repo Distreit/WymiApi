@@ -62,17 +62,19 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                     null,
                     "Transfer failure",
                     String.format(
-                            "Transaction from to %s for %d canceled.",
+                            "Transaction from %s for %d canceled.",
                             transaction.getTargetUrl(),
                             transaction.getAmount()
                     ));
 
             if (transaction.getDependent() != null) {
+                session.delete(transaction);
                 session.delete(transaction.getDependent());
+            } else {
+                session.update(transaction);
             }
 
             message.setSourceDeleted(Boolean.TRUE);
-            session.update(transaction);
             session.save(message);
             return true;
         });

@@ -3,7 +3,9 @@ package com.hak.wymi.utility;
 import com.hak.wymi.persistance.pojos.transactions.TransactionState;
 import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransactionDao;
+import com.hak.wymi.persistance.pojos.transactions.comment.creation.CommentCreationDao;
 import com.hak.wymi.persistance.pojos.transactions.comment.donation.CommentDonationDao;
+import com.hak.wymi.persistance.pojos.transactions.post.creation.PostCreationDao;
 import com.hak.wymi.persistance.pojos.transactions.post.donation.PostDonationDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import org.slf4j.Logger;
@@ -36,6 +38,10 @@ public class BalanceTransactionManager {
     private PostDonationDao postDonationDao;
     @Autowired
     private BalanceTransactionDao balanceTransactionDao;
+    @Autowired
+    private CommentCreationDao commentCreationDao;
+    @Autowired
+    private PostCreationDao postCreationDao;
     private boolean processQueue;
 
     @Scheduled(fixedRate = 5000)
@@ -74,6 +80,9 @@ public class BalanceTransactionManager {
     private void addUnprocessedTransactions() {
         postDonationDao.getUnprocessed().forEach(this::add);
         commentDonationDao.getUnprocessed().forEach(this::add);
+
+        commentCreationDao.getUnprocessed().forEach(this::addToProcessQueue);
+        postCreationDao.getUnprocessed().forEach(this::addToProcessQueue);
     }
 
     private void process(BalanceTransaction transaction) {
