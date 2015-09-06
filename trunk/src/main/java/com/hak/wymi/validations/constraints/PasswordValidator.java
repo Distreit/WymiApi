@@ -6,8 +6,8 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class PasswordValidator implements ConstraintValidator<Password, String> {
-    private static final int MIN_LENGTH = 3;
-    private static final int MAX_LENGTH = 8;
+    private static final int CATEGORY_COUNT = 3;
+    private static final int MIN_LENGTH = 8;
 
     @Override
     public void initialize(Password password) {
@@ -37,7 +37,7 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
             total += 1;
         }
 
-        return total >= MIN_LENGTH && password.length() >= MAX_LENGTH;
+        return total >= CATEGORY_COUNT && password.length() >= MIN_LENGTH;
     }
 
 }

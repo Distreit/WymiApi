@@ -1,10 +1,8 @@
 package com.hak.wymi.persistance.pojos.balance;
 
-import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
 
 import java.security.Principal;
@@ -23,15 +21,5 @@ public class BalanceDaoImpl implements BalanceDao {
                 .uniqueResult();
         session.close();
         return balance;
-    }
-
-    @Override
-    @Secured("ROLE_VALIDATED")
-    public boolean save(Balance balance) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            balance.setCurrentBalance(0);
-            session.persist(balance);
-            return true;
-        });
     }
 }

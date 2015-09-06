@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.user;
 
+import com.hak.wymi.persistance.pojos.balance.Balance;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -19,7 +20,12 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean save(User user) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
+            Balance balance = new Balance();
+            balance.setUser(user);
+            balance.setCurrentBalance(0);
             session.persist(user);
+            session.refresh(user);
+            session.persist(balance);
             return true;
         });
     }

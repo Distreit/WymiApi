@@ -63,7 +63,6 @@ public class User implements HasPassword, HasPointsBalance {
     @Transient
     private String confirmEmail;
 
-    @Null(groups = Creation.class)
     private Boolean validated = Boolean.FALSE;
 
     @Version
@@ -166,7 +165,7 @@ public class User implements HasPassword, HasPointsBalance {
 
     @Override
     public boolean passwordsMatch() {
-        return this.password.matches(this.confirmPassword);
+        return this.password.equals(this.confirmPassword);
     }
 
     @Override
