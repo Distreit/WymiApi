@@ -31,4 +31,8 @@ public interface BalanceTransaction {
     Integer getTransactionId();
 
     Object getDependent();
+
+    Integer getTaxerUserId();
+
+    Integer getTaxRate();
 }

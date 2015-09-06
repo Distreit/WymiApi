@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.post.Post;
+import com.hak.wymi.persistance.pojos.transactions.comment.creation.CommentCreation;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 import org.hibernate.annotations.Fetch;
@@ -15,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.Null;
@@ -24,7 +26,6 @@ import java.util.List;
 @Entity
 @Table(name = "comment")
 public class Comment implements HasPointsBalance {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class})
@@ -43,6 +44,10 @@ public class Comment implements HasPointsBalance {
     @ManyToOne
     @JoinColumn(name = "parentCommentId")
     private Comment parentComment;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "comment")
+    @Null(groups = {Creation.class})
+    private CommentCreation commentCreation;
 
     private Integer points;
 
@@ -172,5 +177,17 @@ public class Comment implements HasPointsBalance {
             return true;
         }
         return false;
+    }
+
+    public Integer getTaxRate() {
+        return commentCreation.getFeePercent();
+    }
+
+    public CommentCreation getCommentCreation() {
+        return commentCreation;
+    }
+
+    public void setCommentCreation(CommentCreation commentCreation) {
+        this.commentCreation = commentCreation;
     }
 }

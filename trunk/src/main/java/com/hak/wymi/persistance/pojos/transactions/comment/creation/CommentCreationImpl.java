@@ -19,9 +19,11 @@ public class CommentCreationImpl implements CommentCreationDao {
     public boolean save(CommentCreation commentCreation) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             commentCreation.setState(TransactionState.UNPROCESSED);
-            session.persist(commentCreation.getComment());
+            session.save(commentCreation.getComment());
             session.refresh(commentCreation.getComment());
-            session.persist(commentCreation);
+            commentCreation.setCommentId(commentCreation.getComment().getCommentId());
+            session.save(commentCreation);
+            session.flush();
             session.refresh(commentCreation);
             return true;
         });

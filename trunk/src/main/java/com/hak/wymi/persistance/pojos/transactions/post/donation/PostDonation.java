@@ -97,6 +97,16 @@ public class PostDonation implements BalanceTransaction {
     }
 
     @Override
+    public Integer getTaxerUserId() {
+        return this.post.getTopic().getOwner().getUserId();
+    }
+
+    @Override
+    public Integer getTaxRate() {
+        return this.post.getTaxRate();
+    }
+
+    @Override
     public Integer getAmount() {
         return amount;
     }

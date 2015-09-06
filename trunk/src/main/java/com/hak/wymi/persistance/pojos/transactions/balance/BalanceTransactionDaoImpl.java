@@ -9,12 +9,16 @@ import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @SuppressWarnings("unchecked")
 public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionDaoImpl.class);
+
     private static final Double TAX_RATE = 0.05;
 
     private final LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
@@ -38,25 +42,60 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                         .load(balanceTransaction.getClass(), balanceTransaction.getTransactionId(), pessimisticWrite);
 
                 final Integer amount = transaction.getAmount();
-                final Balance sourceBalance = getBalance(session, transaction.getSourceUserId());
-                final Balance destinationBalance = getBalance(session, transaction.getDestinationUserId());
-                final Balance adminBalance = getBalance(session, -1);
+
+                final Balance wherePointsAreComingFrom = getBalance(session, transaction.getSourceUserId());
+                final Balance wherePointsAreGoingTo = getBalance(session, transaction.getDestinationUserId());
+                final Balance sitesBalance = getBalance(session, -1);
+
                 final HasPointsBalance target = (HasPointsBalance) session
                         .load(transaction.getTargetClass(), transaction.getTargetId(), pessimisticWrite);
 
                 final Integer tax = Math.max(1, (int) (amount * TAX_RATE));
 
-                if (sourceBalance.removePoints(amount)
-                        && destinationBalance.addPoints(amount - tax)
-                        && target.addPoints(amount)
-                        && adminBalance.addPoints(tax)) {
+                Balance topicOwnerBalance = null;
+                final Double topicOwnerTaxRate = Double.valueOf(transaction.getTaxRate()) / 100.0;
+                Integer topicTax = 0;
+                if (topicOwnerTaxRate != null) {
+                    topicOwnerBalance = getBalance(session, transaction.getTaxerUserId());
+                    topicTax = (int) Math.max(((amount - tax) * topicOwnerTaxRate), 1);
+                }
 
-                    transaction.setState(TransactionState.PROCESSED);
-                    session.update(sourceBalance);
-                    session.update(destinationBalance);
-                    session.update(target);
-                    session.update(transaction);
-                    return true;
+                if (wherePointsAreComingFrom.removePoints(amount)
+                        && target.addPoints(amount)
+                        && sitesBalance.addPoints(tax)) {
+
+                    LOGGER.info(String.format("Target got %d", amount));
+                    LOGGER.info(String.format("The donator %s spent %d", wherePointsAreComingFrom.getUser().getName(), amount));
+                    LOGGER.info(String.format("The admin %s got %d", sitesBalance.getUser().getName(), tax));
+
+                    int donation = amount - tax;
+                    int topicOwnerTake = 0;
+                    if (topicTax > 0 && donation > 0) {
+                        topicOwnerTake = Math.min(donation, topicTax);
+                        donation -= topicOwnerTake;
+                    }
+
+                    if (wherePointsAreGoingTo.addPoints(donation)) {
+                        LOGGER.info(String.format("The contributor %s got %d", wherePointsAreGoingTo.getUser().getName(), donation));
+                        if (topicTax != 0) {
+                            if (topicOwnerBalance.addPoints(topicOwnerTake)) {
+                                LOGGER.info(String.format("The owner %s got %d", topicOwnerBalance.getUser().getName(), topicOwnerTake));
+                            } else {
+                                return false;
+                            }
+                        }
+
+                        if (amount - tax - donation - topicOwnerTake == 0) {
+                            transaction.setState(TransactionState.PROCESSED);
+                            session.update(wherePointsAreComingFrom);
+                            session.update(wherePointsAreGoingTo);
+                            session.update(target);
+                            session.update(transaction);
+                            return true;
+                        } else {
+                            LOGGER.error("TRANSACTION AMOUNTS DIDN'T ADD UP!");
+                        }
+                    }
                 }
             } else if (balanceTransaction.getAmount() == 0) {
                 balanceTransaction.setState(TransactionState.PROCESSED);

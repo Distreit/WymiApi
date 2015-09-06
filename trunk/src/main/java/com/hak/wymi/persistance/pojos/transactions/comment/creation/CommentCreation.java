@@ -9,11 +9,9 @@ import com.hak.wymi.validations.groups.Creation;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.Max;
@@ -27,12 +25,10 @@ import java.util.Date;
 @Table(name = "commentCreation")
 public class CommentCreation implements BalanceTransaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Null(groups = Creation.class)
-    private Integer commentCreationId;
+    private Integer commentId;
 
-    @ManyToOne
-    @JoinColumn(name = "commentId")
+    @OneToOne
+    @PrimaryKeyJoinColumn
     @Null(groups = Creation.class)
     private Comment comment;
 
@@ -121,7 +117,7 @@ public class CommentCreation implements BalanceTransaction {
 
     @Override
     public Integer getTransactionId() {
-        return this.commentCreationId;
+        return this.commentId;
     }
 
     @Override
@@ -153,6 +149,16 @@ public class CommentCreation implements BalanceTransaction {
         this.feePercent = feePercent;
     }
 
+    @Override
+    public Integer getTaxerUserId() {
+        return comment.getPost().getTopic().getOwner().getUserId();
+    }
+
+    @Override
+    public Integer getTaxRate() {
+        return 0;
+    }
+
     public Integer getFeeFlat() {
         return feeFlat;
     }
@@ -167,5 +173,9 @@ public class CommentCreation implements BalanceTransaction {
 
     public void setComment(Comment comment) {
         this.comment = comment;
+    }
+
+    public void setCommentId(Integer commentId) {
+        this.commentId = commentId;
     }
 }

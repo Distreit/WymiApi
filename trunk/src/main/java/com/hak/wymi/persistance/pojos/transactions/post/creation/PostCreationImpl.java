@@ -19,9 +19,11 @@ public class PostCreationImpl implements PostCreationDao {
     public boolean save(PostCreation postCreation) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             postCreation.setState(TransactionState.UNPROCESSED);
-            session.persist(postCreation.getPost());
+            session.save(postCreation.getPost());
             session.refresh(postCreation.getPost());
-            session.persist(postCreation);
+            postCreation.setPostId(postCreation.getPost().getPostId());
+            session.save(postCreation);
+            session.flush();
             session.refresh(postCreation);
             return true;
         });

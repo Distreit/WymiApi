@@ -9,11 +9,9 @@ import com.hak.wymi.validations.groups.Creation;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.Max;
@@ -27,12 +25,10 @@ import java.util.Date;
 @Table(name = "postCreation")
 public class PostCreation implements BalanceTransaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Null(groups = Creation.class)
-    private Integer postCreationId;
+    private Integer postId;
 
-    @ManyToOne
-    @JoinColumn(name = "postId")
+    @OneToOne
+    @PrimaryKeyJoinColumn
     @Null(groups = Creation.class)
     private Post post;
 
@@ -121,7 +117,7 @@ public class PostCreation implements BalanceTransaction {
 
     @Override
     public Integer getTransactionId() {
-        return this.postCreationId;
+        return this.postId;
     }
 
     @Override
@@ -153,6 +149,16 @@ public class PostCreation implements BalanceTransaction {
         this.feePercent = feePercent;
     }
 
+    @Override
+    public Integer getTaxerUserId() {
+        return this.post.getTopic().getOwner().getUserId();
+    }
+
+    @Override
+    public Integer getTaxRate() {
+        return 0;
+    }
+
     public Integer getFeeFlat() {
         return feeFlat;
     }
@@ -167,5 +173,9 @@ public class PostCreation implements BalanceTransaction {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    public void setPostId(Integer postId) {
+        this.postId = postId;
     }
 }

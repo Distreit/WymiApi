@@ -89,6 +89,16 @@ public class CommentDonation implements BalanceTransaction {
     }
 
     @Override
+    public Integer getTaxerUserId() {
+        return this.comment.getPost().getTopic().getOwner().getUserId();
+    }
+
+    @Override
+    public Integer getTaxRate() {
+        return comment.getTaxRate();
+    }
+
+    @Override
     public Integer getAmount() {
         return amount;
     }
