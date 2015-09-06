@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 @SuppressWarnings("unchecked")
 public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
+    private static final Double TAX_RATE = 0.05;
+
     private final LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
     @Autowired
@@ -29,26 +31,42 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     @Override
-    public boolean process(BalanceTransaction transaction) {
+    public boolean process(BalanceTransaction balanceTransaction) {
         final boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            final Integer amount = transaction.getAmount();
-            final Balance sourceBalance = getBalance(session, transaction.getSourceUserId());
-            final Balance destinationBalance = getBalance(session, transaction.getDestinationUserId());
-            final HasPointsBalance target = (HasPointsBalance) session.load(transaction.getTargetClass(), transaction.getTargetId(), pessimisticWrite);
-            session.buildLockRequest(pessimisticWrite).lock(transaction);
+            if (balanceTransaction.getAmount() > 0) {
+                final BalanceTransaction transaction = (BalanceTransaction) session
+                        .load(balanceTransaction.getClass(), balanceTransaction.getTransactionId(), pessimisticWrite);
 
-            if (sourceBalance.removePoints(amount) && destinationBalance.addPoints(amount) && target.addPoints(amount)) {
-                transaction.setState(TransactionState.PROCESSED);
-                session.update(sourceBalance);
-                session.update(destinationBalance);
-                session.update(target);
-                session.update(transaction);
+                final Integer amount = transaction.getAmount();
+                final Balance sourceBalance = getBalance(session, transaction.getSourceUserId());
+                final Balance destinationBalance = getBalance(session, transaction.getDestinationUserId());
+                final Balance adminBalance = getBalance(session, -1);
+                final HasPointsBalance target = (HasPointsBalance) session
+                        .load(transaction.getTargetClass(), transaction.getTargetId(), pessimisticWrite);
+
+                final Integer tax = Math.max(1, (int) (amount * TAX_RATE));
+
+                if (sourceBalance.removePoints(amount)
+                        && destinationBalance.addPoints(amount - tax)
+                        && target.addPoints(amount)
+                        && adminBalance.addPoints(tax)) {
+
+                    transaction.setState(TransactionState.PROCESSED);
+                    session.update(sourceBalance);
+                    session.update(destinationBalance);
+                    session.update(target);
+                    session.update(transaction);
+                    return true;
+                }
+            } else if (balanceTransaction.getAmount() == 0) {
+                balanceTransaction.setState(TransactionState.PROCESSED);
+                session.update(balanceTransaction);
                 return true;
             }
             return false;
         });
         if (!result) {
-            cancel(transaction);
+            cancel(balanceTransaction);
         }
         return result;
     }
