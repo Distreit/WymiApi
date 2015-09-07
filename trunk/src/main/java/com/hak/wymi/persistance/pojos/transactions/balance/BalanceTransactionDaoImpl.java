@@ -55,7 +55,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                 Balance topicOwnerBalance = null;
                 final Double topicOwnerTaxRate = Double.valueOf(transaction.getTaxRate()) / 100.0;
                 Integer topicTax = 0;
-                if (topicOwnerTaxRate != null) {
+                if (topicOwnerTaxRate != null && topicOwnerTaxRate != 0) {
                     topicOwnerBalance = getBalance(session, transaction.getTaxerUserId());
                     topicTax = (int) Math.max(((amount - tax) * topicOwnerTaxRate), 1);
                 }
