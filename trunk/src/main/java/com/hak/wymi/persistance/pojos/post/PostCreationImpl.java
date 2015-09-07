@@ -1,6 +1,6 @@
-package com.hak.wymi.persistance.pojos.transactions.post.creation;
+package com.hak.wymi.persistance.pojos.post;
 
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

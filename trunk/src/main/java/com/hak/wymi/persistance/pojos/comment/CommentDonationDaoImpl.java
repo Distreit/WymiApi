@@ -1,6 +1,6 @@
-package com.hak.wymi.persistance.pojos.transactions.comment.donation;
+package com.hak.wymi.persistance.pojos.comment;
 
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

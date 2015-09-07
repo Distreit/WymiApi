@@ -3,15 +3,15 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.post.Post;
+import com.hak.wymi.persistance.pojos.post.PostCreation;
+import com.hak.wymi.persistance.pojos.post.PostCreationDao;
 import com.hak.wymi.persistance.pojos.post.PostDao;
 import com.hak.wymi.persistance.pojos.post.SecurePost;
 import com.hak.wymi.persistance.pojos.topic.SecureTopic;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
-import com.hak.wymi.persistance.pojos.transactions.post.creation.PostCreation;
-import com.hak.wymi.persistance.pojos.transactions.post.creation.PostCreationDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.AppConfig;
@@ -93,7 +93,7 @@ public class PostController {
                 return new ResponseEntity<>(universalResponse.setData(new SecurePost(post)), HttpStatus.ACCEPTED);
             }
 
-        } else {
+        } else if (topic != null) {
             return new ResponseEntity<>(universalResponse
                     .setData(new SecureTopic(topic))
                     .addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);

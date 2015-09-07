@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.transactions.balance;
+package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.utility.BalanceTransactionManager;

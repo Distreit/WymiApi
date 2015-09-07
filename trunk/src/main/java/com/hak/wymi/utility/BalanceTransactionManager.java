@@ -1,12 +1,12 @@
 package com.hak.wymi.utility;
 
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
-import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransaction;
-import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransactionDao;
-import com.hak.wymi.persistance.pojos.transactions.comment.creation.CommentCreationDao;
-import com.hak.wymi.persistance.pojos.transactions.comment.donation.CommentDonationDao;
-import com.hak.wymi.persistance.pojos.transactions.post.creation.PostCreationDao;
-import com.hak.wymi.persistance.pojos.transactions.post.donation.PostDonationDao;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionDao;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.comment.CommentCreationDao;
+import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
+import com.hak.wymi.persistance.pojos.post.PostCreationDao;
+import com.hak.wymi.persistance.pojos.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

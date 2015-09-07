@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.transactions.balance;
+package com.hak.wymi.persistance.pojos.balancetransaction;
 
 public interface BalanceTransactionDao {
     boolean process(BalanceTransaction balanceTransaction);

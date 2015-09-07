@@ -1,6 +1,6 @@
-package com.hak.wymi.persistance.pojos.transactions.comment.creation;
+package com.hak.wymi.persistance.pojos.comment;
 
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 
 @Repository
 @SuppressWarnings("unchecked")

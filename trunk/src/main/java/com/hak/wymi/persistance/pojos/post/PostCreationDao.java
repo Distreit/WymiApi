@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.transactions.post.creation;
+package com.hak.wymi.persistance.pojos.post;
 
 import java.util.List;
 

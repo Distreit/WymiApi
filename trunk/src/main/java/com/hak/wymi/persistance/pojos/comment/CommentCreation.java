@@ -1,8 +1,7 @@
-package com.hak.wymi.persistance.pojos.transactions.post.creation;
+package com.hak.wymi.persistance.pojos.comment;
 
-import com.hak.wymi.persistance.pojos.post.Post;
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
-import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
@@ -22,15 +21,15 @@ import javax.validation.groups.Default;
 import java.util.Date;
 
 @Entity
-@Table(name = "postCreation")
-public class PostCreation implements BalanceTransaction {
+@Table(name = "commentCreation")
+public class CommentCreation implements BalanceTransaction {
     @Id
-    private Integer postId;
+    private Integer commentId;
 
     @OneToOne
     @PrimaryKeyJoinColumn
     @Null(groups = Creation.class)
-    private Post post;
+    private Comment comment;
 
     @Min(value = 0)
     @NotNull(groups = {Default.class, Creation.class})
@@ -81,27 +80,27 @@ public class PostCreation implements BalanceTransaction {
 
     @Override
     public Integer getSourceUserId() {
-        return this.post.getUser().getUserId();
+        return this.comment.getAuthorId();
     }
 
     @Override
     public Integer getDestinationUserId() {
-        return this.post.getTopic().getOwner().getUserId();
+        return this.comment.getPost().getTopic().getOwner().getUserId();
     }
 
     @Override
     public Integer getTargetId() {
-        return this.post.getTopic().getOwner().getUserId();
+        return this.comment.getPost().getTopic().getOwner().getUserId();
     }
 
     @Override
     public Class getTargetClass() {
-        return this.post.getTopic().getOwner().getClass();
+        return this.comment.getPost().getTopic().getOwner().getClass();
     }
 
     @Override
     public User getSourceUser() {
-        return this.post.getUser();
+        return this.comment.getAuthor();
     }
 
     @Override
@@ -112,17 +111,17 @@ public class PostCreation implements BalanceTransaction {
 
     @Override
     public User getDestinationUser() {
-        return this.post.getUser();
+        return this.comment.getAuthor();
     }
 
     @Override
     public Integer getTransactionId() {
-        return this.postId;
+        return this.commentId;
     }
 
     @Override
     public Object getDependent() {
-        return this.post;
+        return this.comment;
     }
 
     public Date getUpdated() {
@@ -151,7 +150,7 @@ public class PostCreation implements BalanceTransaction {
 
     @Override
     public Integer getTaxerUserId() {
-        return this.post.getTopic().getOwner().getUserId();
+        return comment.getPost().getTopic().getOwner().getUserId();
     }
 
     @Override
@@ -167,15 +166,15 @@ public class PostCreation implements BalanceTransaction {
         this.feeFlat = feeFlat;
     }
 
-    public Post getPost() {
-        return post;
+    public Comment getComment() {
+        return comment;
     }
 
-    public void setPost(Post post) {
-        this.post = post;
+    public void setComment(Comment comment) {
+        this.comment = comment;
     }
 
-    public void setPostId(Integer postId) {
-        this.postId = postId;
+    public void setCommentId(Integer commentId) {
+        this.commentId = commentId;
     }
 }

@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.user;
 
-import com.hak.wymi.persistance.pojos.balance.Balance;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

@@ -2,11 +2,11 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
-import com.hak.wymi.persistance.pojos.balance.BalanceDao;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.PostDao;
-import com.hak.wymi.persistance.pojos.transactions.post.donation.PostDonation;
-import com.hak.wymi.persistance.pojos.transactions.post.donation.PostDonationDao;
+import com.hak.wymi.persistance.pojos.post.PostDonation;
+import com.hak.wymi.persistance.pojos.post.PostDonationDao;
+import com.hak.wymi.persistance.pojos.user.BalanceDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.BalanceTransactionManager;

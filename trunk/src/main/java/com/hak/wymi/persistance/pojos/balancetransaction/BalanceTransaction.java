@@ -1,6 +1,5 @@
-package com.hak.wymi.persistance.pojos.transactions.balance;
+package com.hak.wymi.persistance.pojos.balancetransaction;
 
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import java.util.Date;

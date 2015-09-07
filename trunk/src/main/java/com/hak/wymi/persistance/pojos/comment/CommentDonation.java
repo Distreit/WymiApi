@@ -1,8 +1,7 @@
-package com.hak.wymi.persistance.pojos.transactions.comment.donation;
+package com.hak.wymi.persistance.pojos.comment;
 
-import com.hak.wymi.persistance.pojos.comment.Comment;
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
-import com.hak.wymi.persistance.pojos.transactions.balance.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 

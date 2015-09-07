@@ -2,7 +2,6 @@ package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.topic.Topic;
-import com.hak.wymi.persistance.pojos.transactions.post.creation.PostCreation;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.UrlOrText;
 import com.hak.wymi.validations.groups.Creation;

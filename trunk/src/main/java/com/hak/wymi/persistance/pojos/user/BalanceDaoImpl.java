@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.balance;
+package com.hak.wymi.persistance.pojos.user;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

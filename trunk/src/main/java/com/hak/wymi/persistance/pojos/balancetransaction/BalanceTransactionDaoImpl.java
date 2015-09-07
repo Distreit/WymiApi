@@ -1,9 +1,8 @@
-package com.hak.wymi.persistance.pojos.transactions.balance;
+package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.balance.Balance;
 import com.hak.wymi.persistance.pojos.message.Message;
-import com.hak.wymi.persistance.pojos.transactions.TransactionState;
+import com.hak.wymi.persistance.pojos.user.Balance;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -124,11 +123,11 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                             transaction.getAmount()
                     ));
 
-            if (transaction.getDependent() != null) {
+            if (transaction.getDependent() == null) {
+                session.update(transaction);
+            } else {
                 session.delete(transaction);
                 session.delete(transaction.getDependent());
-            } else {
-                session.update(transaction);
             }
 
             message.setSourceDeleted(Boolean.TRUE);

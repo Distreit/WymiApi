@@ -1,7 +1,6 @@
-package com.hak.wymi.persistance.pojos.balance;
+package com.hak.wymi.persistance.pojos.user;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.user.User;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
