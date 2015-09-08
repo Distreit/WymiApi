@@ -66,12 +66,12 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private boolean splitPointsToReceivers(Session session, BalanceTransaction transaction) {
-        Integer siteTax = paySite(session, transaction);
+        final Integer siteTax = paySite(session, transaction);
         if (siteTax == null || siteTax < 0) {
             return false;
         }
 
-        Integer topicTax = payTopicOwner(session, transaction, siteTax);
+        final Integer topicTax = payTopicOwner(session, transaction, siteTax);
         if (topicTax == null || topicTax < 0) {
             return false;
         }
@@ -81,7 +81,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     private boolean paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
         final Balance submitterBalance = getBalance(session, transaction.getDestinationUserId());
-        int remainingAmount = transaction.getAmount() - siteTax - topicTax;
+        final int remainingAmount = transaction.getAmount() - siteTax - topicTax;
         if (remainingAmount == 0) {
             LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getUser().getName(), remainingAmount));
             return true;
