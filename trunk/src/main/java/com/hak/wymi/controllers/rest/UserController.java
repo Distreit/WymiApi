@@ -88,7 +88,7 @@ public class UserController {
             message.setSubject("WYMI password reset request");
             message.setText(
                     String.format(
-                            "Please click here to reset your password: http://%s/wymi/password-reset?code=%s",
+                            "Please click here to reset your password: http://%s/password-reset?code=%s",
                             AppConfig.get("IP"),
                             code
                     )
@@ -128,7 +128,7 @@ public class UserController {
             final SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail());
             message.setSubject("WYMI account validation");
-            message.setText(String.format("Please click here to validate your account: http://%s/wymi/api/user/%s/validate/%s", AppConfig.get("IP"), user.getName(), code));
+            message.setText(String.format("Please click here to validate your account: http://%s/api/user/%s/validate/%s", AppConfig.get("IP"), user.getName(), code));
             mailSender.send(message);
 
             return new ResponseEntity<>(universalResponse, HttpStatus.CREATED);

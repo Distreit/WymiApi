@@ -77,7 +77,7 @@ public class PostDonation implements BalanceTransaction {
     @Override
     public String getTargetUrl() {
         // TODO: CREATE URL
-        return "http://localhost/wymi/home";
+        return "http://localhost/home";
     }
 
     @Override
