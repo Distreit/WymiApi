@@ -1,4 +1,4 @@
-<html data-ng-app="wymi" data-ng-controller="RouteController as router">
+<html ng-csp ng-app="wymi" ng-controller="RouteController as router">
 <head>
     <title>WYMI</title>
 
@@ -7,10 +7,11 @@
     <base href="/">
 
     <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+    <link href='/build/_bower.css' rel='stylesheet' type='text/css'>
 </head>
 <body>
 
-<div data-wymi-content=""></div>
+<div wymi-content=""></div>
 
 <div id="deferredJS">
     <script src="/build/_bower.js"></script>
