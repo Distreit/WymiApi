@@ -19,7 +19,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean save(User user) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            Balance balance = new Balance();
+            final Balance balance = new Balance();
             balance.setUser(user);
             balance.setCurrentBalance(0);
             session.persist(user);

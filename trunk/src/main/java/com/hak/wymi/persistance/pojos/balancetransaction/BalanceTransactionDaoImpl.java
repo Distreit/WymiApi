@@ -19,11 +19,23 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionDaoImpl.class);
 
     private static final Double TAX_RATE = 0.05;
+    private static final Double ONE_HUNDRED = 100.0;
 
     private final LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
     @Autowired
     private SessionFactory sessionFactory;
+
+    private static boolean checkOutput(Integer startingAmount, Integer siteTax, Integer topicTax, Integer finalAmount) {
+        if (startingAmount - siteTax - topicTax - finalAmount == 0) {
+            return true;
+        }
+
+        LOGGER.error(String.format(
+                "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)",
+                siteTax, topicTax, finalAmount, startingAmount));
+        return false;
+    }
 
     private Balance getBalance(Session session, Integer userId) {
         return (Balance) session
@@ -79,18 +91,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         }
 
         final Integer finalAmount = paySubmitter(session, transaction, siteTax, topicTax);
-        if (finalAmount == null || finalAmount < 0) {
-            return false;
-        }
-
-        if (startingAmount - siteTax - topicTax - finalAmount == 0) {
-            return true;
-        }
-
-        LOGGER.error(String.format(
-                "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)",
-                siteTax, topicTax, finalAmount, startingAmount));
-        return false;
+        return !(finalAmount == null || finalAmount < 0) && checkOutput(startingAmount, siteTax, topicTax, finalAmount);
     }
 
     private Integer paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
@@ -111,19 +112,19 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private Integer payTopicOwner(Session session, BalanceTransaction transaction, Integer siteTax) {
-        final Double topicTaxRate = Double.valueOf(transaction.getTaxRate()) / 100.0;
+        final Double topicTaxRate = transaction.getTaxRate() / ONE_HUNDRED;
 
-        if (topicTaxRate != 0) {
-            final Balance topicOwnerBalance = getBalance(session, transaction.getTaxerUserId());
-            Integer topicTax = (int) Math.max((transaction.getAmount() * topicTaxRate), 1);
-            topicTax = Math.min(transaction.getAmount() - siteTax, topicTax);
-            if (topicOwnerBalance.addPoints(topicTax)) {
-                session.update(topicOwnerBalance);
-                LOGGER.debug(String.format("The owner %s got %d", topicOwnerBalance.getUser().getName(), topicTax));
-                return topicTax;
-            }
-        } else {
+        if (topicTaxRate == 0) {
             return 0;
+        }
+
+        final Balance topicOwnerBalance = getBalance(session, transaction.getTaxerUserId());
+        Integer topicTax = (int) Math.max(transaction.getAmount() * topicTaxRate, 1);
+        topicTax = Math.min(transaction.getAmount() - siteTax, topicTax);
+        if (topicOwnerBalance.addPoints(topicTax)) {
+            session.update(topicOwnerBalance);
+            LOGGER.debug(String.format("The owner %s got %d", topicOwnerBalance.getUser().getName(), topicTax));
+            return topicTax;
         }
 
         return null;
@@ -167,15 +168,10 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     public boolean cancel(BalanceTransaction transaction) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             transaction.setState(TransactionState.CANCELED);
-            final Message message = new Message(
-                    transaction.getSourceUser(),
-                    null,
-                    "Transfer failure",
-                    String.format(
-                            "Transaction from %s for %d canceled.",
+            final Message message = new Message(transaction.getSourceUser(), null, "Transfer failure",
+                    String.format("Transaction from %s for %d canceled.",
                             transaction.getTargetUrl(),
-                            transaction.getAmount()
-                    ));
+                            transaction.getAmount()));
 
             if (transaction.getDependent() == null) {
                 session.update(transaction);

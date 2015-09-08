@@ -25,7 +25,7 @@ import java.util.Date;
 @UrlOrText(groups = Creation.class)
 public class Post implements HasPointsBalance {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "post")
-    PostCreation postCreation;
+    private PostCreation postCreation;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
