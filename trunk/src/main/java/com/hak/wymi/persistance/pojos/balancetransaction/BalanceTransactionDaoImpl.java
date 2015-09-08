@@ -66,6 +66,8 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private boolean splitPointsToReceivers(Session session, BalanceTransaction transaction) {
+        final Integer startingAmount = transaction.getAmount();
+
         final Integer siteTax = paySite(session, transaction);
         if (siteTax == null || siteTax < 0) {
             return false;
@@ -76,24 +78,36 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             return false;
         }
 
-        return paySubmitter(session, transaction, siteTax, topicTax);
+        final Integer finalAmount = paySubmitter(session, transaction, siteTax, topicTax);
+        if (finalAmount == null || finalAmount < 0) {
+            return false;
+        }
+
+        if (startingAmount - siteTax - topicTax - finalAmount == 0) {
+            return true;
+        }
+
+        LOGGER.error(String.format(
+                "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)",
+                siteTax, topicTax, finalAmount, startingAmount));
+        return false;
     }
 
-    private boolean paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
+    private Integer paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
         final Balance submitterBalance = getBalance(session, transaction.getDestinationUserId());
         final int remainingAmount = transaction.getAmount() - siteTax - topicTax;
         if (remainingAmount == 0) {
             LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getUser().getName(), remainingAmount));
-            return true;
+            return remainingAmount;
         } else {
             if (submitterBalance.addPoints(remainingAmount)) {
                 LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getUser().getName(), remainingAmount));
                 session.update(submitterBalance);
-                return true;
+                return remainingAmount;
             }
         }
 
-        return false;
+        return null;
     }
 
     private Integer payTopicOwner(Session session, BalanceTransaction transaction, Integer siteTax) {
@@ -108,7 +122,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
                 LOGGER.debug(String.format("The owner %s got %d", topicOwnerBalance.getUser().getName(), topicTax));
                 return topicTax;
             }
-        } else if (topicTaxRate == 0) {
+        } else {
             return 0;
         }
 
