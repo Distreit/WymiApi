@@ -39,7 +39,7 @@ public class Topic {
     )
     @Pattern(
             groups = {Default.class, Creation.class},
-            regexp = "[0-9a-zA-Z][0-9a-zA-Z-]+"
+            regexp = "([0-9a-zA-Z]+(-[0-9a-zA-Z])?)+"
     )
     @NotNull(groups = Update.class)
     private String name;
