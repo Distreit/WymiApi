@@ -26,7 +26,24 @@ public class TopicDaoImpl implements TopicDao {
     }
 
     @Override
-    public Topic update(Integer topicId, Principal principal) {
+    public Topic update(Topic partialTopic, Principal principal) {
+        final Session firstSession = sessionFactory.openSession();
+        final Topic topic = (Topic) firstSession.createQuery("from Topic where lower(name)=:name and owner.name=:ownerName")
+                .setParameter("name", partialTopic.getName().toLowerCase(Locale.ENGLISH))
+                .setParameter("ownerName", principal.getName())
+                .uniqueResult();
+        firstSession.close();
+
+
+        if (DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
+            topic.setFeePercent(partialTopic.getFeePercent());
+            topic.setFeeFlat(partialTopic.getFeeFlat());
+            session.update(topic);
+            topic.getOwner();
+            return true;
+        })) {
+            return topic;
+        }
         return null;
     }
 

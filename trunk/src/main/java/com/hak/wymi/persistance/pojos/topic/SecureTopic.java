@@ -43,4 +43,8 @@ public class SecureTopic implements SecureToSend {
     public Integer getFeePercent() {
         return feePercent;
     }
+
+    public String getUrl() {
+        return String.format("t/%s", this.getName());
+    }
 }

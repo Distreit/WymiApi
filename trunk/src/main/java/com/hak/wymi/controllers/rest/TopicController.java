@@ -5,8 +5,8 @@ import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.topic.SecureTopic;
 import com.hak.wymi.persistance.pojos.topic.Topic;
-import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
+import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.validations.groups.Creation;
 import com.hak.wymi.validations.groups.Update;
@@ -56,13 +56,14 @@ public class TopicController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.PUT, produces = Constants.JSON)
+    @RequestMapping(value = "", method = RequestMethod.PATCH, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<UniversalResponse> updateTopic(@Validated({Update.class}) @RequestBody Topic topic, Principal principal) {
+    public ResponseEntity<UniversalResponse> patchTopic(@Validated({Update.class}) @RequestBody Topic topic, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        if (topicDao.update(topic.getTopicId(), principal) != null) {
-            return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.CREATED);
+        final Topic freshTopic = topicDao.update(topic, principal);
+        if (freshTopic != null) {
+            return new ResponseEntity<>(universalResponse.setData(new SecureTopic(freshTopic)), HttpStatus.CREATED);
         }
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }

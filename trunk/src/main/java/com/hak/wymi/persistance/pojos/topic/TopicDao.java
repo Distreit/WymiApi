@@ -10,7 +10,7 @@ public interface TopicDao {
 
     boolean update(Topic topic);
 
-    Topic update(Integer topicId, Principal principal);
+    Topic update(Topic topic, Principal principal);
 
     List<Topic> getAll();
 }

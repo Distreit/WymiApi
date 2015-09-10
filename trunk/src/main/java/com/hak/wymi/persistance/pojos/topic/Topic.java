@@ -28,8 +28,7 @@ import java.util.Date;
 public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Null(groups = Creation.class)
-    @NotNull(groups = Update.class)
+    @Null(groups = {Creation.class, Update.class})
     private Integer topicId;
 
     @Size(
@@ -42,7 +41,7 @@ public class Topic {
             groups = {Default.class, Creation.class},
             regexp = "[0-9a-zA-Z][0-9a-zA-Z-]+"
     )
-    @Null(groups = Update.class)
+    @NotNull(groups = Update.class)
     private String name;
 
     @ManyToOne
@@ -75,6 +74,7 @@ public class Topic {
     private Date created;
 
     @Version
+    @Null(groups = {Creation.class, Update.class})
     private Integer version;
 
     public Integer getTopicId() {
