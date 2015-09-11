@@ -4,6 +4,7 @@ import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -35,6 +36,9 @@ public class CommentDonation implements BalanceTransaction {
     @ManyToOne
     @JoinColumn(name = "sourceUserId")
     private User sourceUser;
+
+    @Formula("(select count(d.commentId) from commentdonation d where d.commentId=commentId and d.sourceUserId=sourceUserId and d.state='PROCESSED')")
+    private Integer userDonationCount;
 
     @Min(value = 0, groups = {Default.class, Creation.class})
     private Integer amount;
@@ -99,8 +103,7 @@ public class CommentDonation implements BalanceTransaction {
 
     @Override
     public boolean isUniqueToUser() {
-        // TODO: this.
-        return false;
+        return userDonationCount == 0;
     }
 
     @Override

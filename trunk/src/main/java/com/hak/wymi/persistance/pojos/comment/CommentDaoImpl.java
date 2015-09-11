@@ -19,7 +19,7 @@ public class CommentDaoImpl implements CommentDao {
     public List<Comment> getAll(Integer postId) {
         final Session session = sessionFactory.openSession();
         final List<Comment> commentList = session
-                .createQuery("from Comment where post.postId=:postId and parentComment=null")
+                .createQuery("from Comment where post.postId=:postId and parentComment=null ORDER BY score DESC")
                 .setParameter("postId", postId)
                 .list();
         session.close();

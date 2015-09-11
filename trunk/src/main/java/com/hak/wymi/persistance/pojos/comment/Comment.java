@@ -50,6 +50,10 @@ public class Comment implements HasPointsBalance {
 
     private Integer points;
 
+    private Integer donations;
+
+    private Double score;
+
     private Boolean deleted;
 
     private String content;
@@ -111,6 +115,7 @@ public class Comment implements HasPointsBalance {
 
     public void setPoints(Integer points) {
         this.points = points;
+        this.score = points.doubleValue();
     }
 
     public Boolean getDeleted() {
@@ -180,7 +185,7 @@ public class Comment implements HasPointsBalance {
 
     @Override
     public void incrementTransactionCount() {
-        //TODO: Create transaction count implementation.
+        this.donations++;
     }
 
     public Integer getTaxRate() {
@@ -193,5 +198,21 @@ public class Comment implements HasPointsBalance {
 
     public void setCommentCreation(CommentCreation commentCreation) {
         this.commentCreation = commentCreation;
+    }
+
+    public Integer getDonations() {
+        return donations;
+    }
+
+    public void setDonations(Integer donations) {
+        this.donations = donations;
+    }
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
     }
 }

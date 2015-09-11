@@ -18,6 +18,8 @@ public class SecureComment implements SecureToSend {
 
     private final Date created;
 
+    private final Double score;
+
     private final List<SecureComment> replies;
 
     public SecureComment(Comment comment) {
@@ -32,6 +34,7 @@ public class SecureComment implements SecureToSend {
         this.commentId = comment.getCommentId();
         this.postId = comment.getPost().getPostId();
         this.created = comment.getCreated();
+        this.score = comment.getScore();
         replies = new LinkedList<>();
 
         if (comment.getReplies() != null) {
@@ -64,5 +67,9 @@ public class SecureComment implements SecureToSend {
 
     public List<SecureComment> getReplies() {
         return replies;
+    }
+
+    public Double getScore() {
+        return score;
     }
 }

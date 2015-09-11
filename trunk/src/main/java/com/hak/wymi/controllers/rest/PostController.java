@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/topic/{topicName}")
 public class PostController {
     private static final int MILLISECONDS_IN_A_SECOND = 1000;
+    private static final int MAX_RESULTS_PER_REQUEST = 100;
     @Autowired
     private UserDao userDao;
 
@@ -111,7 +112,7 @@ public class PostController {
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final List<Post> posts = postDao.get(topicName, firstResult, maxResults);
+        final List<Post> posts = postDao.get(topicName, firstResult, Math.min(MAX_RESULTS_PER_REQUEST, maxResults));
         final List<SecureToSend> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
