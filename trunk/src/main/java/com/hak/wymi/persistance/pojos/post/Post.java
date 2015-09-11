@@ -5,6 +5,7 @@ import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.UrlOrText;
 import com.hak.wymi.validations.groups.Creation;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,20 +25,27 @@ import java.util.Date;
 @Table(name = "post")
 @UrlOrText(groups = Creation.class)
 public class Post implements HasPointsBalance {
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "post")
-    private PostCreation postCreation;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
     private Integer postId;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "post")
+    private PostCreation postCreation;
+
     @ManyToOne
     @JoinColumn(name = "userId")
     private User user;
+
     @ManyToOne
     @JoinColumn(name = "topicId")
     private Topic topic;
+
     @NotNull
     private String title;
+
+    @Formula("(select count(t.postId) from comment t where t.postId=postId)")
+    private Integer commentCounts;
 
     private String url;
 
@@ -175,5 +183,13 @@ public class Post implements HasPointsBalance {
 
     public Integer getTaxRate() {
         return this.postCreation.getFeePercent();
+    }
+
+    public Integer getCommentCounts() {
+        return commentCounts;
+    }
+
+    public void setCommentCounts(Integer commentCounts) {
+        this.commentCounts = commentCounts;
     }
 }

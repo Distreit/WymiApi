@@ -38,7 +38,7 @@
     </logger>
 
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder">
-        <level value="info"/>
+        <level value="all"/>
     </logger>
 
     <!-- Root Logger -->
