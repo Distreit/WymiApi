@@ -29,17 +29,25 @@ public class BalanceTransactionManager {
     public static final int TRANSACTION_WAIT_PERIOD = 15000;
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionManager.class);
     private static final int QUEUE_START_SIZE = 50;
+
     private final BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
+
     private final PriorityBlockingQueue<BalanceTransaction> preprocessQueue = new PriorityBlockingQueue<>(QUEUE_START_SIZE, (first, second) -> first.getCreated().compareTo(second.getCreated()));
+
     private final ConcurrentMap<Integer, Set<BalanceTransaction>> userTransactions = new ConcurrentHashMap<>();
+
     @Autowired
     private CommentDonationDao commentDonationDao;
+
     @Autowired
     private PostDonationDao postDonationDao;
+
     @Autowired
     private BalanceTransactionDao balanceTransactionDao;
+
     @Autowired
     private CommentCreationDao commentCreationDao;
+
     @Autowired
     private PostCreationDao postCreationDao;
     private boolean processQueue;
@@ -100,9 +108,7 @@ public class BalanceTransactionManager {
 
     public void add(BalanceTransaction transaction) {
         addToUserMap(transaction);
-        System.out.println(preprocessQueue.size());
         preprocessQueue.add(transaction);
-        System.out.println(preprocessQueue.size());
     }
 
     private void addToUserMap(BalanceTransaction transaction) {

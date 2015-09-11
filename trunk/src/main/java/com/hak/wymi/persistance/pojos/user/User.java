@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.user;
 
 import com.hak.wymi.persistance.interfaces.HasPassword;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.validations.Email;
 import com.hak.wymi.validations.EmailDoesNotExist;
 import com.hak.wymi.validations.EmailsMatch;
@@ -14,6 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -22,6 +24,7 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -64,6 +67,9 @@ public class User implements HasPassword, HasPointsBalance {
     private String confirmEmail;
 
     private Boolean validated = Boolean.FALSE;
+
+    @ManyToMany(mappedBy = "subscribers")
+    private Set<Topic> subscriptions;
 
     @Version
     @Null(groups = Creation.class)
@@ -181,5 +187,13 @@ public class User implements HasPassword, HasPointsBalance {
     @Override
     public void incrementTransactionCount() {
         // Doesn't need to track this.
+    }
+
+    public Set<Topic> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(Set<Topic> subscriptions) {
+        this.subscriptions = subscriptions;
     }
 }

@@ -1,15 +1,19 @@
 package com.hak.wymi.persistance.pojos.topic;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.groups.Creation;
 import com.hak.wymi.validations.groups.Update;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -21,6 +25,8 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
 import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
 
 @Entity
 @Table(name = "topic")
@@ -31,16 +37,12 @@ public class Topic {
     @Null(groups = {Creation.class, Update.class})
     private Integer topicId;
 
-    @Size(
-            groups = {Default.class, Creation.class},
+    @Size(groups = {Default.class, Creation.class},
             min = 3,
             max = 30,
-            message = "Name must be between 3 and 30 characters in length"
-    )
-    @Pattern(
-            groups = {Default.class, Creation.class},
-            regexp = "([0-9a-zA-Z]+(-[0-9a-zA-Z])?)+"
-    )
+            message = "Name must be between 3 and 30 characters in length")
+    @Pattern(groups = {Default.class, Creation.class},
+            regexp = "([0-9a-zA-Z]+(-[0-9a-zA-Z])?)+")
     @NotNull(groups = Update.class)
     private String name;
 
@@ -64,11 +66,18 @@ public class Topic {
     @Null(groups = {Creation.class, Update.class})
     private Date rentDueDate;
 
-    @Null(groups = {Creation.class, Update.class})
-    private Integer subscribers;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "subscription",
+            joinColumns = {@JoinColumn(name = "topicId")},
+            inverseJoinColumns = {@JoinColumn(name = "userId")})
+    @JsonIgnore
+    private Set<User> subscribers;
 
     @Null(groups = {Creation.class, Update.class})
-    private Integer unsubscribers;
+    private Integer subscriberCount;
+
+    @Null(groups = {Creation.class, Update.class})
+    private Integer filterCount;
 
     @Null(groups = {Creation.class, Update.class})
     private Date created;
@@ -117,20 +126,20 @@ public class Topic {
         this.rentDueDate = rentDueDate;
     }
 
-    public Integer getSubscribers() {
-        return subscribers;
+    public Integer getSubscriberCount() {
+        return subscriberCount;
     }
 
-    public void setSubscribers(Integer subscribers) {
-        this.subscribers = subscribers;
+    public void setSubscriberCount(Integer subscriberCount) {
+        this.subscriberCount = subscriberCount;
     }
 
-    public Integer getUnsubscribers() {
-        return unsubscribers;
+    public Integer getFilterCount() {
+        return filterCount;
     }
 
-    public void setUnsubscribers(Integer unsubscribers) {
-        this.unsubscribers = unsubscribers;
+    public void setFilterCount(Integer filterCount) {
+        this.filterCount = filterCount;
     }
 
     public Date getCreated() {
@@ -163,5 +172,32 @@ public class Topic {
 
     public void setFeePercent(Integer feePercent) {
         this.feePercent = feePercent;
+    }
+
+    public Set<User> getSubscribers() {
+        return subscribers;
+    }
+
+    public void setSubscribers(Set<User> subscriber) {
+        this.subscribers = subscriber;
+    }
+
+    public boolean addSubscriber(User user) {
+        if (this.subscribers.stream().noneMatch(u -> u.getUserId().equals(user.getUserId()))) {
+            this.subscribers.add(user);
+            this.subscriberCount++;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeSubscriber(User user) {
+        Optional<User> matchingUser = subscribers.stream().filter(u -> u.getUserId().equals(user.getUserId())).findFirst();
+        if (matchingUser.isPresent()) {
+            subscribers.remove(matchingUser.get());
+            subscriberCount--;
+            return true;
+        }
+        return false;
     }
 }

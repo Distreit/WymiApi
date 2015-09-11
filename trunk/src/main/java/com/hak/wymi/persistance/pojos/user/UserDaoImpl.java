@@ -38,13 +38,12 @@ public class UserDaoImpl implements UserDao {
     public User getFromName(String name) {
         if (name != null && !"".equals(name)) {
             final Session session = sessionFactory.openSession();
-            final List<User> userList = session.createQuery("from User where lower(name)=:name")
+            final User user = (User) session.createQuery("from User where lower(name)=:name")
                     .setParameter("name", name.toLowerCase(Locale.ENGLISH))
-                    .list();
+                    .uniqueResult();
+            user.getSubscriptions().size();
             session.close();
-            if (userList.size() == 1) {
-                return userList.get(0);
-            }
+            return user;
         }
         return null;
     }

@@ -68,13 +68,12 @@ public class TopicDaoImpl implements TopicDao {
     public Topic get(String name) {
         if (name != null && !"".equals(name)) {
             final Session session = sessionFactory.openSession();
-            final List<Topic> topicList = session.createQuery("from Topic where lower(name)=:name")
+            final Topic topic = (Topic) session.createQuery("from Topic where lower(name)=:name")
                     .setParameter("name", name.toLowerCase(Locale.ENGLISH))
-                    .list();
+                    .uniqueResult();
+            topic.getSubscribers().size();
             session.close();
-            if (topicList.size() == 1) {
-                return topicList.get(0);
-            }
+            return topic;
         }
         return null;
     }

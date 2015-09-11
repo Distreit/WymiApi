@@ -47,8 +47,8 @@ public class TopicController {
         topic.setOwner(user);
         topic.setRent(0);
         topic.setRentDueDate(DateUtils.addDays(new Date(), THIRTY_DAYS));
-        topic.setSubscribers(0);
-        topic.setUnsubscribers(0);
+        topic.setSubscriberCount(0);
+        topic.setFilterCount(0);
 
         if (topicDao.save(topic)) {
             return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.CREATED);
@@ -85,5 +85,33 @@ public class TopicController {
         final SecureToSend secureTopics = new SecureTopic(topicDao.get(topicName));
 
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "{topicName}/subscribers", method = RequestMethod.PUT, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> addSubscriber(@PathVariable String topicName, Principal principal) {
+        return removeOrAddSubscriber(principal, topicName, false);
+    }
+
+    @RequestMapping(value = "{topicName}/subscribers", method = RequestMethod.DELETE, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> removeSubscriber(@PathVariable String topicName, Principal principal) {
+        return removeOrAddSubscriber(principal, topicName, true);
+    }
+
+    private ResponseEntity<UniversalResponse> removeOrAddSubscriber(Principal principal, String topicName, boolean remove) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final User user = userDao.get(principal);
+        if (user != null) {
+            final Topic topic = topicDao.get(topicName);
+            if (topic != null) {
+                if (((remove && topic.removeSubscriber(user)) || (!remove && topic.addSubscriber(user)))
+                        && topicDao.update(topic)) {
+                    final SecureToSend secureTopics = new SecureTopic(topic);
+                    return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
+                }
+            }
+        }
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

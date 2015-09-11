@@ -8,16 +8,16 @@ public class SecureTopic implements SecureToSend {
     private final Integer feeFlat;
     private final Integer feePercent;
     private final String owner;
-    private final Integer subscribers;
-    private final Integer unsubscribers;
+    private final Integer subscriberCount;
+    private final Integer filterCount;
 
     public SecureTopic(Topic topic) {
         this.name = topic.getName();
         this.feeFlat = topic.getFeeFlat();
         this.feePercent = topic.getFeePercent();
         this.owner = topic.getOwner().getName();
-        this.subscribers = topic.getSubscribers();
-        this.unsubscribers = topic.getUnsubscribers();
+        this.subscriberCount = topic.getSubscriberCount();
+        this.filterCount = topic.getFilterCount();
     }
 
     public String getName() {
@@ -28,12 +28,12 @@ public class SecureTopic implements SecureToSend {
         return owner;
     }
 
-    public Integer getSubscribers() {
-        return subscribers;
+    public Integer getSubscriberCount() {
+        return subscriberCount;
     }
 
-    public Integer getUnsubscribers() {
-        return unsubscribers;
+    public Integer getFilterCount() {
+        return filterCount;
     }
 
     public Integer getFeeFlat() {
