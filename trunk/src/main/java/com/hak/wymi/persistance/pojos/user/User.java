@@ -177,4 +177,9 @@ public class User implements HasPassword, HasPointsBalance {
     public boolean removePoints(Integer amount) {
         return true;
     }
+
+    @Override
+    public void incrementTransactionCount() {
+        // Doesn't need to track this.
+    }
 }

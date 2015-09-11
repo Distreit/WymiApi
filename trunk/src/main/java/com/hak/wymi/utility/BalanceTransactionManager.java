@@ -100,7 +100,9 @@ public class BalanceTransactionManager {
 
     public void add(BalanceTransaction transaction) {
         addToUserMap(transaction);
+        System.out.println(preprocessQueue.size());
         preprocessQueue.add(transaction);
+        System.out.println(preprocessQueue.size());
     }
 
     private void addToUserMap(BalanceTransaction transaction) {

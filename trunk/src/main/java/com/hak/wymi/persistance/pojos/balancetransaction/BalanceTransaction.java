@@ -34,4 +34,6 @@ public interface BalanceTransaction {
     Integer getTaxerUserId();
 
     Integer getTaxRate();
+
+    boolean isUniqueToUser();
 }

@@ -158,6 +158,12 @@ public class CommentCreation implements BalanceTransaction {
         return 0;
     }
 
+    @Override
+    public boolean isUniqueToUser() {
+        // Doesn't need to track uniqueness.
+        return false;
+    }
+
     public Integer getFeeFlat() {
         return feeFlat;
     }

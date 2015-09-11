@@ -178,6 +178,11 @@ public class Comment implements HasPointsBalance {
         return false;
     }
 
+    @Override
+    public void incrementTransactionCount() {
+        //TODO: Create transaction count implementation.
+    }
+
     public Integer getTaxRate() {
         return commentCreation.getFeePercent();
     }

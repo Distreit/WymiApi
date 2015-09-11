@@ -69,6 +69,11 @@ public class Balance implements HasPointsBalance {
     }
 
     @Override
+    public void incrementTransactionCount() {
+        // Doesn't need to track transaction count.
+    }
+
+    @Override
     public boolean addPoints(Integer amount) {
         if (amount >= 0) {
             this.currentBalance += amount;

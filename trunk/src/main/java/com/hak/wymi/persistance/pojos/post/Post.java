@@ -57,6 +57,10 @@ public class Post implements HasPointsBalance {
 
     private Double score;
 
+    private Double base;
+
+    private Integer donations;
+
     @Version
     private Integer version;
 
@@ -126,6 +130,7 @@ public class Post implements HasPointsBalance {
 
     public void setPoints(Integer points) {
         this.points = points;
+        this.score = base + points;
     }
 
     public Double getScore() {
@@ -181,6 +186,11 @@ public class Post implements HasPointsBalance {
         return false;
     }
 
+    @Override
+    public void incrementTransactionCount() {
+        this.donations++;
+    }
+
     public Integer getTaxRate() {
         return this.postCreation.getFeePercent();
     }
@@ -191,5 +201,21 @@ public class Post implements HasPointsBalance {
 
     public void setCommentCounts(Integer commentCounts) {
         this.commentCounts = commentCounts;
+    }
+
+    public Double getBase() {
+        return base;
+    }
+
+    public void setBase(Double base) {
+        this.base = base;
+    }
+
+    public Integer getDonations() {
+        return donations;
+    }
+
+    public void setDonations(Integer donations) {
+        this.donations = donations;
     }
 }

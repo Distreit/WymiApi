@@ -158,6 +158,12 @@ public class PostCreation implements BalanceTransaction {
         return 0;
     }
 
+    @Override
+    public boolean isUniqueToUser() {
+        // Post creations don't need to track uniqueness.
+        return false;
+    }
+
     public Integer getFeeFlat() {
         return feeFlat;
     }

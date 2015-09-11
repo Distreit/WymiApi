@@ -61,10 +61,12 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`commentId`),
-  KEY `FK_comment_comment` (`parentCommentId`),
   KEY `FK_comment_user` (`authorId`),
   KEY `FK_comment_post` (`postId`),
-  CONSTRAINT `FK_comment_comment` FOREIGN KEY (`parentCommentId`) REFERENCES `comment` (`commentId`) ON UPDATE CASCADE,
+  KEY `FK_comment_comment` (`parentCommentId`),
+  CONSTRAINT `FK_comment_comment` FOREIGN KEY (`parentCommentId`) REFERENCES `comment` (`commentId`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `FK_comment_post` FOREIGN KEY (`postId`) REFERENCES `post` (`postId`),
   CONSTRAINT `FK_comment_user` FOREIGN KEY (`authorId`) REFERENCES `user` (`userId`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -72,17 +74,35 @@ CREATE TABLE IF NOT EXISTS `comment` (
 -- Data exporting was unselected.
 
 
+-- Dumping structure for table wymi.commentcreation
+CREATE TABLE IF NOT EXISTS `commentcreation` (
+  `commentId`  INT(11)                                                     NOT NULL AUTO_INCREMENT,
+  `feeFlat`    BIGINT(20) UNSIGNED                                         NOT NULL,
+  `feePercent` SMALLINT(5) UNSIGNED                                        NOT NULL,
+  `state`      ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
+  `version`    INT(10) UNSIGNED                                            NOT NULL,
+  `updated`    TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`    TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`commentId`),
+  CONSTRAINT `FK_commentcreation_comment` FOREIGN KEY (`commentId`) REFERENCES `comment` (`commentId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table wymi.commentdonation
 CREATE TABLE IF NOT EXISTS `commentdonation` (
-  `commentTransactionId` int(11) NOT NULL AUTO_INCREMENT,
+  `commentDonationId` INT(11) UNSIGNED                                            NOT NULL AUTO_INCREMENT,
   `commentId` int(11) NOT NULL,
   `sourceUserId` int(11) NOT NULL,
   `amount` int(11) NOT NULL,
-  `state` enum('UNPROCESSED','PROCESSED','CANCELED') NOT NULL,
+  `state`             ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`commentTransactionId`),
+  PRIMARY KEY (`commentDonationId`),
   KEY `FK_commenttransaction_comment` (`commentId`),
   KEY `FK_commenttransaction_user` (`sourceUserId`),
   CONSTRAINT `FK_commenttransaction_comment` FOREIGN KEY (`commentId`) REFERENCES `comment` (`commentId`) ON UPDATE CASCADE,
@@ -124,8 +144,10 @@ CREATE TABLE IF NOT EXISTS `post` (
   `url` varchar(1000) NOT NULL,
   `text` varchar(15000) NOT NULL,
   `isText` tinyint(4) NOT NULL,
-  `points` bigint(20) NOT NULL DEFAULT '0',
-  `score` double NOT NULL,
+  `points`    BIGINT(20) UNSIGNED NOT NULL,
+  `donations` INT(10) UNSIGNED    NOT NULL,
+  `base`      DOUBLE UNSIGNED     NOT NULL,
+  `score`     DOUBLE UNSIGNED     NOT NULL,
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -139,17 +161,35 @@ CREATE TABLE IF NOT EXISTS `post` (
 -- Data exporting was unselected.
 
 
+-- Dumping structure for table wymi.postcreation
+CREATE TABLE IF NOT EXISTS `postcreation` (
+  `postId`     INT(11)                                                     NOT NULL AUTO_INCREMENT,
+  `feeFlat`    BIGINT(20) UNSIGNED                                         NOT NULL,
+  `feePercent` SMALLINT(5) UNSIGNED                                        NOT NULL,
+  `state`      ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
+  `version`    INT(10) UNSIGNED                                            NOT NULL,
+  `updated`    TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`    TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`postId`),
+  CONSTRAINT `FK_postcreation_post` FOREIGN KEY (`postId`) REFERENCES `post` (`postId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table wymi.postdonation
 CREATE TABLE IF NOT EXISTS `postdonation` (
-  `postTransactionId` int(11) NOT NULL AUTO_INCREMENT,
+  `postDonationId` INT(11) UNSIGNED                                            NOT NULL AUTO_INCREMENT,
   `postId` int(11) NOT NULL,
   `sourceUserId` int(11) NOT NULL,
   `amount` bigint(20) NOT NULL,
-  `state` enum('UNPROCESSED','PROCESSED','CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
+  `state`          ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`postTransactionId`),
+  PRIMARY KEY (`postDonationId`),
   KEY `FK_posttransaction_user` (`sourceUserId`),
   KEY `FK_posttransaction_post` (`postId`),
   CONSTRAINT `FK_posttransaction_post` FOREIGN KEY (`postId`) REFERENCES `post` (`postId`) ON UPDATE CASCADE,
@@ -164,12 +204,12 @@ CREATE TABLE IF NOT EXISTS `topic` (
   `topicId` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL,
   `owner` int(11) DEFAULT NULL,
-  `feeFlat`    INT(11) UNSIGNED NOT NULL DEFAULT '0',
-  `feePercent` INT(11) UNSIGNED NOT NULL DEFAULT '0',
-  `rent` bigint(20) NOT NULL DEFAULT '0',
+  `feeFlat`       INT(11) UNSIGNED     NOT NULL DEFAULT '0',
+  `feePercent`    SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  `rent`          BIGINT(20) UNSIGNED  NOT NULL DEFAULT '0',
   `rentDueDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `subscribers` int(11) NOT NULL DEFAULT '0',
-  `unsubscribers` int(11) NOT NULL DEFAULT '0',
+  `subscribers`   INT(11) UNSIGNED     NOT NULL DEFAULT '0',
+  `unsubscribers` INT(11) UNSIGNED     NOT NULL DEFAULT '0',
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -199,6 +239,29 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 -- Data exporting was unselected.
+
+
+-- Dumping structure for view wymi.userwithbalance
+-- Creating temporary table to overcome VIEW dependency errors
+CREATE TABLE `userwithbalance` (
+  `userId`         INT(10)             NULL,
+  `name`           VARCHAR(50)         NULL COLLATE 'latin1_swedish_ci',
+  `currentBalance` BIGINT(20) UNSIGNED NOT NULL
+)
+  ENGINE =MyISAM;
+
+
+-- Dumping structure for view wymi.userwithbalance
+-- Removing temporary table and create final VIEW structure
+DROP TABLE IF EXISTS `userwithbalance`;
+CREATE ALGORITHM = UNDEFINED
+  DEFINER =`root`@`localhost` VIEW `userwithbalance` AS
+  SELECT
+    user.userId,
+    name,
+    currentBalance
+  FROM balance
+    LEFT JOIN user ON balance.userId = user.userId;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

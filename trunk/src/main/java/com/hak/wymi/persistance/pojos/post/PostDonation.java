@@ -4,6 +4,7 @@ import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,6 +39,9 @@ public class PostDonation implements BalanceTransaction {
 
     @Min(value = 0, groups = {Default.class, Creation.class})
     private Integer amount;
+
+    @Formula("(select count(d.postId) from postdonation d where d.postId=postId and d.sourceUserId=sourceUserId and d.state='PROCESSED')")
+    private Integer userDonationCount;
 
     @Version
     private Integer version;
@@ -106,6 +110,11 @@ public class PostDonation implements BalanceTransaction {
     }
 
     @Override
+    public boolean isUniqueToUser() {
+        return this.userDonationCount == 0;
+    }
+
+    @Override
     public Integer getAmount() {
         return amount;
     }
@@ -167,5 +176,9 @@ public class PostDonation implements BalanceTransaction {
     @Override
     public void setState(TransactionState state) {
         this.state = state;
+    }
+
+    public void setUserDonationCount(Integer userDonationCount) {
+        this.userDonationCount = userDonationCount;
     }
 }

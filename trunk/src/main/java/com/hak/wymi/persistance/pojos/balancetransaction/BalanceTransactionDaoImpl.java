@@ -146,6 +146,9 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         final HasPointsBalance target = (HasPointsBalance) session
                 .load(transaction.getTargetClass(), transaction.getTargetId(), pessimisticWrite);
         if (target.addPoints(transaction.getAmount())) {
+            if (transaction.isUniqueToUser()) {
+                target.incrementTransactionCount();
+            }
             session.update(target);
             LOGGER.debug(String.format("Target got %d", transaction.getAmount()));
             return true;

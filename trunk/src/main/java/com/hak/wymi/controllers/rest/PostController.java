@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -82,11 +83,11 @@ public class PostController {
 
             post.setTopic(topic);
             post.setUser(user);
+            long base = new Date().getTime() / MILLISECONDS_IN_A_SECOND - AppConfig.BASE_TIME;
+            post.setBase((double) base);
             post.setPoints(0);
-            long score = new Date().getTime();
-            score /= MILLISECONDS_IN_A_SECOND;
-            score -= AppConfig.BASE_TIME;
-            post.setScore((double) score);
+            post.setDonations(0);
+            post.setScore((double) base);
 
             if (postCreationDao.save(transaction)) {
                 balanceTransactionManager.addToProcessQueue(transaction);
@@ -103,10 +104,14 @@ public class PostController {
     }
 
     @RequestMapping(value = "/post", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getPosts(@PathVariable String topicName) {
+    public ResponseEntity<UniversalResponse> getPosts(
+            @PathVariable String topicName,
+            @RequestParam(required = false, defaultValue = "0") Integer firstResult,
+            @RequestParam(required = false, defaultValue = "25") Integer maxResults
+    ) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final List<Post> posts = postDao.getAll(topicName);
+        final List<Post> posts = postDao.get(topicName, firstResult, maxResults);
         final List<SecureToSend> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);

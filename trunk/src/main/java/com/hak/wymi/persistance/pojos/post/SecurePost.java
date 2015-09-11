@@ -12,6 +12,7 @@ public class SecurePost implements SecureToSend {
     private final Integer commentCount;
     private final String url;
     private final String text;
+    private final Double score;
     private final Integer points;
     private final Date created;
 
@@ -25,6 +26,7 @@ public class SecurePost implements SecureToSend {
         this.text = post.getText();
         this.points = post.getPoints();
         this.created = post.getCreated();
+        this.score = post.getScore();
     }
 
     public String getUser() {
@@ -61,5 +63,9 @@ public class SecurePost implements SecureToSend {
 
     public Integer getCommentCount() {
         return commentCount;
+    }
+
+    public Double getScore() {
+        return score;
     }
 }

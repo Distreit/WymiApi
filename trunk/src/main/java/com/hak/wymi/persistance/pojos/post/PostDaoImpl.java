@@ -15,10 +15,12 @@ public class PostDaoImpl implements PostDao {
     private SessionFactory sessionFactory;
 
     @Override
-    public List<Post> getAll(String topicName) {
+    public List<Post> get(String topicName, int firstResult, int maxResults) {
         final Session session = sessionFactory.openSession();
-        final List<Post> postList = session.createQuery("from Post p where p.topic.name=:topicName")
+        final List<Post> postList = session.createQuery("FROM Post p WHERE p.topic.name=:topicName ORDER BY p.score DESC")
                 .setParameter("topicName", topicName)
+                .setFirstResult(firstResult)
+                .setMaxResults(maxResults)
                 .list();
         session.close();
         return postList;
@@ -28,7 +30,7 @@ public class PostDaoImpl implements PostDao {
     public Post get(Integer postId) {
         if (postId != null) {
             final Session session = sessionFactory.openSession();
-            final List<Post> postList = session.createQuery("from Post where postId=:postId")
+            final List<Post> postList = session.createQuery("FROM Post WHERE postId=:postId")
                     .setParameter("postId", postId)
                     .list();
             session.close();

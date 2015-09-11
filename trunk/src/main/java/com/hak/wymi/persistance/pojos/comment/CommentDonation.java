@@ -98,6 +98,12 @@ public class CommentDonation implements BalanceTransaction {
     }
 
     @Override
+    public boolean isUniqueToUser() {
+        // TODO: this.
+        return false;
+    }
+
+    @Override
     public Integer getAmount() {
         return amount;
     }
