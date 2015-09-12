@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.post;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +28,16 @@ public class PostDaoImpl implements PostDao {
     }
 
     @Override
-    public List<Post> get(List<String> topicList, int firstResult, int maxResults) {
+    public List<Post> get(List<String> topicList, int firstResult, int maxResults, Boolean filtered) {
         final Session session = sessionFactory.openSession();
-        final List<Post> postList = session.createQuery("FROM Post p WHERE p.topic.name IN (:topicNames) ORDER BY p.score DESC")
+        final Query query;
+        if (filtered) {
+            query = session.createQuery("FROM Post p WHERE p.topic.name NOT IN (:topicNames) ORDER BY p.score DESC");
+        } else {
+            query = session.createQuery("FROM Post p WHERE p.topic.name IN (:topicNames) ORDER BY p.score DESC");
+        }
+
+        final List<Post> postList = query
                 .setParameterList("topicNames", topicList)
                 .setFirstResult(firstResult)
                 .setMaxResults(maxResults)
