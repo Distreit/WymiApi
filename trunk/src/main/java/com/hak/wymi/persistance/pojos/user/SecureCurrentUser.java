@@ -16,8 +16,8 @@ public class SecureCurrentUser implements SecureToSend {
     public SecureCurrentUser(User user, Principal principal) {
         if (principal.getName().equalsIgnoreCase(user.getName())) {
             this.name = user.getName();
-            this.subscriptions = user.getSubscriptions().stream().map(Topic::getName).collect(Collectors.toCollection(LinkedList::new));
-            this.filters = user.getFilters().stream().map(Topic::getName).collect(Collectors.toCollection(LinkedList::new));
+            this.subscriptions = user.getSubscriptions().stream().map(Topic::getName).sorted().collect(Collectors.toCollection(LinkedList::new));
+            this.filters = user.getFilters().stream().map(Topic::getName).sorted().collect(Collectors.toCollection(LinkedList::new));
         } else {
             this.name = "";
             this.subscriptions = new LinkedList<>();

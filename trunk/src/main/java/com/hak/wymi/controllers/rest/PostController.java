@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 public class PostController {
     private static final int MILLISECONDS_IN_A_SECOND = 1000;
     private static final int MAX_RESULTS_PER_REQUEST = 100;
+
     @Autowired
     private UserDao userDao;
 
@@ -84,7 +85,7 @@ public class PostController {
 
             post.setTopic(topic);
             post.setUser(user);
-            long base = new Date().getTime() / MILLISECONDS_IN_A_SECOND - AppConfig.BASE_TIME;
+            final long base = new Date().getTime() / MILLISECONDS_IN_A_SECOND - AppConfig.BASE_TIME;
             post.setBase((double) base);
             post.setPoints(0);
             post.setDonations(0);

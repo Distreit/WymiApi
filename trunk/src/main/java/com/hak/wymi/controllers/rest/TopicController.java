@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/topic")
 public class TopicController {
     private static final int THIRTY_DAYS = 30;
+    private static final String SUBSCRIBERS = "subscribers";
+    private static final String FILTERS = "filters";
     @Autowired
     private TopicDao topicDao;
 
@@ -92,9 +94,9 @@ public class TopicController {
     public ResponseEntity<UniversalResponse> addSubscriber(@PathVariable String topicName,
                                                            @PathVariable String type,
                                                            Principal principal) {
-        if (type.equals("subscribers")) {
+        if (SUBSCRIBERS.equals(type)) {
             return removeOrAddSubscriber(principal, topicName, false, true);
-        } else if (type.equals("filters")) {
+        } else if (FILTERS.equals(type)) {
             return removeOrAddSubscriber(principal, topicName, false, false);
         }
         return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -105,28 +107,46 @@ public class TopicController {
     public ResponseEntity<UniversalResponse> removeSubscriber(@PathVariable String topicName,
                                                               @PathVariable String type,
                                                               Principal principal) {
-        if (type.equals("subscribers")) {
+        if (SUBSCRIBERS.equals(type)) {
             return removeOrAddSubscriber(principal, topicName, true, true);
-        } else if (type.equals("filters")) {
+        } else if (FILTERS.equals(type)) {
             return removeOrAddSubscriber(principal, topicName, true, false);
         }
         return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<UniversalResponse> removeOrAddSubscriber(Principal principal, String topicName, boolean remove, boolean isSubscription) {
-        final UniversalResponse universalResponse = new UniversalResponse();
         final User user = userDao.get(principal);
         if (user != null) {
             final Topic topic = topicDao.get(topicName);
             if (topic != null) {
-                if (((isSubscription && ((remove && topic.removeSubscriber(user)) || (!remove && topic.addSubscriber(user))))
-                        || (!isSubscription && ((remove && topic.removeFilter(user)) || (!remove && topic.addFilter(user)))))
-                        && topicDao.update(topic)) {
-                    final SecureToSend secureTopics = new SecureTopic(topic);
-                    return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
-                }
+                return removeOrAddSubscriber(user, topic, remove, isSubscription);
             }
         }
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private ResponseEntity<UniversalResponse> removeOrAddSubscriber(User user, Topic topic, boolean remove, boolean isSubscription) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final boolean needsSave;
+        if (isSubscription) {
+            if (remove) {
+                needsSave = topic.removeSubscriber(user);
+            } else {
+                needsSave = topic.addSubscriber(user);
+            }
+        } else {
+            if (remove) {
+                needsSave = topic.removeFilter(user);
+            } else {
+                needsSave = topic.addFilter(user);
+            }
+        }
+
+        if (needsSave && topicDao.update(topic)) {
+            final SecureToSend secureTopics = new SecureTopic(topic);
+            return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
+        }
+        return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

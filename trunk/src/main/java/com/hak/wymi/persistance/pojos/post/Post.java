@@ -188,7 +188,7 @@ public class Post implements HasPointsBalance {
 
     @Override
     public void incrementTransactionCount() {
-        this.donations++;
+        this.donations += 1;
     }
 
     public Integer getTaxRate() {

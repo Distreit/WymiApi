@@ -65,14 +65,14 @@ public class Topic {
     @Null(groups = {Creation.class, Update.class})
     private Date rentDueDate;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "subscription",
             joinColumns = {@JoinColumn(name = "topicId")},
             inverseJoinColumns = {@JoinColumn(name = "userId")})
     @JsonIgnore
     private Set<User> subscribers;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "filters",
             joinColumns = {@JoinColumn(name = "topicId")},
             inverseJoinColumns = {@JoinColumn(name = "userId")})
