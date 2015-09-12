@@ -27,6 +27,18 @@ public class PostDaoImpl implements PostDao {
     }
 
     @Override
+    public List<Post> get(List<String> topicList, int firstResult, int maxResults) {
+        final Session session = sessionFactory.openSession();
+        final List<Post> postList = session.createQuery("FROM Post p WHERE p.topic.name IN (:topicNames) ORDER BY p.score DESC")
+                .setParameterList("topicNames", topicList)
+                .setFirstResult(firstResult)
+                .setMaxResults(maxResults)
+                .list();
+        session.close();
+        return postList;
+    }
+
+    @Override
     public Post get(Integer postId) {
         if (postId != null) {
             final Session session = sessionFactory.openSession();

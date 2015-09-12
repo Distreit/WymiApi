@@ -32,13 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.Null;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/topic/{topicName}")
 public class PostController {
     private static final int MILLISECONDS_IN_A_SECOND = 1000;
     private static final int MAX_RESULTS_PER_REQUEST = 100;
@@ -58,7 +58,7 @@ public class PostController {
     @Autowired
     private BalanceTransactionManager balanceTransactionManager;
 
-    @RequestMapping(value = "/post", method = RequestMethod.POST, produces = Constants.JSON)
+    @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createPost(
             @Validated(Creation.class) @RequestBody PostAndTransaction postAndTransaction,
@@ -105,11 +105,10 @@ public class PostController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "/post", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getPosts(
-            @PathVariable String topicName,
-            @RequestParam(required = false, defaultValue = "0") Integer firstResult,
-            @RequestParam(required = false, defaultValue = "25") Integer maxResults
+    @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> getPosts(@PathVariable String topicName,
+                                                      @RequestParam(required = false, defaultValue = "0") Integer firstResult,
+                                                      @RequestParam(required = false, defaultValue = "25") Integer maxResults
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
@@ -119,13 +118,26 @@ public class PostController {
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/post/{postId}", method = RequestMethod.GET, produces = Constants.JSON)
+    @RequestMapping(value = "/topic/{topicName}/post/{postId}", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPost(@PathVariable Integer postId) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final Post post = postDao.get(postId);
         final SecurePost securePost = new SecurePost(post);
 
         return new ResponseEntity<>(universalResponse.setData(securePost), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/post", method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> getPost(@RequestParam(required = true) String topics,
+                                                     @RequestParam(required = false, defaultValue = "0") Integer firstResult,
+                                                     @RequestParam(required = false, defaultValue = "25") Integer maxResults) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final List<String> topicList = Arrays.asList(topics.split(","));
+        final List<SecureToSend> posts = postDao.get(topicList, firstResult, maxResults)
+                .stream().map(SecurePost::new)
+                .collect(Collectors.toCollection(LinkedList::new));
+
+        return new ResponseEntity<>(universalResponse.setData(posts), HttpStatus.ACCEPTED);
     }
 
     private static class PostAndTransaction {
