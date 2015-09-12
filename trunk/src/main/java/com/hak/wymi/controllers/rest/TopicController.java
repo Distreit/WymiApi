@@ -87,25 +87,40 @@ public class TopicController {
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "{topicName}/subscribers", method = RequestMethod.PUT, produces = Constants.JSON)
+    @RequestMapping(value = "{topicName}/{type}", method = RequestMethod.PUT, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<UniversalResponse> addSubscriber(@PathVariable String topicName, Principal principal) {
-        return removeOrAddSubscriber(principal, topicName, false);
+    public ResponseEntity<UniversalResponse> addSubscriber(@PathVariable String topicName,
+                                                           @PathVariable String type,
+                                                           Principal principal) {
+        if (type.equals("subscribers")) {
+            return removeOrAddSubscriber(principal, topicName, false, true);
+        } else if (type.equals("filters")) {
+            return removeOrAddSubscriber(principal, topicName, false, false);
+        }
+        return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @RequestMapping(value = "{topicName}/subscribers", method = RequestMethod.DELETE, produces = Constants.JSON)
+    @RequestMapping(value = "{topicName}/{type}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<UniversalResponse> removeSubscriber(@PathVariable String topicName, Principal principal) {
-        return removeOrAddSubscriber(principal, topicName, true);
+    public ResponseEntity<UniversalResponse> removeSubscriber(@PathVariable String topicName,
+                                                              @PathVariable String type,
+                                                              Principal principal) {
+        if (type.equals("subscribers")) {
+            return removeOrAddSubscriber(principal, topicName, true, true);
+        } else if (type.equals("filters")) {
+            return removeOrAddSubscriber(principal, topicName, true, false);
+        }
+        return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private ResponseEntity<UniversalResponse> removeOrAddSubscriber(Principal principal, String topicName, boolean remove) {
+    private ResponseEntity<UniversalResponse> removeOrAddSubscriber(Principal principal, String topicName, boolean remove, boolean isSubscription) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final User user = userDao.get(principal);
         if (user != null) {
             final Topic topic = topicDao.get(topicName);
             if (topic != null) {
-                if (((remove && topic.removeSubscriber(user)) || (!remove && topic.addSubscriber(user)))
+                if (((isSubscription && ((remove && topic.removeSubscriber(user)) || (!remove && topic.addSubscriber(user))))
+                        || (!isSubscription && ((remove && topic.removeFilter(user)) || (!remove && topic.addFilter(user)))))
                         && topicDao.update(topic)) {
                     final SecureToSend secureTopics = new SecureTopic(topic);
                     return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);

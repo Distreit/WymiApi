@@ -72,6 +72,7 @@ public class TopicDaoImpl implements TopicDao {
                     .setParameter("name", name.toLowerCase(Locale.ENGLISH))
                     .uniqueResult();
             topic.getSubscribers().size();
+            topic.getFilters().size();
             session.close();
             return topic;
         }

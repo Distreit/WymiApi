@@ -25,7 +25,6 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -72,6 +71,13 @@ public class Topic {
             inverseJoinColumns = {@JoinColumn(name = "userId")})
     @JsonIgnore
     private Set<User> subscribers;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "filters",
+            joinColumns = {@JoinColumn(name = "topicId")},
+            inverseJoinColumns = {@JoinColumn(name = "userId")})
+    @JsonIgnore
+    private Set<User> filters;
 
     @Null(groups = {Creation.class, Update.class})
     private Integer subscriberCount;
@@ -183,21 +189,40 @@ public class Topic {
     }
 
     public boolean addSubscriber(User user) {
-        if (this.subscribers.stream().noneMatch(u -> u.getUserId().equals(user.getUserId()))) {
-            this.subscribers.add(user);
-            this.subscriberCount++;
+        if (subscribers.stream().noneMatch(u -> u.getUserId().equals(user.getUserId()))) {
+            subscribers.add(user);
+            subscriberCount = subscribers.size();
             return true;
         }
         return false;
     }
 
     public boolean removeSubscriber(User user) {
-        Optional<User> matchingUser = subscribers.stream().filter(u -> u.getUserId().equals(user.getUserId())).findFirst();
-        if (matchingUser.isPresent()) {
-            subscribers.remove(matchingUser.get());
-            subscriberCount--;
+        if (subscribers.removeIf(u -> u.getUserId().equals(user.getUserId()))) {
+            subscriberCount = subscribers.size();
             return true;
         }
         return false;
+    }
+
+    public boolean addFilter(User user) {
+        if (filters.stream().noneMatch(u -> u.getUserId().equals(user.getUserId()))) {
+            filters.add(user);
+            filterCount = filters.size();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeFilter(User user) {
+        if (filters.removeIf(u -> u.getUserId().equals(user.getUserId()))) {
+            filterCount = filters.size();
+            return true;
+        }
+        return false;
+    }
+
+    public Set<User> getFilters() {
+        return filters;
     }
 }

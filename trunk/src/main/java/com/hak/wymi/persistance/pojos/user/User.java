@@ -71,6 +71,9 @@ public class User implements HasPassword, HasPointsBalance {
     @ManyToMany(mappedBy = "subscribers")
     private Set<Topic> subscriptions;
 
+    @ManyToMany(mappedBy = "filters")
+    private Set<Topic> filters;
+
     @Version
     @Null(groups = Creation.class)
     private Integer version;
@@ -80,6 +83,26 @@ public class User implements HasPassword, HasPointsBalance {
 
     @Null(groups = Creation.class)
     private Date updated;
+
+    @Override
+    public boolean passwordsMatch() {
+        return this.password.equals(this.confirmPassword);
+    }
+
+    @Override
+    public boolean addPoints(Integer amount) {
+        return true;
+    }
+
+    @Override
+    public boolean removePoints(Integer amount) {
+        return true;
+    }
+
+    @Override
+    public void incrementTransactionCount() {
+        // Doesn't need to track this.
+    }
 
     public Integer getUserId() {
         return userId;
@@ -169,31 +192,19 @@ public class User implements HasPassword, HasPointsBalance {
         this.updated = updated;
     }
 
-    @Override
-    public boolean passwordsMatch() {
-        return this.password.equals(this.confirmPassword);
-    }
-
-    @Override
-    public boolean addPoints(Integer amount) {
-        return true;
-    }
-
-    @Override
-    public boolean removePoints(Integer amount) {
-        return true;
-    }
-
-    @Override
-    public void incrementTransactionCount() {
-        // Doesn't need to track this.
-    }
-
     public Set<Topic> getSubscriptions() {
         return subscriptions;
     }
 
     public void setSubscriptions(Set<Topic> subscriptions) {
         this.subscriptions = subscriptions;
+    }
+
+    public Set<Topic> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(Set<Topic> filters) {
+        this.filters = filters;
     }
 }

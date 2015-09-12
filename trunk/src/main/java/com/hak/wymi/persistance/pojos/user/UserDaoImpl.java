@@ -42,6 +42,7 @@ public class UserDaoImpl implements UserDao {
                     .setParameter("name", name.toLowerCase(Locale.ENGLISH))
                     .uniqueResult();
             user.getSubscriptions().size();
+            user.getFilters().size();
             session.close();
             return user;
         }
