@@ -107,6 +107,7 @@ public class CommentController {
             comment.setParentComment(parentComment);
             comment.setDeleted(Boolean.FALSE);
             comment.setPoints(0);
+            comment.setDonations(0);
             if (commentCreationDao.save(transaction)) {
                 balanceTransactionManager.addToProcessQueue(transaction);
                 return true;

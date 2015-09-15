@@ -34,11 +34,11 @@
     </logger>
 
     <logger name="org.hibernate">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
 
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder">
-        <level value="info"/>
+        <level value="trace"/>
     </logger>
 
     <!-- Root Logger -->

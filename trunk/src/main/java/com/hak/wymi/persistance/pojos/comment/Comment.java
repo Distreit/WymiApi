@@ -4,6 +4,7 @@ import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -19,6 +20,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 
@@ -56,10 +58,12 @@ public class Comment implements HasPointsBalance {
 
     private Boolean deleted;
 
+    @Size(max = 10000, min = 1)
     private String content;
 
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @Fetch(value = FetchMode.SELECT)
+    @BatchSize(size = 10)
     private List<Comment> replies;
 
     @Version
