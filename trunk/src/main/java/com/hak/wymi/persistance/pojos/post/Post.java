@@ -191,6 +191,11 @@ public class Post implements HasPointsBalance {
         this.donations += 1;
     }
 
+    @Override
+    public String getName() {
+        return this.title;
+    }
+
     public Integer getTaxRate() {
         return this.postCreation.getFeePercent();
     }

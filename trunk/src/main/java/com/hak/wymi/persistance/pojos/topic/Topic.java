@@ -225,4 +225,8 @@ public class Topic {
     public Set<User> getFilters() {
         return filters;
     }
+
+    public String getUrl() {
+        return String.format("/t/%s", this.name);
+    }
 }

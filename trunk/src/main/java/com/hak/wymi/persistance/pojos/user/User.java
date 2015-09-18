@@ -12,10 +12,12 @@ import com.hak.wymi.validations.PasswordsMatch;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -73,6 +75,10 @@ public class User implements HasPassword, HasPointsBalance {
 
     @ManyToMany(mappedBy = "filters")
     private Set<Topic> filters;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+    @Null(groups = {Creation.class})
+    private Balance balance;
 
     @Version
     @Null(groups = Creation.class)
@@ -206,5 +212,13 @@ public class User implements HasPassword, HasPointsBalance {
 
     public void setFilters(Set<Topic> filters) {
         this.filters = filters;
+    }
+
+    public Balance getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Balance balance) {
+        this.balance = balance;
     }
 }

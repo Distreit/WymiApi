@@ -37,14 +37,6 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         return false;
     }
 
-    private Balance getBalance(Session session, Integer userId) {
-        return (Balance) session
-                .createQuery("from Balance where user.userId=:userId")
-                .setParameter("userId", userId)
-                .setLockOptions(pessimisticWrite)
-                .uniqueResult();
-    }
-
     @Override
     public boolean process(BalanceTransaction balanceTransaction) {
         final boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
@@ -95,14 +87,15 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private Integer paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
-        final Balance submitterBalance = getBalance(session, transaction.getDestinationUserId());
+        final HasPointsBalance submitterBalance = (HasPointsBalance) session
+                .load(transaction.getDestinationClass(), transaction.getDestinationId(), pessimisticWrite);
         final int remainingAmount = transaction.getAmount() - siteTax - topicTax;
         if (remainingAmount == 0) {
-            LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getUser().getName(), remainingAmount));
+            LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getName(), remainingAmount));
             return remainingAmount;
         } else {
             if (submitterBalance.addPoints(remainingAmount)) {
-                LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getUser().getName(), remainingAmount));
+                LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getName(), remainingAmount));
                 session.update(submitterBalance);
                 return remainingAmount;
             }
@@ -118,12 +111,12 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             return 0;
         }
 
-        final Balance topicOwnerBalance = getBalance(session, transaction.getTaxerUserId());
+        final HasPointsBalance topicOwnerBalance = (HasPointsBalance) session.load(Balance.class, transaction.getTaxerUserId());
         Integer topicTax = (int) Math.max(transaction.getAmount() * topicTaxRate, 1);
         topicTax = Math.min(transaction.getAmount() - siteTax, topicTax);
         if (topicOwnerBalance.addPoints(topicTax)) {
             session.update(topicOwnerBalance);
-            LOGGER.debug(String.format("The owner %s got %d", topicOwnerBalance.getUser().getName(), topicTax));
+            LOGGER.debug(String.format("The owner %s got %d", topicOwnerBalance.getName(), topicTax));
             return topicTax;
         }
 
@@ -131,12 +124,12 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private Integer paySite(Session session, BalanceTransaction transaction) {
-        final Balance sitesBalance = getBalance(session, -1);
+        final HasPointsBalance sitesBalance = (HasPointsBalance) session.load(Balance.class, -1, pessimisticWrite);
         final Integer tax = Math.max(1, (int) (transaction.getAmount() * TAX_RATE));
 
         if (sitesBalance.addPoints(tax)) {
             session.update(sitesBalance);
-            LOGGER.debug(String.format("The site(%s) got %d", sitesBalance.getUser().getName(), tax));
+            LOGGER.debug(String.format("The site(%s) got %d", sitesBalance.getName(), tax));
             return tax;
         }
         return null;
@@ -158,10 +151,10 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private boolean removePointsFromSourceUser(Session session, BalanceTransaction transaction) {
-        final Balance fromBalance = getBalance(session, transaction.getSourceUserId());
+        final HasPointsBalance fromBalance = (HasPointsBalance) session.load(Balance.class, transaction.getSourceUserId(), pessimisticWrite);
         if (fromBalance.removePoints(transaction.getAmount())) {
             session.update(fromBalance);
-            LOGGER.debug(String.format("The donator %s spent %d", fromBalance.getUser().getName(), transaction.getAmount()));
+            LOGGER.debug(String.format("The donator %s spent %d", fromBalance.getName(), transaction.getAmount()));
             return true;
         }
         return false;

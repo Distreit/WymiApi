@@ -6,4 +6,6 @@ public interface HasPointsBalance {
     boolean removePoints(Integer amount);
 
     void incrementTransactionCount();
+
+    String getName();
 }

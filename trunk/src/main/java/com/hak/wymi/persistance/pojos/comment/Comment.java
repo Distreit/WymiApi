@@ -192,6 +192,11 @@ public class Comment implements HasPointsBalance {
         this.donations += 1;
     }
 
+    @Override
+    public String getName() {
+        return String.format("Post: %s - Comment: %s", this.post.getName(), this.commentId);
+    }
+
     public Integer getTaxRate() {
         return commentCreation.getFeePercent();
     }

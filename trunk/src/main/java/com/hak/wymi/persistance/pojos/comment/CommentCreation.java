@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.comment;
 
+import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
@@ -84,8 +85,18 @@ public class CommentCreation implements BalanceTransaction {
     }
 
     @Override
-    public Integer getDestinationUserId() {
+    public Integer getDestinationId() {
         return this.comment.getPost().getTopic().getOwner().getUserId();
+    }
+
+    @Override
+    public Class getDestinationClass() {
+        return this.comment.getPost().getTopic().getOwner().getClass();
+    }
+
+    @Override
+    public HasPointsBalance getDestinationObject() {
+        return this.comment.getPost().getTopic().getOwner();
     }
 
     @Override
@@ -107,11 +118,6 @@ public class CommentCreation implements BalanceTransaction {
     public String getTargetUrl() {
         // TODO: CREATE URL
         return "http://localhost/home";
-    }
-
-    @Override
-    public User getDestinationUser() {
-        return this.comment.getAuthor();
     }
 
     @Override

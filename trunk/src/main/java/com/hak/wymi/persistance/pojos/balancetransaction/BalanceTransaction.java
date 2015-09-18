@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
+import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import java.util.Date;
@@ -15,7 +16,9 @@ public interface BalanceTransaction {
 
     Integer getSourceUserId();
 
-    Integer getDestinationUserId();
+    Integer getDestinationId();
+
+    Class getDestinationClass();
 
     Integer getTargetId();
 
@@ -24,8 +27,6 @@ public interface BalanceTransaction {
     User getSourceUser();
 
     String getTargetUrl();
-
-    User getDestinationUser();
 
     Integer getTransactionId();
 
@@ -36,4 +37,6 @@ public interface BalanceTransaction {
     Integer getTaxRate();
 
     boolean isUniqueToUser();
+
+    HasPointsBalance getDestinationObject();
 }

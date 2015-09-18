@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.post;
 
+import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
@@ -85,11 +86,6 @@ public class PostDonation implements BalanceTransaction {
     }
 
     @Override
-    public User getDestinationUser() {
-        return this.getPost().getUser();
-    }
-
-    @Override
     public Integer getTransactionId() {
         return this.getPostDonationId();
     }
@@ -129,8 +125,18 @@ public class PostDonation implements BalanceTransaction {
     }
 
     @Override
-    public Integer getDestinationUserId() {
+    public Integer getDestinationId() {
         return this.post.getUser().getUserId();
+    }
+
+    @Override
+    public Class getDestinationClass() {
+        return this.post.getUser().getClass();
+    }
+
+    @Override
+    public HasPointsBalance getDestinationObject() {
+        return this.post.getUser();
     }
 
     @Override
