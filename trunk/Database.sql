@@ -54,8 +54,10 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `authorId` int(10) NOT NULL,
   `postId` int(10) NOT NULL,
   `parentCommentId` int(10),
-  `points` bigint(20) NOT NULL DEFAULT '0',
   `deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `points`    BIGINT(20) UNSIGNED NOT NULL,
+  `donations` INT(10) UNSIGNED    NOT NULL,
+  `score`     DOUBLE UNSIGNED     NOT NULL,
   `content` varchar(10000) NOT NULL,
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -108,6 +110,21 @@ CREATE TABLE IF NOT EXISTS `commentdonation` (
   CONSTRAINT `FK_commenttransaction_comment` FOREIGN KEY (`commentId`) REFERENCES `comment` (`commentId`) ON UPDATE CASCADE,
   CONSTRAINT `FK_commenttransaction_user` FOREIGN KEY (`sourceUserId`) REFERENCES `user` (`userId`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table wymi.filters
+CREATE TABLE IF NOT EXISTS `filters` (
+  `userId`  INT(11) DEFAULT NULL,
+  `topicId` INT(11) DEFAULT NULL,
+  KEY `FK_filters_user` (`userId`),
+  KEY `FK_filters_topic` (`topicId`),
+  CONSTRAINT `FK_filters_topic` FOREIGN KEY (`topicId`) REFERENCES `topic` (`topicId`),
+  CONSTRAINT `FK_filters_user` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
 
 -- Data exporting was unselected.
 
@@ -199,17 +216,32 @@ CREATE TABLE IF NOT EXISTS `postdonation` (
 -- Data exporting was unselected.
 
 
+-- Dumping structure for table wymi.subscription
+CREATE TABLE IF NOT EXISTS `subscription` (
+  `userId`  INT(11) DEFAULT NULL,
+  `topicId` INT(11) DEFAULT NULL,
+  KEY `FK_subscription_user` (`userId`),
+  KEY `FK_subscription_topic` (`topicId`),
+  CONSTRAINT `FK_subscription_topic` FOREIGN KEY (`topicId`) REFERENCES `topic` (`topicId`),
+  CONSTRAINT `FK_subscription_user` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table wymi.topic
 CREATE TABLE IF NOT EXISTS `topic` (
   `topicId` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL,
   `owner` int(11) DEFAULT NULL,
-  `feeFlat`       INT(11) UNSIGNED     NOT NULL DEFAULT '0',
-  `feePercent`    SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-  `rent`          BIGINT(20) UNSIGNED  NOT NULL DEFAULT '0',
+  `feeFlat`         INT(11) UNSIGNED     NOT NULL DEFAULT '0',
+  `feePercent`      SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  `rent`            BIGINT(20) UNSIGNED  NOT NULL DEFAULT '0',
   `rentDueDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `subscribers`   INT(11) UNSIGNED     NOT NULL DEFAULT '0',
-  `unsubscribers` INT(11) UNSIGNED     NOT NULL DEFAULT '0',
+  `subscriberCount` INT(11) UNSIGNED     NOT NULL DEFAULT '0',
+  `filterCount`     INT(11) UNSIGNED     NOT NULL DEFAULT '0',
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
