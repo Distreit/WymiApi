@@ -126,17 +126,17 @@ public class PostDonation implements BalanceTransaction {
 
     @Override
     public Integer getDestinationId() {
-        return this.post.getUser().getUserId();
+        return this.post.getUser().getBalance().getUserId();
     }
 
     @Override
     public Class getDestinationClass() {
-        return this.post.getUser().getClass();
+        return this.post.getUser().getBalance().getClass();
     }
 
     @Override
     public HasPointsBalance getDestinationObject() {
-        return this.post.getUser();
+        return this.post.getUser().getBalance();
     }
 
     @Override
@@ -186,5 +186,10 @@ public class PostDonation implements BalanceTransaction {
 
     public void setUserDonationCount(Integer userDonationCount) {
         this.userDonationCount = userDonationCount;
+    }
+
+    @Override
+    public boolean paySiteTax() {
+        return true;
     }
 }

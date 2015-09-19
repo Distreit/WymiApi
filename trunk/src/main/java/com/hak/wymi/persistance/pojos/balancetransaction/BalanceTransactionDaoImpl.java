@@ -124,6 +124,9 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private Integer paySite(Session session, BalanceTransaction transaction) {
+        if (!transaction.paySiteTax()) {
+            return 0;
+        }
         final HasPointsBalance sitesBalance = (HasPointsBalance) session.load(Balance.class, -1, pessimisticWrite);
         final Integer tax = Math.max(1, (int) (transaction.getAmount() * TAX_RATE));
 
@@ -136,6 +139,9 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private boolean addPointsToTarget(Session session, BalanceTransaction transaction) {
+        if (transaction.getTargetClass() == null) {
+            return true;
+        }
         final HasPointsBalance target = (HasPointsBalance) session
                 .load(transaction.getTargetClass(), transaction.getTargetId(), pessimisticWrite);
         if (target.addPoints(transaction.getAmount())) {

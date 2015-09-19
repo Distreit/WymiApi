@@ -179,4 +179,9 @@ public class CommentDonation implements BalanceTransaction {
     public Integer getCommentDonationId() {
         return this.commentDonationId;
     }
+
+    @Override
+    public boolean paySiteTax() {
+        return true;
+    }
 }

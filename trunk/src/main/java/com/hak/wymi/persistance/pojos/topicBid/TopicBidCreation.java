@@ -96,12 +96,12 @@ public class TopicBidCreation implements BalanceTransaction {
 
     @Override
     public Integer getTargetId() {
-        return this.topicBid.getTopicBidId();
+        return null;
     }
 
     @Override
     public Class getTargetClass() {
-        return this.topicBid.getClass();
+        return null;
     }
 
     @Override
@@ -136,6 +136,11 @@ public class TopicBidCreation implements BalanceTransaction {
 
     @Override
     public boolean isUniqueToUser() {
+        return false;
+    }
+
+    @Override
+    public boolean paySiteTax() {
         return false;
     }
 

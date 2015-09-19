@@ -22,6 +22,7 @@ public class PostCreationImpl implements PostCreationDao {
             session.save(postCreation.getPost());
             session.refresh(postCreation.getPost());
             postCreation.setPostId(postCreation.getPost().getPostId());
+
             session.save(postCreation);
             session.flush();
             session.refresh(postCreation);

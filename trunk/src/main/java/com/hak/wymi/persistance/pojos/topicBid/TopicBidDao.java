@@ -1,5 +1,5 @@
 package com.hak.wymi.persistance.pojos.topicBid;
 
-public class TopicBidDao {
-
+public interface TopicBidDao {
+    boolean save(TopicBidCreation topicBidCreation);
 }

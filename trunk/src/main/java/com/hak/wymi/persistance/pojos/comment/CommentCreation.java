@@ -86,27 +86,27 @@ public class CommentCreation implements BalanceTransaction {
 
     @Override
     public Integer getDestinationId() {
-        return this.comment.getPost().getTopic().getOwner().getUserId();
+        return this.comment.getPost().getTopic().getOwner().getBalance().getUserId();
     }
 
     @Override
     public Class getDestinationClass() {
-        return this.comment.getPost().getTopic().getOwner().getClass();
+        return this.comment.getPost().getTopic().getOwner().getBalance().getClass();
     }
 
     @Override
     public HasPointsBalance getDestinationObject() {
-        return this.comment.getPost().getTopic().getOwner();
+        return this.comment.getPost().getTopic().getOwner().getBalance();
     }
 
     @Override
     public Integer getTargetId() {
-        return this.comment.getPost().getTopic().getOwner().getUserId();
+        return null;
     }
 
     @Override
     public Class getTargetClass() {
-        return this.comment.getPost().getTopic().getOwner().getClass();
+        return null;
     }
 
     @Override
@@ -168,6 +168,11 @@ public class CommentCreation implements BalanceTransaction {
     public boolean isUniqueToUser() {
         // Doesn't need to track uniqueness.
         return false;
+    }
+
+    @Override
+    public boolean paySiteTax() {
+        return true;
     }
 
     public Integer getFeeFlat() {

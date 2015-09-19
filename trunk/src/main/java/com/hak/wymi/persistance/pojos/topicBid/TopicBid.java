@@ -28,21 +28,27 @@ public class TopicBid implements HasPointsBalance {
 
     @ManyToOne
     @JoinColumn(name = "userId")
+    @Null(groups = {Creation.class})
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "topicId")
+    @Null(groups = {Creation.class})
     private Topic topic;
 
     @NotNull
     @Min(value = 0)
+    @Null(groups = {Creation.class})
     private Integer currentBalance;
 
     @Version
+    @Null(groups = {Creation.class})
     private Integer version;
 
+    @Null(groups = {Creation.class})
     private Date updated;
 
+    @Null(groups = {Creation.class})
     private Date created;
 
     public Integer getCurrentBalance() {

@@ -86,17 +86,17 @@ public class PostCreation implements BalanceTransaction {
 
     @Override
     public Integer getDestinationId() {
-        return this.post.getTopic().getOwner().getUserId();
+        return this.post.getTopic().getOwner().getBalance().getUserId();
     }
 
     @Override
     public Class getDestinationClass() {
-        return this.post.getTopic().getOwner().getClass();
+        return this.post.getTopic().getOwner().getBalance().getClass();
     }
 
     @Override
     public HasPointsBalance getDestinationObject() {
-        return this.post.getTopic().getOwner();
+        return this.post.getTopic().getOwner().getBalance();
     }
 
     @Override
@@ -184,6 +184,11 @@ public class PostCreation implements BalanceTransaction {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    @Override
+    public boolean paySiteTax() {
+        return true;
     }
 
     public void setPostId(Integer postId) {
