@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.topicBid;
+package com.hak.wymi.persistance.pojos.topicbid;
 
 public interface TopicBidDao {
     boolean save(TopicBidCreation topicBidCreation);

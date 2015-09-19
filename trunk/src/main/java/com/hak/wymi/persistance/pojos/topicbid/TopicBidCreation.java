@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.topicBid;
+package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;

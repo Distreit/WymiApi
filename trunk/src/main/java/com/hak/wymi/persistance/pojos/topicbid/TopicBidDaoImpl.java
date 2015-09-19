@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.topicBid;
+package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.utility.DaoHelper;
