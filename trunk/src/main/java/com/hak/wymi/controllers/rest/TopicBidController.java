@@ -2,8 +2,10 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
+import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
+import com.hak.wymi.persistance.pojos.topicbid.SecureTopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidCreation;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDao;
@@ -21,6 +23,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/topic/{topicName}/bid")
@@ -36,6 +41,17 @@ public class TopicBidController {
 
     @Autowired
     private BalanceTransactionManager balanceTransactionManager;
+
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> getTopics(@PathVariable String topicName) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final List<SecureToSend> secureTopicBids = topicBidDao.get(topicName)
+                .stream()
+                .map(SecureTopicBid::new)
+                .collect(Collectors.toCollection(LinkedList::new));
+
+        return new ResponseEntity<>(universalResponse.setData(secureTopicBids), HttpStatus.ACCEPTED);
+    }
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")

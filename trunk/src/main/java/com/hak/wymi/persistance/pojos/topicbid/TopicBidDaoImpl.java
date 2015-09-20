@@ -2,9 +2,12 @@ package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.utility.DaoHelper;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -27,5 +30,15 @@ public class TopicBidDaoImpl implements TopicBidDao {
             session.refresh(topicBidCreation);
             return true;
         });
+    }
+
+    @Override
+    public List<TopicBid> get(String topicName) {
+        final Session session = sessionFactory.openSession();
+        final List<TopicBid> topicBids = session.createQuery("from TopicBid where topic.name=:topicName")
+                .setParameter("topicName", topicName)
+                .list();
+        session.close();
+        return topicBids;
     }
 }
