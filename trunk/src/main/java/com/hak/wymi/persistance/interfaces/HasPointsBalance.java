@@ -8,4 +8,6 @@ public interface HasPointsBalance {
     void incrementTransactionCount();
 
     String getName();
+
+    Integer getBalanceId();
 }

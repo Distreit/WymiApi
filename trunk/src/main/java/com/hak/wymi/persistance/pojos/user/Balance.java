@@ -68,6 +68,11 @@ public class Balance implements HasPointsBalance {
     }
 
     @Override
+    public Integer getBalanceId() {
+        return this.userId;
+    }
+
+    @Override
     public boolean addPoints(Integer amount) {
         if (amount >= 0) {
             this.currentBalance += amount;

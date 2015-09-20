@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -9,7 +10,9 @@ import com.hak.wymi.validations.groups.Creation;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -31,6 +34,10 @@ public class PostCreation implements BalanceTransaction {
     @PrimaryKeyJoinColumn
     @Null(groups = Creation.class)
     private Post post;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transactionLogId")
+    private TransactionLog transactionLog;
 
     @Min(value = 0)
     @NotNull(groups = {Default.class, Creation.class})
@@ -85,28 +92,13 @@ public class PostCreation implements BalanceTransaction {
     }
 
     @Override
-    public Integer getDestinationId() {
-        return this.post.getTopic().getOwner().getBalance().getUserId();
-    }
-
-    @Override
-    public Class getDestinationClass() {
-        return this.post.getTopic().getOwner().getBalance().getClass();
-    }
-
-    @Override
-    public HasPointsBalance getDestinationObject() {
+    public HasPointsBalance getDestination() {
         return this.post.getTopic().getOwner().getBalance();
     }
 
     @Override
-    public Integer getTargetId() {
-        return this.post.getTopic().getOwner().getUserId();
-    }
-
-    @Override
-    public Class getTargetClass() {
-        return this.post.getTopic().getOwner().getClass();
+    public HasPointsBalance getTarget() {
+        return this.post.getTopic().getOwner().getBalance();
     }
 
     @Override
@@ -193,5 +185,15 @@ public class PostCreation implements BalanceTransaction {
 
     public void setPostId(Integer postId) {
         this.postId = postId;
+    }
+
+    @Override
+    public TransactionLog getTransactionLog() {
+        return transactionLog;
+    }
+
+    @Override
+    public void setTransactionLog(TransactionLog transactionLog) {
+        this.transactionLog = transactionLog;
     }
 }

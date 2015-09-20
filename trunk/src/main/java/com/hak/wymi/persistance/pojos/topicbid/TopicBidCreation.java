@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -9,7 +10,9 @@ import com.hak.wymi.validations.groups.Creation;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -30,6 +33,10 @@ public class TopicBidCreation implements BalanceTransaction {
     @PrimaryKeyJoinColumn
     @Null(groups = Creation.class)
     private TopicBid topicBid;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transactionLogId")
+    private TransactionLog transactionLog;
 
     @Min(value = 0)
     @NotNull(groups = {Default.class, Creation.class})
@@ -80,27 +87,12 @@ public class TopicBidCreation implements BalanceTransaction {
     }
 
     @Override
-    public Integer getDestinationId() {
-        return this.topicBid.getTopicBidId();
-    }
-
-    @Override
-    public Class getDestinationClass() {
-        return this.topicBid.getClass();
-    }
-
-    @Override
-    public HasPointsBalance getDestinationObject() {
+    public HasPointsBalance getDestination() {
         return this.topicBid;
     }
 
     @Override
-    public Integer getTargetId() {
-        return null;
-    }
-
-    @Override
-    public Class getTargetClass() {
+    public HasPointsBalance getTarget() {
         return null;
     }
 
@@ -177,5 +169,15 @@ public class TopicBidCreation implements BalanceTransaction {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    @Override
+    public TransactionLog getTransactionLog() {
+        return transactionLog;
+    }
+
+    @Override
+    public void setTransactionLog(TransactionLog transactionLog) {
+        this.transactionLog = transactionLog;
     }
 }

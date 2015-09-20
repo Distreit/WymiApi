@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -9,7 +10,9 @@ import com.hak.wymi.validations.groups.Creation;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -31,6 +34,10 @@ public class CommentCreation implements BalanceTransaction {
     @PrimaryKeyJoinColumn
     @Null(groups = Creation.class)
     private Comment comment;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transactionLogId")
+    private TransactionLog transactionLog;
 
     @Min(value = 0)
     @NotNull(groups = {Default.class, Creation.class})
@@ -85,33 +92,18 @@ public class CommentCreation implements BalanceTransaction {
     }
 
     @Override
-    public Integer getDestinationId() {
-        return this.comment.getPost().getTopic().getOwner().getBalance().getUserId();
+    public User getSourceUser() {
+        return this.comment.getAuthor();
     }
 
     @Override
-    public Class getDestinationClass() {
-        return this.comment.getPost().getTopic().getOwner().getBalance().getClass();
-    }
-
-    @Override
-    public HasPointsBalance getDestinationObject() {
+    public HasPointsBalance getDestination() {
         return this.comment.getPost().getTopic().getOwner().getBalance();
     }
 
     @Override
-    public Integer getTargetId() {
+    public HasPointsBalance getTarget() {
         return null;
-    }
-
-    @Override
-    public Class getTargetClass() {
-        return null;
-    }
-
-    @Override
-    public User getSourceUser() {
-        return this.comment.getAuthor();
     }
 
     @Override
@@ -193,5 +185,15 @@ public class CommentCreation implements BalanceTransaction {
 
     public void setCommentId(Integer commentId) {
         this.commentId = commentId;
+    }
+
+    @Override
+    public TransactionLog getTransactionLog() {
+        return transactionLog;
+    }
+
+    @Override
+    public void setTransactionLog(TransactionLog transactionLog) {
+        this.transactionLog = transactionLog;
     }
 }

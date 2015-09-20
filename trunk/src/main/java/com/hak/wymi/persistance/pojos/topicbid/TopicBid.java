@@ -134,4 +134,9 @@ public class TopicBid implements HasPointsBalance {
     public String getName() {
         return this.topic.getName() + "Bid";
     }
+
+    @Override
+    public Integer getBalanceId() {
+        return this.getTopicBidId();
+    }
 }

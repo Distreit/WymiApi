@@ -59,11 +59,14 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         final BalanceTransaction transaction = (BalanceTransaction) session
                 .load(balanceTransaction.getClass(), balanceTransaction.getTransactionId(), pessimisticWrite);
 
+        transaction.setTransactionLog(new TransactionLog(balanceTransaction));
+
         final boolean fromBalanceSuccessful = removePointsFromSourceUser(session, transaction);
         final boolean toTargetSuccessful = addPointsToTarget(session, transaction);
         final boolean toSplitSuccessful = splitPointsToReceivers(session, transaction);
 
         transaction.setState(TransactionState.PROCESSED);
+        session.save(transaction.getTransactionLog());
         session.update(transaction);
 
         return fromBalanceSuccessful && toTargetSuccessful && toSplitSuccessful;
@@ -88,8 +91,9 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     private Integer paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
         final HasPointsBalance submitterBalance = (HasPointsBalance) session
-                .load(transaction.getDestinationClass(), transaction.getDestinationId(), pessimisticWrite);
+                .load(transaction.getDestination().getClass(), transaction.getDestination().getBalanceId(), pessimisticWrite);
         final int remainingAmount = transaction.getAmount() - siteTax - topicTax;
+        transaction.getTransactionLog().setDestinationReceived(remainingAmount);
         if (remainingAmount == 0) {
             LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getName(), remainingAmount));
             return remainingAmount;
@@ -108,6 +112,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         final Double topicTaxRate = transaction.getTaxRate() / ONE_HUNDRED;
 
         if (topicTaxRate == 0) {
+            transaction.getTransactionLog().setTaxerReceived(0);
             return 0;
         }
 
@@ -115,6 +120,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         Integer topicTax = (int) Math.max(transaction.getAmount() * topicTaxRate, 1);
         topicTax = Math.min(transaction.getAmount() - siteTax, topicTax);
         if (topicOwnerBalance.addPoints(topicTax)) {
+            transaction.getTransactionLog().setTaxerReceived(topicTax);
             session.update(topicOwnerBalance);
             LOGGER.debug(String.format("The owner %s got %d", topicOwnerBalance.getName(), topicTax));
             return topicTax;
@@ -125,12 +131,14 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     private Integer paySite(Session session, BalanceTransaction transaction) {
         if (!transaction.paySiteTax()) {
+            transaction.getTransactionLog().setSiteReceived(0);
             return 0;
         }
         final HasPointsBalance sitesBalance = (HasPointsBalance) session.load(Balance.class, -1, pessimisticWrite);
         final Integer tax = Math.max(1, (int) (transaction.getAmount() * TAX_RATE));
 
         if (sitesBalance.addPoints(tax)) {
+            transaction.getTransactionLog().setSiteReceived(tax);
             session.update(sitesBalance);
             LOGGER.debug(String.format("The site(%s) got %d", sitesBalance.getName(), tax));
             return tax;
@@ -139,16 +147,17 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private boolean addPointsToTarget(Session session, BalanceTransaction transaction) {
-        if (transaction.getTargetClass() == null) {
+        if (transaction.getTarget() == null) {
             return true;
         }
-        final HasPointsBalance target = (HasPointsBalance) session
-                .load(transaction.getTargetClass(), transaction.getTargetId(), pessimisticWrite);
-        if (target.addPoints(transaction.getAmount())) {
+        final HasPointsBalance targetBalance = (HasPointsBalance) session
+                .load(transaction.getTarget().getClass(), transaction.getTarget().getBalanceId(), pessimisticWrite);
+        if (targetBalance.addPoints(transaction.getAmount())) {
+            transaction.getTransactionLog().setTargetReceived(transaction.getAmount());
             if (transaction.isUniqueToUser()) {
-                target.incrementTransactionCount();
+                targetBalance.incrementTransactionCount();
             }
-            session.update(target);
+            session.update(targetBalance);
             LOGGER.debug(String.format("Target got %d", transaction.getAmount()));
             return true;
         }
@@ -159,6 +168,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     private boolean removePointsFromSourceUser(Session session, BalanceTransaction transaction) {
         final HasPointsBalance fromBalance = (HasPointsBalance) session.load(Balance.class, transaction.getSourceUserId(), pessimisticWrite);
         if (fromBalance.removePoints(transaction.getAmount())) {
+            transaction.getTransactionLog().setAmountPayed(transaction.getAmount());
             session.update(fromBalance);
             LOGGER.debug(String.format("The donator %s spent %d", fromBalance.getName(), transaction.getAmount()));
             return true;
@@ -169,22 +179,57 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     @Override
     public boolean cancel(BalanceTransaction transaction) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            transaction.setState(TransactionState.CANCELED);
-            final Message message = new Message(transaction.getSourceUser(), null, "Transfer failure",
-                    String.format("Transaction from %s for %d canceled.",
-                            transaction.getTargetUrl(),
-                            transaction.getAmount()));
-
-            if (transaction.getDependent() == null) {
-                session.update(transaction);
-            } else {
-                session.delete(transaction);
-                session.delete(transaction.getDependent());
+            switch (transaction.getState()) {
+                case UNCONFIRMED:
+                    // Not in use.
+                    break;
+                case UNPROCESSED:
+                    return cancelUnprocessed(session, transaction);
+                case PROCESSED:
+                    return cancelProcessed(session, transaction);
+                default:
+                    // Nothing to do.
+                    break;
             }
-
-            message.setSourceDeleted(Boolean.TRUE);
-            session.save(message);
-            return true;
+            return false;
         });
+    }
+
+    private boolean cancelProcessed(Session session, BalanceTransaction transaction) {
+        if (!transaction.paySiteTax() || transaction.getTaxRate() == 0) {
+            final HasPointsBalance userBalance = (HasPointsBalance) session
+                    .load(Balance.class, transaction.getSourceUserId(), pessimisticWrite);
+
+            final HasPointsBalance destination = transaction.getDestination();
+            final HasPointsBalance destinationBalance = (HasPointsBalance) session
+                    .load(destination.getClass(), destination.getBalanceId(), pessimisticWrite);
+
+            if (userBalance.addPoints(transaction.getAmount())
+                    && destinationBalance.removePoints(transaction.getAmount())) {
+                session.update(userBalance);
+                session.update(destinationBalance);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
+        transaction.setState(TransactionState.CANCELED);
+        final Message message = new Message(transaction.getSourceUser(), null, "Transfer failure",
+                String.format("Transaction from %s for %d canceled.",
+                        transaction.getTargetUrl(),
+                        transaction.getAmount()));
+
+        if (transaction.getDependent() == null) {
+            session.update(transaction);
+        } else {
+            session.delete(transaction);
+            session.delete(transaction.getDependent());
+        }
+
+        message.setSourceDeleted(Boolean.TRUE);
+        session.save(message);
+        return true;
     }
 }

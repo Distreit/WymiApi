@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -10,11 +11,13 @@ import org.hibernate.annotations.Formula;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.Min;
@@ -33,6 +36,10 @@ public class PostDonation implements BalanceTransaction {
     @ManyToOne
     @JoinColumn(name = "postId")
     private Post post;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transactionLogId")
+    private TransactionLog transactionLog;
 
     @ManyToOne
     @JoinColumn(name = "sourceUserId")
@@ -125,28 +132,13 @@ public class PostDonation implements BalanceTransaction {
     }
 
     @Override
-    public Integer getDestinationId() {
-        return this.post.getUser().getBalance().getUserId();
-    }
-
-    @Override
-    public Class getDestinationClass() {
-        return this.post.getUser().getBalance().getClass();
-    }
-
-    @Override
-    public HasPointsBalance getDestinationObject() {
+    public HasPointsBalance getDestination() {
         return this.post.getUser().getBalance();
     }
 
     @Override
-    public Integer getTargetId() {
-        return this.post.getPostId();
-    }
-
-    @Override
-    public Class getTargetClass() {
-        return this.post.getClass();
+    public HasPointsBalance getTarget() {
+        return this.post;
     }
 
     public Date getUpdated() {
@@ -191,5 +183,15 @@ public class PostDonation implements BalanceTransaction {
     @Override
     public boolean paySiteTax() {
         return true;
+    }
+
+    @Override
+    public TransactionLog getTransactionLog() {
+        return transactionLog;
+    }
+
+    @Override
+    public void setTransactionLog(TransactionLog transactionLog) {
+        this.transactionLog = transactionLog;
     }
 }

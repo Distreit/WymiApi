@@ -197,6 +197,11 @@ public class Comment implements HasPointsBalance {
         return String.format("Post: %s - Comment: %s", this.post.getName(), this.commentId);
     }
 
+    @Override
+    public Integer getBalanceId() {
+        return this.commentId;
+    }
+
     public Integer getTaxRate() {
         return commentCreation.getFeePercent();
     }

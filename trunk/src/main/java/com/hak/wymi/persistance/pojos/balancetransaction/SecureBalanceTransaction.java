@@ -25,7 +25,7 @@ public class SecureBalanceTransaction implements SecureToSend {
         this.transactionId = transaction.getTransactionId();
         this.transactionType = transaction.getClass().getSimpleName().replace("Transaction", "");
         this.amount = transaction.getAmount();
-        this.recipientName = transaction.getDestinationObject().getName();
+        this.recipientName = transaction.getDestination().getName();
         this.url = transaction.getTargetUrl();
         this.created = transaction.getCreated();
         this.commitTime = new Date(this.created.getTime() + BalanceTransactionManager.TRANSACTION_WAIT_PERIOD);

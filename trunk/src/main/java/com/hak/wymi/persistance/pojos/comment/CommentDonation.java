@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -10,11 +11,13 @@ import org.hibernate.annotations.Formula;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.Min;
@@ -37,6 +40,10 @@ public class CommentDonation implements BalanceTransaction {
     @ManyToOne
     @JoinColumn(name = "sourceUserId")
     private User sourceUser;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transactionLogId")
+    private TransactionLog transactionLog;
 
     @Formula("(select count(d.commentId) from commentdonation d where d.commentId=commentId and d.sourceUserId=sourceUserId and d.state='PROCESSED')")
     private Integer userDonationCount;
@@ -117,28 +124,13 @@ public class CommentDonation implements BalanceTransaction {
     }
 
     @Override
-    public Integer getDestinationId() {
-        return this.comment.getAuthorId();
-    }
-
-    @Override
-    public Class getDestinationClass() {
-        return this.comment.getAuthor().getClass();
-    }
-
-    @Override
-    public HasPointsBalance getDestinationObject() {
+    public HasPointsBalance getDestination() {
         return this.comment;
     }
 
     @Override
-    public Integer getTargetId() {
-        return this.comment.getCommentId();
-    }
-
-    @Override
-    public Class getTargetClass() {
-        return this.comment.getClass();
+    public HasPointsBalance getTarget() {
+        return this.comment;
     }
 
     public Date getUpdated() {
@@ -183,5 +175,15 @@ public class CommentDonation implements BalanceTransaction {
     @Override
     public boolean paySiteTax() {
         return true;
+    }
+
+    @Override
+    public TransactionLog getTransactionLog() {
+        return transactionLog;
+    }
+
+    @Override
+    public void setTransactionLog(TransactionLog transactionLog) {
+        this.transactionLog = transactionLog;
     }
 }

@@ -31,33 +31,16 @@ public interface BalanceTransaction {
     User getSourceUser();
 
     /**
-     * @return The id of the object that will be receiving the points after being taxed.
-     */
-    Integer getDestinationId();
-
-    /**
-     * @return The type of object that will be receiving the points after being taxed.
-     */
-    Class getDestinationClass();
-
-    /**
      * @return The actual object that will be receiving the points after being taxed.
      */
-    HasPointsBalance getDestinationObject();
+    HasPointsBalance getDestination();
 
     /**
-     * @return The id of the object that will be points as a score increase or something like that... NOT actual points.
+     * @return The the object that will be points as a score increase or something like that... NOT actual points.
      * Example: if donating to a comment the author would receive actual points but the target (the comment) would just
      * get a score increase.
      */
-    Integer getTargetId();
-
-    /**
-     * @return The class of the object that will be points as a score increase or something like that... NOT actual
-     * points. Example: if donating to a comment the author would receive actual points but the target (the comment)
-     * would just get a score increase.
-     */
-    Class getTargetClass();
+    HasPointsBalance getTarget();
 
     /**
      * @return The url of the target. Used in things like a cancel message.
@@ -97,4 +80,8 @@ public interface BalanceTransaction {
      * @return whether the transaction should pay a site tax. Would be true in all cases except for TopicBids so far.
      */
     boolean paySiteTax();
+
+    TransactionLog getTransactionLog();
+
+    void setTransactionLog(TransactionLog transactionLog);
 }
