@@ -1,13 +1,11 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
-import com.hak.wymi.persistance.pojos.comment.CommentCreation;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.Null;
@@ -44,8 +42,10 @@ public class TransactionLog {
     private Date updated;
 
     private Date created;
-    @OneToOne(mappedBy = "transactionLog", optional = false)
-    private CommentCreation transactionLog;
+
+    public TransactionLog() {
+        // Not used.
+    }
 
     public TransactionLog(BalanceTransaction transaction) {
         this.transactionClass = transaction.getClass();
@@ -146,13 +146,5 @@ public class TransactionLog {
 
     public void setCreated(Date created) {
         this.created = created;
-    }
-
-    public CommentCreation getTransactionLog() {
-        return transactionLog;
-    }
-
-    public void setTransactionLog(CommentCreation transactionLog) {
-        this.transactionLog = transactionLog;
     }
 }

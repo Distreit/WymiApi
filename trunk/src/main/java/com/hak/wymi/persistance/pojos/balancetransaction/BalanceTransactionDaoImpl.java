@@ -65,11 +65,14 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         final boolean toTargetSuccessful = addPointsToTarget(session, transaction);
         final boolean toSplitSuccessful = splitPointsToReceivers(session, transaction);
 
-        transaction.setState(TransactionState.PROCESSED);
-        session.save(transaction.getTransactionLog());
-        session.update(transaction);
+        if (fromBalanceSuccessful && toTargetSuccessful && toSplitSuccessful) {
+            transaction.setState(TransactionState.PROCESSED);
+            session.save(transaction.getTransactionLog());
+            session.update(transaction);
+            return true;
+        }
 
-        return fromBalanceSuccessful && toTargetSuccessful && toSplitSuccessful;
+        return false;
     }
 
     private boolean splitPointsToReceivers(Session session, BalanceTransaction transaction) {

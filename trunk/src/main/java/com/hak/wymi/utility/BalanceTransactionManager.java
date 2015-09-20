@@ -93,17 +93,17 @@ public class BalanceTransactionManager {
         postCreationDao.getUnprocessed().forEach(this::addToProcessQueue);
     }
 
-    private void process(BalanceTransaction transaction) {
+    public boolean process(BalanceTransaction transaction) {
         final Integer userId = transaction.getSourceUserId();
         if (userTransactions.containsKey(userId)) {
             userTransactions.get(userId).remove(transaction);
         }
         if (transaction.getState() == TransactionState.UNPROCESSED) {
-            balanceTransactionDao.process(transaction);
+            return balanceTransactionDao.process(transaction);
         } else if (LOGGER.isErrorEnabled()) {
             LOGGER.error("Transaction without UNPROCESSED state trying to be processed. {}", JSONConverter.getJSON(transaction, true));
         }
-
+        return false;
     }
 
     public void add(BalanceTransaction transaction) {

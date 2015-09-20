@@ -109,8 +109,7 @@ public class CommentController {
             comment.setPoints(0);
             comment.setDonations(0);
             if (commentCreationDao.save(transaction)) {
-                balanceTransactionManager.addToProcessQueue(transaction);
-                return true;
+                return balanceTransactionManager.process(transaction);
             }
         }
         return false;

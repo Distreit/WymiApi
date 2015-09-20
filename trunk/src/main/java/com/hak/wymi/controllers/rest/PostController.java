@@ -91,8 +91,7 @@ public class PostController {
             post.setDonations(0);
             post.setScore((double) base);
 
-            if (postCreationDao.save(transaction)) {
-                balanceTransactionManager.addToProcessQueue(transaction);
+            if (postCreationDao.save(transaction) && balanceTransactionManager.process(transaction)) {
                 return new ResponseEntity<>(universalResponse.setData(new SecurePost(post)), HttpStatus.ACCEPTED);
             }
 
