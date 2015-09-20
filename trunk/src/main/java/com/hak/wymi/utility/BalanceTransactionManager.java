@@ -141,4 +141,8 @@ public class BalanceTransactionManager {
                 });
         return result[0];
     }
+
+    public boolean cancel(User user, BalanceTransaction transaction) {
+        return transaction.getSourceUser().getUserId().equals(user.getUserId()) && balanceTransactionDao.cancel(transaction);
+    }
 }

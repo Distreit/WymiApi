@@ -1,7 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.Balance;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
@@ -25,6 +24,9 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     @Autowired
     private SessionFactory sessionFactory;
+
+    @Autowired
+    private BalanceTransactionCanceller balanceTransactionCanceller;
 
     private static boolean checkOutput(Integer startingAmount, Integer siteTax, Integer topicTax, Integer finalAmount) {
         if (startingAmount - siteTax - topicTax - finalAmount == 0) {
@@ -181,58 +183,6 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     @Override
     public boolean cancel(BalanceTransaction transaction) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            switch (transaction.getState()) {
-                case UNCONFIRMED:
-                    // Not in use.
-                    break;
-                case UNPROCESSED:
-                    return cancelUnprocessed(session, transaction);
-                case PROCESSED:
-                    return cancelProcessed(session, transaction);
-                default:
-                    // Nothing to do.
-                    break;
-            }
-            return false;
-        });
-    }
-
-    private boolean cancelProcessed(Session session, BalanceTransaction transaction) {
-        if (!transaction.paySiteTax() || transaction.getTaxRate() == 0) {
-            final HasPointsBalance userBalance = (HasPointsBalance) session
-                    .load(Balance.class, transaction.getSourceUserId(), pessimisticWrite);
-
-            final HasPointsBalance destination = transaction.getDestination();
-            final HasPointsBalance destinationBalance = (HasPointsBalance) session
-                    .load(destination.getClass(), destination.getBalanceId(), pessimisticWrite);
-
-            if (userBalance.addPoints(transaction.getAmount())
-                    && destinationBalance.removePoints(transaction.getAmount())) {
-                session.update(userBalance);
-                session.update(destinationBalance);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
-        transaction.setState(TransactionState.CANCELED);
-        final Message message = new Message(transaction.getSourceUser(), null, "Transfer failure",
-                String.format("Transaction from %s for %d canceled.",
-                        transaction.getTargetUrl(),
-                        transaction.getAmount()));
-
-        if (transaction.getDependent() == null) {
-            session.update(transaction);
-        } else {
-            session.delete(transaction);
-            session.delete(transaction.getDependent());
-        }
-
-        message.setSourceDeleted(Boolean.TRUE);
-        session.save(message);
-        return true;
+        return balanceTransactionCanceller.cancel(transaction);
     }
 }

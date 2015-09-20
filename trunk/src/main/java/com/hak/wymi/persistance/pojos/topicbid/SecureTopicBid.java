@@ -3,6 +3,8 @@ package com.hak.wymi.persistance.pojos.topicbid;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 
 public class SecureTopicBid implements SecureToSend {
+    final private Integer topicBidId;
+
     final private String topicName;
 
     final private String userName;
@@ -10,6 +12,7 @@ public class SecureTopicBid implements SecureToSend {
     final private Integer amount;
 
     public SecureTopicBid(TopicBid topicBid) {
+        this.topicBidId = topicBid.getTopicBidId();
         this.topicName = topicBid.getTopic().getName();
         this.userName = topicBid.getUser().getName();
         this.amount = topicBid.getCurrentBalance();
@@ -25,5 +28,9 @@ public class SecureTopicBid implements SecureToSend {
 
     public Integer getAmount() {
         return amount;
+    }
+
+    public Integer getTopicBidId() {
+        return topicBidId;
     }
 }

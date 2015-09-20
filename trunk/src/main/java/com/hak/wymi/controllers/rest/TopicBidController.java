@@ -43,7 +43,7 @@ public class TopicBidController {
     private BalanceTransactionManager balanceTransactionManager;
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getTopics(@PathVariable String topicName) {
+    public ResponseEntity<UniversalResponse> getTopicBidsForTopic(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final List<SecureToSend> secureTopicBids = topicBidDao.get(topicName)
                 .stream()
@@ -53,9 +53,24 @@ public class TopicBidController {
         return new ResponseEntity<>(universalResponse.setData(secureTopicBids), HttpStatus.ACCEPTED);
     }
 
+    @RequestMapping(value = "/{topicBidId}", method = RequestMethod.DELETE, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> cancelTopicBid(@PathVariable Integer topicBidId, Principal principal) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final TopicBidCreation topicBidCreation = topicBidDao.getTransaction(topicBidId);
+        if (topicBidCreation != null) {
+            final User user = userDao.get(principal);
+            if (balanceTransactionManager.cancel(user, topicBidCreation)) {
+                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
+            }
+        }
+
+        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<UniversalResponse> createComment(
+    public ResponseEntity<UniversalResponse> createTopicBid(
             Principal principal,
             @RequestBody Integer amount,
             @PathVariable String topicName

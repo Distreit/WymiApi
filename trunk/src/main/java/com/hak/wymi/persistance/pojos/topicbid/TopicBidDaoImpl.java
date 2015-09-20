@@ -41,4 +41,15 @@ public class TopicBidDaoImpl implements TopicBidDao {
         session.close();
         return topicBids;
     }
+
+    @Override
+    public TopicBidCreation getTransaction(Integer topicBidId) {
+        final Session session = sessionFactory.openSession();
+        final TopicBidCreation topicBidCreation = (TopicBidCreation) session.createQuery("from TopicBidCreation where topicBidId=:topicBidId")
+                .setParameter("topicBidId", topicBidId)
+                .uniqueResult();
+        topicBidCreation.getTransactionLog().getCanceled();
+        session.close();
+        return topicBidCreation;
+    }
 }
