@@ -17,13 +17,12 @@ USE `wymi`;
 
 -- Dumping structure for table wymi.balance
 CREATE TABLE IF NOT EXISTS `balance` (
-  `balanceId` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` int(11) NOT NULL,
   `currentBalance` bigint(20) unsigned NOT NULL,
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`balanceId`),
+  PRIMARY KEY (`userId`),
   UNIQUE KEY `userId` (`userId`),
   CONSTRAINT `FK_balance_user` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -78,15 +77,18 @@ CREATE TABLE IF NOT EXISTS `comment` (
 
 -- Dumping structure for table wymi.commentcreation
 CREATE TABLE IF NOT EXISTS `commentcreation` (
-  `commentId`  INT(11)                                                     NOT NULL AUTO_INCREMENT,
-  `feeFlat`    BIGINT(20) UNSIGNED                                         NOT NULL,
-  `feePercent` SMALLINT(5) UNSIGNED                                        NOT NULL,
-  `state`      ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
-  `version`    INT(10) UNSIGNED                                            NOT NULL,
-  `updated`    TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created`    TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `commentId`        INT(11)                                                     NOT NULL AUTO_INCREMENT,
+  `transactionLogId` INT(10) UNSIGNED                                                     DEFAULT NULL,
+  `feeFlat`          BIGINT(20) UNSIGNED                                         NOT NULL,
+  `feePercent`       SMALLINT(5) UNSIGNED                                        NOT NULL,
+  `state`            ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
+  `version`          INT(10) UNSIGNED                                            NOT NULL,
+  `updated`          TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`          TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`commentId`),
-  CONSTRAINT `FK_commentcreation_comment` FOREIGN KEY (`commentId`) REFERENCES `comment` (`commentId`)
+  KEY `FK_commentcreation_transactionlog` (`transactionLogId`),
+  CONSTRAINT `FK_commentcreation_comment` FOREIGN KEY (`commentId`) REFERENCES `comment` (`commentId`),
+  CONSTRAINT `FK_commentcreation_transactionlog` FOREIGN KEY (`transactionLogId`) REFERENCES `transactionlog` (`transactionLogId`)
 )
   ENGINE =InnoDB
   DEFAULT CHARSET =utf8;
@@ -99,6 +101,7 @@ CREATE TABLE IF NOT EXISTS `commentdonation` (
   `commentDonationId` INT(11) UNSIGNED                                            NOT NULL AUTO_INCREMENT,
   `commentId` int(11) NOT NULL,
   `sourceUserId` int(11) NOT NULL,
+  `transactionLogId`  INT(10) UNSIGNED                                                     DEFAULT NULL,
   `amount` int(11) NOT NULL,
   `state`             ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
   `version` int(10) unsigned NOT NULL,
@@ -107,6 +110,8 @@ CREATE TABLE IF NOT EXISTS `commentdonation` (
   PRIMARY KEY (`commentDonationId`),
   KEY `FK_commenttransaction_comment` (`commentId`),
   KEY `FK_commenttransaction_user` (`sourceUserId`),
+  KEY `FK_commentdonation_transactionlog` (`transactionLogId`),
+  CONSTRAINT `FK_commentdonation_transactionlog` FOREIGN KEY (`transactionLogId`) REFERENCES `transactionlog` (`transactionLogId`),
   CONSTRAINT `FK_commenttransaction_comment` FOREIGN KEY (`commentId`) REFERENCES `comment` (`commentId`) ON UPDATE CASCADE,
   CONSTRAINT `FK_commenttransaction_user` FOREIGN KEY (`sourceUserId`) REFERENCES `user` (`userId`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -180,15 +185,18 @@ CREATE TABLE IF NOT EXISTS `post` (
 
 -- Dumping structure for table wymi.postcreation
 CREATE TABLE IF NOT EXISTS `postcreation` (
-  `postId`     INT(11)                                                     NOT NULL AUTO_INCREMENT,
-  `feeFlat`    BIGINT(20) UNSIGNED                                         NOT NULL,
-  `feePercent` SMALLINT(5) UNSIGNED                                        NOT NULL,
-  `state`      ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
-  `version`    INT(10) UNSIGNED                                            NOT NULL,
-  `updated`    TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created`    TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `postId`           INT(11)                                                     NOT NULL AUTO_INCREMENT,
+  `transactionLogId` INT(10) UNSIGNED                                                     DEFAULT NULL,
+  `feeFlat`          BIGINT(20) UNSIGNED                                         NOT NULL,
+  `feePercent`       SMALLINT(5) UNSIGNED                                        NOT NULL,
+  `state`            ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
+  `version`          INT(10) UNSIGNED                                            NOT NULL,
+  `updated`          TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`          TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`postId`),
-  CONSTRAINT `FK_postcreation_post` FOREIGN KEY (`postId`) REFERENCES `post` (`postId`)
+  KEY `FK_postcreation_transactionlog` (`transactionLogId`),
+  CONSTRAINT `FK_postcreation_post` FOREIGN KEY (`postId`) REFERENCES `post` (`postId`),
+  CONSTRAINT `FK_postcreation_transactionlog` FOREIGN KEY (`transactionLogId`) REFERENCES `transactionlog` (`transactionLogId`)
 )
   ENGINE =InnoDB
   DEFAULT CHARSET =utf8;
@@ -198,17 +206,20 @@ CREATE TABLE IF NOT EXISTS `postcreation` (
 
 -- Dumping structure for table wymi.postdonation
 CREATE TABLE IF NOT EXISTS `postdonation` (
-  `postDonationId` INT(11) UNSIGNED                                            NOT NULL AUTO_INCREMENT,
+  `postDonationId`   INT(11) UNSIGNED                                            NOT NULL AUTO_INCREMENT,
   `postId` int(11) NOT NULL,
   `sourceUserId` int(11) NOT NULL,
+  `transactionLogId` INT(10) UNSIGNED                                                     DEFAULT NULL,
   `amount` bigint(20) NOT NULL,
-  `state`          ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
+  `state`            ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL DEFAULT 'UNPROCESSED',
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`postDonationId`),
   KEY `FK_posttransaction_user` (`sourceUserId`),
   KEY `FK_posttransaction_post` (`postId`),
+  KEY `FK_postdonation_transactionlog` (`transactionLogId`),
+  CONSTRAINT `FK_postdonation_transactionlog` FOREIGN KEY (`transactionLogId`) REFERENCES `transactionlog` (`transactionLogId`),
   CONSTRAINT `FK_posttransaction_post` FOREIGN KEY (`postId`) REFERENCES `post` (`postId`) ON UPDATE CASCADE,
   CONSTRAINT `FK_posttransaction_user` FOREIGN KEY (`sourceUserId`) REFERENCES `user` (`userId`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -250,6 +261,69 @@ CREATE TABLE IF NOT EXISTS `topic` (
   KEY `FK__user` (`owner`),
   CONSTRAINT `FK__user` FOREIGN KEY (`owner`) REFERENCES `user` (`userId`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table wymi.topicbid
+CREATE TABLE IF NOT EXISTS `topicbid` (
+  `topicBidId`     INT(10) UNSIGNED    NOT NULL AUTO_INCREMENT,
+  `topicId`        INT(10)             NOT NULL,
+  `userId`         INT(10)             NOT NULL,
+  `currentBalance` BIGINT(20) UNSIGNED NOT NULL,
+  `version`        INT(10) UNSIGNED    NOT NULL,
+  `updated`        TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`        TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`topicBidId`),
+  KEY `FK_bid_topic` (`topicId`),
+  KEY `FK_bid_user` (`userId`),
+  CONSTRAINT `FK_bid_topic` FOREIGN KEY (`topicId`) REFERENCES `topic` (`topicId`),
+  CONSTRAINT `FK_bid_user` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
+
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table wymi.topicbidcreation
+CREATE TABLE IF NOT EXISTS `topicbidcreation` (
+  `topicBidId`       INT(10) UNSIGNED                                            NOT NULL,
+  `transactionLogId` INT(10) UNSIGNED                                                     DEFAULT NULL,
+  `amount`           BIGINT(20) UNSIGNED                                         NOT NULL,
+  `state`            ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
+  `version`          INT(10) UNSIGNED                                            NOT NULL,
+  `updated`          TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`          TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY `FK_topicbidcreation_topicbid` (`topicBidId`),
+  KEY `FK_topicbidcreation_transactionlog` (`transactionLogId`),
+  CONSTRAINT `FK_topicbidcreation_topicbid` FOREIGN KEY (`topicBidId`) REFERENCES `topicbid` (`topicBidId`),
+  CONSTRAINT `FK_topicbidcreation_transactionlog` FOREIGN KEY (`transactionLogId`) REFERENCES `transactionlog` (`transactionLogId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
+
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table wymi.transactionlog
+CREATE TABLE IF NOT EXISTS `transactionlog` (
+  `transactionLogId`    INT(10) UNSIGNED    NOT NULL AUTO_INCREMENT,
+  `transactionId`       INT(11)             NOT NULL,
+  `transactionClass`    VARCHAR(50)         NOT NULL,
+  `amountPayed`         BIGINT(20) UNSIGNED NOT NULL,
+  `destinationReceived` BIGINT(20) UNSIGNED NOT NULL,
+  `taxerReceived`       BIGINT(20) UNSIGNED NOT NULL,
+  `siteReceived`        BIGINT(20) UNSIGNED NOT NULL,
+  `targetReceived`      BIGINT(20) UNSIGNED          DEFAULT NULL,
+  `canceled`            TINYINT(4)          NOT NULL DEFAULT '0',
+  `version`             INT(10) UNSIGNED    NOT NULL,
+  `updated`             TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`             TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`transactionLogId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
 
 -- Data exporting was unselected.
 
