@@ -42,11 +42,18 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     @Override
     public boolean process(BalanceTransaction transaction) {
         final boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            transaction.setTransactionLog(new TransactionLog(transaction));
+            final TransactionLog transactionLog = new TransactionLog(transaction);
+            transaction.setTransactionLog(transactionLog);
             if (transaction.getAmount() > 0) {
                 return processNonZeroTransaction(transaction, session);
             } else if (transaction.getAmount() == 0) {
                 transaction.setState(TransactionState.PROCESSED);
+                transactionLog.setAmountPayed(0);
+                transactionLog.setTaxerReceived(0);
+                transactionLog.setSiteReceived(0);
+                transactionLog.setTargetReceived(0);
+                transactionLog.setDestinationReceived(0);
+                session.save(transaction.getTransactionLog());
                 session.update(transaction);
                 return true;
             }
