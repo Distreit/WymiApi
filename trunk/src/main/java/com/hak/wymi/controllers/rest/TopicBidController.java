@@ -59,9 +59,10 @@ public class TopicBidController {
         final UniversalResponse universalResponse = new UniversalResponse();
         final TopicBidCreation topicBidCreation = topicBidDao.getTransaction(topicBidId);
         if (topicBidCreation != null) {
+            final SecureTopicBid secureTopicBid = new SecureTopicBid(topicBidCreation.getTopicBid());
             final User user = userDao.get(principal);
             if (balanceTransactionManager.cancel(user, topicBidCreation)) {
-                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
+                return new ResponseEntity<>(universalResponse.setData(secureTopicBid), HttpStatus.ACCEPTED);
             }
         }
 
@@ -89,9 +90,9 @@ public class TopicBidController {
             topicBidCreation.setTopicBid(topicBid);
             topicBidCreation.setAmount(amount);
 
-            if (topicBidDao.save(topicBidCreation)) {
-                balanceTransactionManager.addToProcessQueue(topicBidCreation);
-                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
+            if (topicBidDao.save(topicBidCreation) && balanceTransactionManager.process(topicBidCreation)) {
+                SecureToSend secureTopicBid = new SecureTopicBid(topicBidCreation.getTopicBid());
+                return new ResponseEntity<>(universalResponse.setData(secureTopicBid), HttpStatus.ACCEPTED);
             }
         }
 

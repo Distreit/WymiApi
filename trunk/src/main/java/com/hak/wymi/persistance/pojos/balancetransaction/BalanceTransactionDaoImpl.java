@@ -40,28 +40,27 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     @Override
-    public boolean process(BalanceTransaction balanceTransaction) {
+    public boolean process(BalanceTransaction transaction) {
         final boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            if (balanceTransaction.getAmount() > 0) {
-                return processNonZeroTransaction(balanceTransaction, session);
-            } else if (balanceTransaction.getAmount() == 0) {
-                balanceTransaction.setState(TransactionState.PROCESSED);
-                session.update(balanceTransaction);
+            transaction.setTransactionLog(new TransactionLog(transaction));
+            if (transaction.getAmount() > 0) {
+                return processNonZeroTransaction(transaction, session);
+            } else if (transaction.getAmount() == 0) {
+                transaction.setState(TransactionState.PROCESSED);
+                session.update(transaction);
                 return true;
             }
             return false;
         });
         if (!result) {
-            cancel(balanceTransaction);
+            transaction.setTransactionLog(null);
+            cancel(transaction);
         }
         return result;
     }
 
-    private boolean processNonZeroTransaction(BalanceTransaction balanceTransaction, Session session) {
-        final BalanceTransaction transaction = (BalanceTransaction) session
-                .load(balanceTransaction.getClass(), balanceTransaction.getTransactionId(), pessimisticWrite);
-
-        transaction.setTransactionLog(new TransactionLog(balanceTransaction));
+    private boolean processNonZeroTransaction(BalanceTransaction transaction, Session session) {
+        session.buildLockRequest(pessimisticWrite).lock(transaction);
 
         final boolean fromBalanceSuccessful = removePointsFromSourceUser(session, transaction);
         final boolean toTargetSuccessful = addPointsToTarget(session, transaction);
@@ -95,17 +94,19 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private Integer paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
-        final HasPointsBalance submitterBalance = (HasPointsBalance) session
-                .load(transaction.getDestination().getClass(), transaction.getDestination().getBalanceId(), pessimisticWrite);
+        session.buildLockRequest(pessimisticWrite).lock(transaction.getDestination());
+
         final int remainingAmount = transaction.getAmount() - siteTax - topicTax;
+
         transaction.getTransactionLog().setDestinationReceived(remainingAmount);
+
         if (remainingAmount == 0) {
-            LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getName(), remainingAmount));
+            LOGGER.debug(String.format("The contributor %s got %d", transaction.getDestination().getName(), remainingAmount));
             return remainingAmount;
         } else {
-            if (submitterBalance.addPoints(remainingAmount)) {
-                LOGGER.debug(String.format("The contributor %s got %d", submitterBalance.getName(), remainingAmount));
-                session.update(submitterBalance);
+            if (transaction.getDestination().addPoints(remainingAmount)) {
+                LOGGER.debug(String.format("The contributor %s got %d", transaction.getDestination().getName(), remainingAmount));
+                session.update(transaction.getDestination());
                 return remainingAmount;
             }
         }
