@@ -5,6 +5,7 @@ import com.hak.wymi.persistance.pojos.user.Balance;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
+import org.hibernate.NonUniqueObjectException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -62,6 +63,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         if (!result) {
             transaction.setTransactionLog(null);
             cancel(transaction);
+            LOGGER.debug("Transaction failed and has been canceled!");
         }
         return result;
     }
@@ -101,19 +103,26 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private Integer paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
-        session.buildLockRequest(pessimisticWrite).lock(transaction.getDestination());
+        HasPointsBalance destination;
+        try {
+            session.buildLockRequest(pessimisticWrite).lock(transaction.getDestination());
+            destination = transaction.getDestination();
+        } catch (NonUniqueObjectException exception) {
+            destination = (HasPointsBalance) session
+                    .load(transaction.getDestination().getClass(), transaction.getDestination().getBalanceId(), pessimisticWrite);
+        }
 
         final int remainingAmount = transaction.getAmount() - siteTax - topicTax;
 
         transaction.getTransactionLog().setDestinationReceived(remainingAmount);
 
         if (remainingAmount == 0) {
-            LOGGER.debug(String.format("The contributor %s got %d", transaction.getDestination().getName(), remainingAmount));
+            LOGGER.debug(String.format("The contributor %s got %d", destination.getName(), remainingAmount));
             return remainingAmount;
         } else {
-            if (transaction.getDestination().addPoints(remainingAmount)) {
-                LOGGER.debug(String.format("The contributor %s got %d", transaction.getDestination().getName(), remainingAmount));
-                session.update(transaction.getDestination());
+            if (destination.addPoints(remainingAmount)) {
+                LOGGER.debug(String.format("The contributor %s got %d", destination.getName(), remainingAmount));
+                session.update(destination);
                 return remainingAmount;
             }
         }

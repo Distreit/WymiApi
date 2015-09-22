@@ -22,9 +22,12 @@ public class UserDaoImpl implements UserDao {
             final Balance balance = new Balance();
             balance.setUser(user);
             balance.setCurrentBalance(0);
-            session.persist(user);
+
+            session.save(user);
             session.refresh(user);
-            session.persist(balance);
+
+            balance.setUserId(user.getUserId());
+            session.save(balance);
             return true;
         });
     }
@@ -41,8 +44,10 @@ public class UserDaoImpl implements UserDao {
             final User user = (User) session.createQuery("from User where lower(name)=:name")
                     .setParameter("name", name.toLowerCase(Locale.ENGLISH))
                     .uniqueResult();
-            user.getSubscriptions().size();
-            user.getFilters().size();
+            if (user != null) {
+                user.getSubscriptions().size();
+                user.getFilters().size();
+            }
             session.close();
             return user;
         }
