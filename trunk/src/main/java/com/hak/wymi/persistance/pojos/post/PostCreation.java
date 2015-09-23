@@ -98,7 +98,7 @@ public class PostCreation implements BalanceTransaction {
 
     @Override
     public HasPointsBalance getTarget() {
-        return this.post.getTopic().getOwner().getBalance();
+        return null;
     }
 
     @Override
