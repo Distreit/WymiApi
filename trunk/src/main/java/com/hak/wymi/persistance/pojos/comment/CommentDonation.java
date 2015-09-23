@@ -125,7 +125,7 @@ public class CommentDonation implements BalanceTransaction {
 
     @Override
     public HasPointsBalance getDestination() {
-        return this.comment;
+        return this.comment.getAuthor().getBalance();
     }
 
     @Override

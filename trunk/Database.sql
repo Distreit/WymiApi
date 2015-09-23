@@ -54,9 +54,9 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `postId` int(10) NOT NULL,
   `parentCommentId` int(10),
   `deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `points`    BIGINT(20) UNSIGNED NOT NULL,
-  `donations` INT(10) UNSIGNED    NOT NULL,
-  `score`     DOUBLE UNSIGNED     NOT NULL,
+  `points`    INT(10) UNSIGNED NOT NULL,
+  `donations` INT(10) UNSIGNED NOT NULL,
+  `score`     DOUBLE UNSIGNED  NOT NULL,
   `content` varchar(10000) NOT NULL,
   `version` int(10) unsigned NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
 CREATE TABLE IF NOT EXISTS `commentcreation` (
   `commentId`        INT(11)                                                     NOT NULL AUTO_INCREMENT,
   `transactionLogId` INT(10) UNSIGNED                                                     DEFAULT NULL,
-  `feeFlat`          BIGINT(20) UNSIGNED                                         NOT NULL,
+  `feeFlat` INT(10) UNSIGNED NOT NULL,
   `feePercent`       SMALLINT(5) UNSIGNED                                        NOT NULL,
   `state`            ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
   `version`          INT(10) UNSIGNED                                            NOT NULL,
@@ -308,18 +308,18 @@ CREATE TABLE IF NOT EXISTS `topicbidcreation` (
 
 -- Dumping structure for table wymi.transactionlog
 CREATE TABLE IF NOT EXISTS `transactionlog` (
-  `transactionLogId`    INT(10) UNSIGNED    NOT NULL AUTO_INCREMENT,
-  `transactionId`       INT(11)             NOT NULL,
-  `transactionClass`    VARCHAR(50)         NOT NULL,
-  `amountPayed`         BIGINT(20) UNSIGNED NOT NULL,
-  `destinationReceived` BIGINT(20) UNSIGNED NOT NULL,
-  `taxerReceived`       BIGINT(20) UNSIGNED NOT NULL,
-  `siteReceived`        BIGINT(20) UNSIGNED NOT NULL,
-  `targetReceived`      BIGINT(20) UNSIGNED          DEFAULT NULL,
-  `canceled`            TINYINT(4)          NOT NULL DEFAULT '0',
-  `version`             INT(10) UNSIGNED    NOT NULL,
-  `updated`             TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created`             TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `transactionLogId`    INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `transactionId`       INT(11)          NOT NULL,
+  `transactionClass`    VARCHAR(255)     NOT NULL,
+  `amountPayed`         INT(10) UNSIGNED NOT NULL,
+  `destinationReceived` INT(10) UNSIGNED NOT NULL,
+  `taxerReceived`       INT(10) UNSIGNED NOT NULL,
+  `siteReceived`        INT(10) UNSIGNED NOT NULL,
+  `targetReceived`      INT(10) UNSIGNED          DEFAULT NULL,
+  `canceled`            TINYINT(4)       NOT NULL DEFAULT '0',
+  `version`             INT(10) UNSIGNED NOT NULL,
+  `updated`             TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`             TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`transactionLogId`)
 )
   ENGINE =InnoDB
