@@ -6,4 +6,6 @@ public interface CommentDonationDao {
     boolean save(CommentDonation commentDonation);
 
     List<CommentDonation> getUnprocessed();
+
+    List<CommentDonation> get(String topicName);
 }

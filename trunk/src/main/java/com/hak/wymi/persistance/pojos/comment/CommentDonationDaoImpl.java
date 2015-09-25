@@ -35,4 +35,16 @@ public class CommentDonationDaoImpl implements CommentDonationDao {
         session.close();
         return commentDonationList;
     }
+
+    @Override
+    public List<CommentDonation> get(String topicName) {
+        final Session session = sessionFactory.openSession();
+        final List<CommentDonation> commentDonationList = session
+                .createQuery("from CommentDonation where state=:state and comment.post.topic.name=:topicName")
+                .setParameter("state", TransactionState.PROCESSED)
+                .setParameter("topicName", topicName)
+                .list();
+        session.close();
+        return commentDonationList;
+    }
 }
