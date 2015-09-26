@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -18,8 +19,47 @@ public class UserTopicRanker implements SecureToSend {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserTopicRanker.class);
     private static final int FAVORITE_LOOP_LENGTH = 5;
 
-    private ConcurrentMap<String, RankUser> users = new ConcurrentHashMap<>();
-    private Integer maxDonation = 0;
+    private final ConcurrentMap<String, RankUser> users = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Double> ranks = new ConcurrentHashMap<>();
+
+    private Double maxDonationLog10;
+
+    public Double iterate(Double dampeningFactor) {
+        final ConcurrentMap<String, Double> startingRanks = new ConcurrentHashMap<>(ranks);
+        final int userCount = ranks.size();
+
+        ranks.forEach((key, val) -> ranks.compute(key, (userName, rank) -> {
+            rank = (1 - dampeningFactor) / userCount;
+            rank += dampeningFactor * incomingLinkValues(userName, startingRanks, userCount);
+            return rank;
+        }));
+
+        Double startingSum = startingRanks.values().stream().mapToDouble(Double::doubleValue).sum();
+        Double endingSum = ranks.values().stream().mapToDouble(Double::doubleValue).sum();
+
+        return Math.abs(startingSum - endingSum);
+    }
+
+    private double incomingLinkValues(String userName, ConcurrentMap<String, Double> startingRanks, int userCount) {
+        double result = 0d;
+
+        for (Entry<String, RankUser> userEntry : users.entrySet()) {
+            RankUser user = userEntry.getValue();
+            if (user.getTotalOut() > 0) {
+                if (users.get(userName).getIncomingDonations().containsKey(userEntry.getKey())) {
+                    Integer incomingDonationAmount = users.get(userName).getIncomingDonations().get(userEntry.getKey());
+
+                    result += startingRanks.get(userEntry.getKey());
+                    result *= incomingDonationAmount / (double) user.getTotalOut();
+                    result *= Math.log10(incomingDonationAmount) / maxDonationLog10;
+                }
+            } else {
+                result += startingRanks.get(userEntry.getKey()) / userCount;
+            }
+        }
+
+        return result;
+    }
 
     public void addDonations(List<CommentDonation> commentDonations) {
         for (CommentDonation donation : commentDonations) {
@@ -29,7 +69,14 @@ public class UserTopicRanker implements SecureToSend {
 
         pruneFavorites();
 
-        maxDonation = findMaxDonation();
+        maxDonationLog10 = Math.log10(findMaxDonation());
+        createRanks();
+    }
+
+    private void createRanks() {
+        final Double defaultValue = 1.0 / users.size();
+
+        users.keySet().stream().forEach(u -> ranks.put(u, defaultValue));
     }
 
     private Integer findMaxDonation() {
@@ -40,6 +87,7 @@ public class UserTopicRanker implements SecureToSend {
                 .collect(Collectors.toList());
 
         final Integer max = Collections.max(values);
+        LOGGER.debug("Maximum donation: {}", max);
         return max;
     }
 
@@ -85,5 +133,9 @@ public class UserTopicRanker implements SecureToSend {
 
     public ConcurrentMap<String, RankUser> getUsers() {
         return users;
+    }
+
+    public ConcurrentMap<String, Double> getRanks() {
+        return ranks;
     }
 }

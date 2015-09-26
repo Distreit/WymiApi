@@ -7,6 +7,8 @@ import com.hak.wymi.persistance.pojos.comment.CommentDonation;
 import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
 import com.hak.wymi.persistance.utility.UserTopicRanker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 
 @RestController
 public class RankingController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RankingController.class);
 
     @Autowired
     private CommentDonationDao commentDonationDao;
@@ -45,6 +48,13 @@ public class RankingController {
         final UserTopicRanker ranker = new UserTopicRanker();
 
         ranker.addDonations(commentDonations);
+        Double delta = 1d;
+        int iterationCount = 0;
+        while (delta > 0.00001 && iterationCount < 1000) {
+            delta = ranker.iterate(0.825);
+            iterationCount += 1;
+            LOGGER.debug("Delta: {}", delta);
+        }
 
         return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);
     }
