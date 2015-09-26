@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BalanceTransactionCanceller {
     private final LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
+
     @Autowired
     private SessionFactory sessionFactory;
 

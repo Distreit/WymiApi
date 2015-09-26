@@ -3,8 +3,10 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.pojos.comment.CommentDonation;
 import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
+import com.hak.wymi.persistance.utility.UserTopicRanker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,5 +34,18 @@ public class RankingController {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(universalResponse.setData(posts), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/ranking/topic/{topicName}/ranks", method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> getRanks(@PathVariable String topicName) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+
+        final List<CommentDonation> commentDonations = commentDonationDao.get(topicName);
+
+        final UserTopicRanker ranker = new UserTopicRanker();
+
+        ranker.addDonations(commentDonations);
+
+        return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);
     }
 }
