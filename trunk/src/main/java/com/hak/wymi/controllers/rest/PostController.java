@@ -14,10 +14,10 @@ import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
-import com.hak.wymi.utility.AppConfig;
 import com.hak.wymi.utility.BalanceTransactionManager;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,6 +58,9 @@ public class PostController {
     @Autowired
     private BalanceTransactionManager balanceTransactionManager;
 
+    @Value("${score.baseTime}")
+    private Integer baseTime;
+
     @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createPost(
@@ -85,7 +88,7 @@ public class PostController {
 
             post.setTopic(topic);
             post.setUser(user);
-            final long base = new Date().getTime() / MILLISECONDS_IN_A_SECOND - AppConfig.BASE_TIME;
+            final long base = new Date().getTime() / MILLISECONDS_IN_A_SECOND - baseTime;
             post.setBase((double) base);
             post.setPoints(0);
             post.setDonations(0);

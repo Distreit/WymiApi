@@ -10,6 +10,7 @@ import com.hak.wymi.persistance.utility.UserTopicRanker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +28,15 @@ public class RankingController {
 
     @Autowired
     private CommentDonationDao commentDonationDao;
+
+    @Value("${ranking.delta}")
+    private Double minDelta;
+
+    @Value("${ranking.maxIterations}")
+    private Integer maxIterations;
+
+    @Value("${ranking.dampeningFactor}")
+    private Double dampeningFactor;
 
     @RequestMapping(value = "/ranking/topic/{topicName}", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPost(@PathVariable String topicName) {
@@ -50,8 +60,8 @@ public class RankingController {
         ranker.addDonations(commentDonations);
         Double delta = 1d;
         int iterationCount = 0;
-        while (iterationCount < 100 || (delta > 0.00001 && iterationCount < 1000)) {
-            delta = ranker.iterate(0.825);
+        while (delta > minDelta && iterationCount < maxIterations) {
+            delta = ranker.iterate(dampeningFactor);
             iterationCount += 1;
             LOGGER.debug("Delta: {}", delta);
         }

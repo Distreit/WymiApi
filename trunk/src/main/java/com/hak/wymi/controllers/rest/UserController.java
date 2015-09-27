@@ -10,11 +10,11 @@ import com.hak.wymi.persistance.pojos.user.BalanceDao;
 import com.hak.wymi.persistance.pojos.user.SecureCurrentUser;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
-import com.hak.wymi.utility.AppConfig;
 import com.hak.wymi.utility.BalanceTransactionManager;
 import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -60,6 +60,9 @@ public class UserController {
     @Autowired
     private BalanceDao balanceDao;
 
+    @Value("${server.ip}")
+    private String ipAddress;
+
     @RequestMapping(value = "/current", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> getCurrentUser(Principal principal) {
@@ -89,7 +92,7 @@ public class UserController {
             message.setText(
                     String.format(
                             "Please click here to reset your password: http://%s/password-reset?code=%s",
-                            AppConfig.get("IP"),
+                            ipAddress,
                             code
                     )
             );
@@ -128,7 +131,9 @@ public class UserController {
             final SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail());
             message.setSubject("WYMI account validation");
-            message.setText(String.format("Please click here to validate your account: http://%s/api/user/%s/validate/%s", AppConfig.get("IP"), user.getName(), code));
+            message.setText(String
+                    .format("Please click here to validate your account: http://%s/api/user/%s/validate/%s",
+                            ipAddress, user.getName(), code));
             mailSender.send(message);
 
             return new ResponseEntity<>(universalResponse, HttpStatus.CREATED);
