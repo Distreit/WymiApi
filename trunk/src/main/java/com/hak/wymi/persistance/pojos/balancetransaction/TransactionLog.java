@@ -34,7 +34,7 @@ public class TransactionLog {
 
     private Integer targetReceived;
 
-    private Boolean canceled = false;
+    private Boolean canceled = Boolean.FALSE;
 
     @Version
     private Integer version;

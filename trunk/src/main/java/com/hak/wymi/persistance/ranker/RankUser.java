@@ -1,6 +1,6 @@
-package com.hak.wymi.persistance.utility;
+package com.hak.wymi.persistance.ranker;
 
-import com.hak.wymi.persistance.pojos.comment.CommentDonation;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -21,8 +21,8 @@ public class RankUser {
         this.userName = userName;
     }
 
-    public void addIncomingDonation(CommentDonation donation) {
-        String donatorName = donation.getSourceUser().getName();
+    public void addIncomingDonation(BalanceTransaction donation) {
+        final String donatorName = donation.getSourceUser().getName();
         if (!incomingDonations.containsKey(donatorName)) {
             incomingDonations.put(donatorName, 0);
             inLink += 1;
@@ -40,8 +40,8 @@ public class RankUser {
         }
     }
 
-    public void addOutgoingDonation(CommentDonation donation) {
-        String receiverName = donation.getDestination().getName();
+    public void addOutgoingDonation(BalanceTransaction donation) {
+        final String receiverName = donation.getDestination().getName();
         if (!outgoingDonations.containsKey(receiverName)) {
             outgoingDonations.put(receiverName, 0);
             outLink += 1;

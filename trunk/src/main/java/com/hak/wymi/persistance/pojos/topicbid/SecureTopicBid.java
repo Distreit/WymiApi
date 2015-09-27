@@ -3,13 +3,13 @@ package com.hak.wymi.persistance.pojos.topicbid;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 
 public class SecureTopicBid implements SecureToSend {
-    final private Integer topicBidId;
+    private final Integer topicBidId;
 
-    final private String topicName;
+    private final String topicName;
 
-    final private String userName;
+    private final String userName;
 
-    final private Integer amount;
+    private final Integer amount;
 
     public SecureTopicBid(TopicBid topicBid) {
         this.topicBidId = topicBid.getTopicBidId();

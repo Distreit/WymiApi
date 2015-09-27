@@ -18,7 +18,7 @@ public class TopicBidDaoImpl implements TopicBidDao {
     @Override
     public boolean save(TopicBidCreation topicBidCreation) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            TopicBid topicBid = topicBidCreation.getTopicBid();
+            final TopicBid topicBid = topicBidCreation.getTopicBid();
 
             topicBidCreation.setState(TransactionState.UNPROCESSED);
             session.save(topicBid);

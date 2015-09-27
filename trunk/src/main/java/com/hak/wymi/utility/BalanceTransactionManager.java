@@ -101,7 +101,8 @@ public class BalanceTransactionManager {
         if (transaction.getState() == TransactionState.UNPROCESSED) {
             return balanceTransactionDao.process(transaction);
         } else if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("Transaction without UNPROCESSED state trying to be processed. {}", JSONConverter.getJSON(transaction, Boolean.TRUE));
+            LOGGER.error("Transaction without UNPROCESSED state trying to be processed. {}",
+                    JSONConverter.getJSON(transaction, Boolean.TRUE));
         }
         return false;
     }

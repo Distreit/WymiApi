@@ -6,7 +6,7 @@ import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.comment.CommentDonation;
 import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
-import com.hak.wymi.persistance.utility.UserTopicRanker;
+import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

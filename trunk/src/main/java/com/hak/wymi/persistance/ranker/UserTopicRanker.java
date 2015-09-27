@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.utility;
+package com.hak.wymi.persistance.ranker;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.comment.CommentDonation;
@@ -34,20 +34,24 @@ public class UserTopicRanker implements SecureToSend {
             return rank;
         }));
 
-        Double startingSum = startingRanks.values().stream().mapToDouble(Double::doubleValue).sum();
-        Double endingSum = ranks.values().stream().mapToDouble(Double::doubleValue).sum();
+        final Double startingSum = startingRanks.values().stream().mapToDouble(Double::doubleValue).sum();
+        final Double endingSum = ranks.values().stream().mapToDouble(Double::doubleValue).sum();
 
         return Math.abs(startingSum - endingSum);
     }
 
     private double incomingLinkValues(String userName, ConcurrentMap<String, Double> ranks, int userCount) {
         double result = 0d;
-        RankUser receivingUser = users.get(userName);
+        final RankUser receivingUser = users.get(userName);
 
+
+        RankUser sendingUser;
+        String sendingUserName;
+        double userAddition;
         for (Entry<String, RankUser> userEntry : users.entrySet()) {
-            double userAddition = 0;
-            RankUser sendingUser = userEntry.getValue();
-            String sendingUserName = userEntry.getKey();
+            userAddition = 0;
+            sendingUser = userEntry.getValue();
+            sendingUserName = userEntry.getKey();
 
             if (sendingUser.getTotalOut() > 0) {
                 if (receivingUser.getIncomingDonations().containsKey(sendingUserName)) {
