@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -18,15 +19,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
-import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "comment")
-public class Comment implements HasPointsBalance {
+public class Comment extends PersistentObject implements HasPointsBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class})
@@ -65,13 +64,6 @@ public class Comment implements HasPointsBalance {
     @Fetch(value = FetchMode.SELECT)
     @BatchSize(size = 10)
     private List<Comment> replies;
-
-    @Version
-    private Integer version;
-
-    private Date updated;
-
-    private Date created;
 
     public List<Comment> getReplies() {
         return replies;
@@ -136,33 +128,6 @@ public class Comment implements HasPointsBalance {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Date getCreated() {
-        if (this.created == null) {
-            return null;
-        }
-        return (Date) created.clone();
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public Date getUpdated() {
-        return (Date) updated.clone();
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public Integer getAuthorId() {

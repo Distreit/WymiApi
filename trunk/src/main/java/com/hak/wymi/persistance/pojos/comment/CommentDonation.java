@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
@@ -19,15 +20,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Null;
 import javax.validation.groups.Default;
-import java.util.Date;
 
 @Entity
 @Table(name = "commentdonation")
-public class CommentDonation implements BalanceTransaction {
+public class CommentDonation extends PersistentObject implements BalanceTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
@@ -50,13 +49,6 @@ public class CommentDonation implements BalanceTransaction {
 
     @Min(value = 0, groups = {Default.class, Creation.class})
     private Integer amount;
-
-    @Version
-    private Integer version;
-
-    private Date updated;
-
-    private Date created;
 
     @Enumerated(EnumType.STRING)
     private TransactionState state;
@@ -133,23 +125,6 @@ public class CommentDonation implements BalanceTransaction {
         return this.comment;
     }
 
-    public Date getUpdated() {
-        return (Date) updated.clone();
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    @Override
-    public Date getCreated() {
-        return (Date) created.clone();
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
     @Override
     public TransactionState getState() {
         return this.state;
@@ -158,14 +133,6 @@ public class CommentDonation implements BalanceTransaction {
     @Override
     public void setState(TransactionState state) {
         this.state = state;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public Integer getCommentDonationId() {

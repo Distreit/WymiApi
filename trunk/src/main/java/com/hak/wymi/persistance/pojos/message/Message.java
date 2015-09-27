@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.message;
 
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import javax.persistence.Entity;
@@ -9,12 +10,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
-import java.util.Date;
 
 @Entity
 @Table(name = "message")
-public class Message {
+public class Message extends PersistentObject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer messageId;
@@ -36,13 +35,6 @@ public class Message {
     private Boolean destinationDeleted;
 
     private Boolean sourceDeleted;
-
-    @Version
-    private Integer version;
-
-    private Date updated;
-
-    private Date created;
 
     public Message(User destinationUser, User sourceUser, String subject, String content) {
         this.destinationUser = destinationUser;
@@ -121,29 +113,5 @@ public class Message {
 
     public void setSourceDeleted(Boolean sourceDeleted) {
         this.sourceDeleted = sourceDeleted;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public Date getUpdated() {
-        return (Date) updated.clone();
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    public Date getCreated() {
-        return (Date) created.clone();
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
     }
 }

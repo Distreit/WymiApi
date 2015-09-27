@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
@@ -19,15 +20,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Null;
 import javax.validation.groups.Default;
-import java.util.Date;
 
 @Entity
 @Table(name = "postdonation")
-public class PostDonation implements BalanceTransaction {
+public class PostDonation extends PersistentObject implements BalanceTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
@@ -50,13 +49,6 @@ public class PostDonation implements BalanceTransaction {
 
     @Formula("(select count(d.postId) from postdonation d where d.postId=postId and d.sourceUserId=sourceUserId and d.state='PROCESSED')")
     private Integer userDonationCount;
-
-    @Version
-    private Integer version;
-
-    private Date updated;
-
-    private Date created;
 
     @Enumerated(EnumType.STRING)
     private TransactionState state;
@@ -139,31 +131,6 @@ public class PostDonation implements BalanceTransaction {
     @Override
     public HasPointsBalance getTarget() {
         return this.post;
-    }
-
-    public Date getUpdated() {
-        return (Date) updated.clone();
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    @Override
-    public Date getCreated() {
-        return (Date) created.clone();
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     @Override

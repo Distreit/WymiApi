@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
@@ -7,13 +8,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.Null;
-import java.util.Date;
 
 @Entity
 @Table(name = "transactionLog")
-public class TransactionLog {
+public class TransactionLog extends PersistentObject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,13 +34,6 @@ public class TransactionLog {
     private Integer targetReceived;
 
     private Boolean canceled = Boolean.FALSE;
-
-    @Version
-    private Integer version;
-
-    private Date updated;
-
-    private Date created;
 
     public TransactionLog() {
         // Not used.
@@ -122,29 +114,5 @@ public class TransactionLog {
 
     public void setCanceled(Boolean canceled) {
         this.canceled = canceled;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public Date getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
     }
 }

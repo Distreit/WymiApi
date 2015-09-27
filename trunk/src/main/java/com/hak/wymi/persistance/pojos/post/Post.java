@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.UrlOrText;
@@ -16,15 +17,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import java.util.Date;
 
 @Entity
 @Table(name = "post")
 @UrlOrText(groups = Creation.class)
-public class Post implements HasPointsBalance {
+public class Post extends PersistentObject implements HasPointsBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
@@ -60,13 +59,6 @@ public class Post implements HasPointsBalance {
     private Double base;
 
     private Integer donations;
-
-    @Version
-    private Integer version;
-
-    private Date updated;
-
-    private Date created;
 
     public Integer getPostId() {
         return postId;
@@ -139,33 +131,6 @@ public class Post implements HasPointsBalance {
 
     public void setScore(Double score) {
         this.score = score;
-    }
-
-    public Date getUpdated() {
-        return (Date) updated.clone();
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    public Date getCreated() {
-        if (this.created == null) {
-            return null;
-        }
-        return (Date) created.clone();
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     @Override

@@ -1,17 +1,17 @@
 package com.hak.wymi.persistance.pojos.user;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 @Entity
 @Table(name = "balance")
-public class Balance implements HasPointsBalance {
+public class Balance extends PersistentObject implements HasPointsBalance {
     @Id
     private Integer userId;
 
@@ -20,9 +20,6 @@ public class Balance implements HasPointsBalance {
     private User user;
 
     private Integer currentBalance;
-
-    @Version
-    private Integer version;
 
     public User getUser() {
         return user;
@@ -38,14 +35,6 @@ public class Balance implements HasPointsBalance {
 
     public void setCurrentBalance(Integer balance) {
         this.currentBalance = balance;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     @Override

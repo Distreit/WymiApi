@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -12,15 +13,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import java.util.Date;
 
 @Entity
 @Table(name = "topicBid")
-public class TopicBid implements HasPointsBalance {
+public class TopicBid extends PersistentObject implements HasPointsBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class})
@@ -41,46 +40,12 @@ public class TopicBid implements HasPointsBalance {
     @Null(groups = {Creation.class})
     private Integer currentBalance;
 
-    @Version
-    @Null(groups = {Creation.class})
-    private Integer version;
-
-    @Null(groups = {Creation.class})
-    private Date updated;
-
-    @Null(groups = {Creation.class})
-    private Date created;
-
     public Integer getCurrentBalance() {
         return currentBalance;
     }
 
     public void setCurrentBalance(Integer amount) {
         this.currentBalance = amount;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public Date getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
     }
 
     public User getUser() {

@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.topic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.groups.Creation;
@@ -16,7 +17,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -30,7 +30,7 @@ import java.util.Set;
 @Entity
 @Table(name = "topic")
 @NameDoesNotExist(groups = {Creation.class})
-public class Topic {
+public class Topic extends PersistentObject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class, Update.class})
@@ -84,13 +84,6 @@ public class Topic {
 
     @Null(groups = {Creation.class, Update.class})
     private Integer filterCount;
-
-    @Null(groups = {Creation.class, Update.class})
-    private Date created;
-
-    @Version
-    @Null(groups = {Creation.class, Update.class})
-    private Integer version;
 
     public Integer getTopicId() {
         return topicId;
@@ -146,22 +139,6 @@ public class Topic {
 
     public void setFilterCount(Integer filterCount) {
         this.filterCount = filterCount;
-    }
-
-    public Date getCreated() {
-        return (Date) created.clone();
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public Integer getFeeFlat() {

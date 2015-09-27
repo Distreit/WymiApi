@@ -108,7 +108,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             session.buildLockRequest(pessimisticWrite).lock(transaction.getDestination());
             destination = transaction.getDestination();
         } catch (NonUniqueObjectException exception) {
-            LOGGER.info("Transaction destination wasn't loaded yet so we couldn't lock it. Loading with lock instead.", exception);
+            LOGGER.trace("Transaction destination wasn't loaded yet so we couldn't lock it. Loading with lock instead.", exception);
             destination = (HasPointsBalance) session
                     .load(transaction.getDestination().getClass(), transaction.getDestination().getBalanceId(), pessimisticWrite);
         }

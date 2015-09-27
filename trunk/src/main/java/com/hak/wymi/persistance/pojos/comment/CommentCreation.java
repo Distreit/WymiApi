@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
@@ -16,17 +17,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.groups.Default;
-import java.util.Date;
 
 @Entity
 @Table(name = "commentCreation")
-public class CommentCreation implements BalanceTransaction {
+public class CommentCreation extends PersistentObject implements BalanceTransaction {
     @Id
     private Integer commentId;
 
@@ -52,16 +51,6 @@ public class CommentCreation implements BalanceTransaction {
     @Null(groups = Creation.class)
     private TransactionState state;
 
-    @Version
-    @Null(groups = Creation.class)
-    private Integer version;
-
-    @Null(groups = Creation.class)
-    private Date updated;
-
-    @Null(groups = Creation.class)
-    private Date created;
-
     @Override
     public TransactionState getState() {
         return this.state;
@@ -70,15 +59,6 @@ public class CommentCreation implements BalanceTransaction {
     @Override
     public void setState(TransactionState state) {
         this.state = state;
-    }
-
-    @Override
-    public Date getCreated() {
-        return this.created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
     }
 
     @Override
@@ -120,22 +100,6 @@ public class CommentCreation implements BalanceTransaction {
     @Override
     public Object getDependent() {
         return this.comment;
-    }
-
-    public Date getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 
     public Integer getFeePercent() {

@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.user;
 
 import com.hak.wymi.persistance.interfaces.HasPassword;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.validations.Email;
 import com.hak.wymi.validations.EmailDoesNotExist;
@@ -19,12 +20,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -32,7 +31,7 @@ import java.util.Set;
 @PasswordsMatch(groups = Creation.class)
 @EmailsMatch(groups = Creation.class)
 @NameDoesNotExist(groups = Creation.class)
-public class User implements HasPassword {
+public class User extends PersistentObject implements HasPassword {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
@@ -78,16 +77,6 @@ public class User implements HasPassword {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
     @Null(groups = {Creation.class})
     private Balance balance;
-
-    @Version
-    @Null(groups = Creation.class)
-    private Integer version;
-
-    @Null(groups = Creation.class)
-    private Date created;
-
-    @Null(groups = Creation.class)
-    private Date updated;
 
     @Override
     public boolean passwordsMatch() {
@@ -156,30 +145,6 @@ public class User implements HasPassword {
 
     public void setValidated(Boolean validated) {
         this.validated = validated;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public Date getCreated() {
-        return (Date) created.clone();
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public Date getUpdated() {
-        return (Date) updated.clone();
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
     }
 
     public Set<Topic> getSubscriptions() {

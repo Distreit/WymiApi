@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.callbackcode;
 
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import javax.persistence.Entity;
@@ -11,12 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
-import java.util.Date;
 
 @Entity
 @Table(name = "callbackcode")
-public class CallbackCode {
+public class CallbackCode extends PersistentObject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer callbackCodeId;
@@ -29,13 +28,6 @@ public class CallbackCode {
 
     @Enumerated(EnumType.STRING)
     private CallbackCodeType type;
-
-    @Version
-    private Integer version;
-
-    private Date created;
-
-    private Date updated;
 
     public Integer getCallbackCodeId() {
         return callbackCodeId;
@@ -67,29 +59,5 @@ public class CallbackCode {
 
     public void setType(CallbackCodeType type) {
         this.type = type;
-    }
-
-    public Date getCreated() {
-        return (Date) created.clone();
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public Date getUpdated() {
-        return (Date) updated.clone();
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
     }
 }
