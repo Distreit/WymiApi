@@ -1,24 +1,17 @@
 package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.PersistentObject;
-import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
-import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
-import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.GenericBalanceTransaction;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Null;
@@ -26,7 +19,7 @@ import javax.validation.groups.Default;
 
 @Entity
 @Table(name = "commentdonation")
-public class CommentDonation extends PersistentObject implements BalanceTransaction {
+public class CommentDonation extends GenericBalanceTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)
@@ -40,18 +33,11 @@ public class CommentDonation extends PersistentObject implements BalanceTransact
     @JoinColumn(name = "sourceUserId")
     private User sourceUser;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transactionLogId")
-    private TransactionLog transactionLog;
-
     @Formula("(select count(d.commentId) from commentdonation d where d.commentId=commentId and d.sourceUserId=sourceUserId and d.state='PROCESSED')")
     private Integer userDonationCount;
 
     @Min(value = 0, groups = {Default.class, Creation.class})
     private Integer amount;
-
-    @Enumerated(EnumType.STRING)
-    private TransactionState state;
 
     public Comment getComment() {
         return comment;
@@ -125,16 +111,6 @@ public class CommentDonation extends PersistentObject implements BalanceTransact
         return this.comment;
     }
 
-    @Override
-    public TransactionState getState() {
-        return this.state;
-    }
-
-    @Override
-    public void setState(TransactionState state) {
-        this.state = state;
-    }
-
     public Integer getCommentDonationId() {
         return this.commentDonationId;
     }
@@ -142,15 +118,5 @@ public class CommentDonation extends PersistentObject implements BalanceTransact
     @Override
     public boolean paySiteTax() {
         return true;
-    }
-
-    @Override
-    public TransactionLog getTransactionLog() {
-        return transactionLog;
-    }
-
-    @Override
-    public void setTransactionLog(TransactionLog transactionLog) {
-        this.transactionLog = transactionLog;
     }
 }

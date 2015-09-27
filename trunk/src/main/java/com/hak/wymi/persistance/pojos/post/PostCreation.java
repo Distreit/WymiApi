@@ -1,19 +1,12 @@
 package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.PersistentObject;
-import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
-import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
-import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.GenericBalanceTransaction;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -25,7 +18,7 @@ import javax.validation.groups.Default;
 
 @Entity
 @Table(name = "postCreation")
-public class PostCreation extends PersistentObject implements BalanceTransaction {
+public class PostCreation extends GenericBalanceTransaction {
     @Id
     private Integer postId;
 
@@ -33,10 +26,6 @@ public class PostCreation extends PersistentObject implements BalanceTransaction
     @PrimaryKeyJoinColumn
     @Null(groups = Creation.class)
     private Post post;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transactionLogId")
-    private TransactionLog transactionLog;
 
     @Min(value = 0)
     @NotNull(groups = {Default.class, Creation.class})
@@ -46,20 +35,6 @@ public class PostCreation extends PersistentObject implements BalanceTransaction
     @Max(value = 100)
     @NotNull(groups = {Default.class, Creation.class})
     private Integer feePercent;
-
-    @Enumerated(EnumType.STRING)
-    @Null(groups = Creation.class)
-    private TransactionState state;
-
-    @Override
-    public TransactionState getState() {
-        return this.state;
-    }
-
-    @Override
-    public void setState(TransactionState state) {
-        this.state = state;
-    }
 
     @Override
     public Integer getAmount() {
@@ -149,15 +124,5 @@ public class PostCreation extends PersistentObject implements BalanceTransaction
 
     public void setPostId(Integer postId) {
         this.postId = postId;
-    }
-
-    @Override
-    public TransactionLog getTransactionLog() {
-        return transactionLog;
-    }
-
-    @Override
-    public void setTransactionLog(TransactionLog transactionLog) {
-        this.transactionLog = transactionLog;
     }
 }

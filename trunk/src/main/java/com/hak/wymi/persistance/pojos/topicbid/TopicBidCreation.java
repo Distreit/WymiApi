@@ -1,19 +1,12 @@
 package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.PersistentObject;
-import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
-import com.hak.wymi.persistance.pojos.balancetransaction.TransactionLog;
-import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.GenericBalanceTransaction;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -24,7 +17,7 @@ import javax.validation.groups.Default;
 
 @Entity
 @Table(name = "topicBidCreation")
-public class TopicBidCreation extends PersistentObject implements BalanceTransaction {
+public class TopicBidCreation extends GenericBalanceTransaction {
     @Id
     private Integer topicBidId;
 
@@ -33,17 +26,9 @@ public class TopicBidCreation extends PersistentObject implements BalanceTransac
     @Null(groups = Creation.class)
     private TopicBid topicBid;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transactionLogId")
-    private TransactionLog transactionLog;
-
     @Min(value = 0)
     @NotNull(groups = {Default.class, Creation.class})
     private Integer amount;
-
-    @Enumerated(EnumType.STRING)
-    @Null(groups = Creation.class)
-    private TransactionState state;
 
     public Integer getTopicBidId() {
         return topicBidId;
@@ -123,25 +108,5 @@ public class TopicBidCreation extends PersistentObject implements BalanceTransac
     @Override
     public boolean paySiteTax() {
         return false;
-    }
-
-    @Override
-    public TransactionState getState() {
-        return state;
-    }
-
-    @Override
-    public void setState(TransactionState state) {
-        this.state = state;
-    }
-
-    @Override
-    public TransactionLog getTransactionLog() {
-        return transactionLog;
-    }
-
-    @Override
-    public void setTransactionLog(TransactionLog transactionLog) {
-        this.transactionLog = transactionLog;
     }
 }
