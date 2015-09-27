@@ -6,15 +6,17 @@ import com.hak.wymi.utility.JSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
+/**
+ * Ranks users based on donations. To use add a list of donations to the ranker then run the iterate method until the
+ * delta (total change in rank) is less than a desired amount.
+ */
 public class UserTopicRanker implements SecureToSend {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserTopicRanker.class);
     private static final int FAVORITE_LOOP_LENGTH = 5;
@@ -22,9 +24,38 @@ public class UserTopicRanker implements SecureToSend {
     private final ConcurrentMap<String, RankUser> users = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Double> ranks = new ConcurrentHashMap<>();
 
-    private Double maxDonationLog10;
+    private Double maxTotalOutLog10;
 
-    public Double iterate(Double dampeningFactor) {
+    /**
+     * After creating a the UserTopicRanker add donations to it using this method.
+     * <p/>
+     * This method will create a user data structure based on incoming and outgoing donations, then prune the data
+     * structure for favorite loops.
+     *
+     * @param donations A list of BalanceTransactions which are donations.
+     */
+    public void addDonations(List<? extends BalanceTransaction> donations) {
+        for (BalanceTransaction donation : donations) {
+            getRankUser(donation.getDestination().getName()).addIncomingDonation(donation);
+            getRankUser(donation.getSourceUser().getName()).addOutgoingDonation(donation);
+        }
+
+        pruneFavorites();
+
+        maxTotalOutLog10 = Math.log10(findMaxTotalOut());
+        createRanks();
+    }
+
+    /**
+     * After adding donations this method should be repeatedly run until the return value is less than a desired
+     * amount.
+     *
+     * @param dampeningFactor The dampening factor should be between 0 and 1. Higher values are more stable and the
+     *                        accepted default is around 0.85.
+     *
+     * @return Total combined change in the ranks of all users.
+     */
+    public double iterate(Double dampeningFactor) {
         final ConcurrentMap<String, Double> startingRanks = new ConcurrentHashMap<>(ranks);
         final int userCount = ranks.size();
 
@@ -34,15 +65,26 @@ public class UserTopicRanker implements SecureToSend {
             return rank;
         }));
 
-        final Double startingSum = startingRanks.values().stream().mapToDouble(Double::doubleValue).sum();
-        final Double endingSum = ranks.values().stream().mapToDouble(Double::doubleValue).sum();
+        final double startingSum = startingRanks.values().stream().mapToDouble(Double::doubleValue).sum();
+        final double endingSum = ranks.values().stream().mapToDouble(Double::doubleValue).sum();
 
         return Math.abs(startingSum - endingSum);
     }
 
-    private double incomingLinkValues(String userName, ConcurrentMap<String, Double> ranks, int userCount) {
+    /**
+     * Calculates the sum of all the individual user contributes to the receiving users rank. An individual shares a
+     * portion of their rank based on how much they gave to the user compared to the total they gave to all users and
+     * the maximum any user gave in total.
+     *
+     * @param receivingUserName The user receiving the donation.
+     * @param ranks             The existing ranks of all users. This needs be a copy because of the iterative process.
+     * @param userCount         The total number of users. Used when a user doesn't send any donations.
+     *
+     * @return The sum of all individual user contributions to the receiving user.
+     */
+    private double incomingLinkValues(String receivingUserName, ConcurrentMap<String, Double> ranks, int userCount) {
         double result = 0d;
-        final RankUser receivingUser = users.get(userName);
+        final RankUser receivingUser = users.get(receivingUserName);
 
 
         RankUser sendingUser;
@@ -55,13 +97,19 @@ public class UserTopicRanker implements SecureToSend {
 
             if (sendingUser.getTotalOut() > 0) {
                 if (receivingUser.getIncomingDonations().containsKey(sendingUserName)) {
-                    Integer incomingDonationAmount = receivingUser.getIncomingDonations().get(sendingUserName);
-
+                    // User shares their rank when they donate to someone.
                     userAddition = ranks.get(sendingUserName);
-                    userAddition *= incomingDonationAmount / (double) sendingUser.getTotalOut();
-                    userAddition *= Math.log10(incomingDonationAmount) / maxDonationLog10;
+                    // They share a portion of that rank based on how much they gave to the specific user vs the total they gave.
+                    userAddition *= receivingUser.getIncomingDonations().get(sendingUserName) / (double) sendingUser.getTotalOut();
+                    /**
+                     * The result is then modified based on how much they gave total compared to the most anyone gave.
+                     * This is so that users who give more are favored, but we don't want it to be too heavy so the
+                     * amounts are log10.
+                     */
+                    userAddition *= Math.log10(sendingUser.getTotalOut()) / maxTotalOutLog10;
                 }
             } else {
+                // Users that don't donate to anyone spread their rank equally between all users.
                 userAddition = ranks.get(sendingUserName) / userCount;
             }
             result += userAddition;
@@ -70,32 +118,19 @@ public class UserTopicRanker implements SecureToSend {
         return result;
     }
 
-    public void addDonations(List<? extends BalanceTransaction> donations) {
-        for (BalanceTransaction donation : donations) {
-            getRankUser(donation.getDestination().getName()).addIncomingDonation(donation);
-            getRankUser(donation.getSourceUser().getName()).addOutgoingDonation(donation);
-        }
-
-        pruneFavorites();
-
-        maxDonationLog10 = Math.log10(findMaxDonation());
-        createRanks();
-    }
-
     private void createRanks() {
         final Double defaultValue = 1.0 / users.size();
 
         users.keySet().stream().forEach(u -> ranks.put(u, defaultValue));
     }
 
-    private Integer findMaxDonation() {
-        final List<Integer> values = users.values()
+    private Integer findMaxTotalOut() {
+        final Integer max = users.values()
                 .stream()
-                .map(u -> u.getIncomingDonations().values())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .max(Comparator.comparing(RankUser::getTotalOut))
+                .get()
+                .getTotalOut();
 
-        final Integer max = Collections.max(values);
         LOGGER.debug("Maximum donation: {}", max);
         return max;
     }
@@ -105,6 +140,7 @@ public class UserTopicRanker implements SecureToSend {
         for (RankUser user : users.values()) {
             loopUserName = favoriteLoop(user);
             if (loopUserName != null) {
+                users.get(loopUserName).removeOutgoingDonation(user.getIncomingDonations().get(loopUserName));
                 user.removeIncomingDonation(loopUserName);
             }
         }

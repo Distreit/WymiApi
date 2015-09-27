@@ -40,6 +40,11 @@ public class RankUser {
         }
     }
 
+    public void removeOutgoingDonation(Integer amount) {
+        totalOut -= amount;
+        outLink -= 1;
+    }
+
     public void addOutgoingDonation(BalanceTransaction donation) {
         final String receiverName = donation.getDestination().getName();
         if (!outgoingDonations.containsKey(receiverName)) {
