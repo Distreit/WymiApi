@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.balancetransaction.GenericBalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
@@ -17,7 +17,7 @@ import javax.validation.groups.Default;
 
 @Entity
 @Table(name = "topicBidCreation")
-public class TopicBidCreation extends GenericBalanceTransaction {
+public class TopicBidCreation extends AbstractBalanceTransaction {
     @Id
     private Integer topicBidId;
 

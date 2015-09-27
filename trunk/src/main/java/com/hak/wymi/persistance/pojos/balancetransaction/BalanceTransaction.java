@@ -2,8 +2,7 @@ package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.user.User;
-
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public interface BalanceTransaction {
     TransactionState getState();
@@ -13,7 +12,7 @@ public interface BalanceTransaction {
     /**
      * @return The timestamp when the transaction was created.
      */
-    Date getCreated();
+    DateTime getCreated();
 
     /**
      * @return The amount the transaction is for.

@@ -16,6 +16,7 @@ import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.BalanceTransactionManager;
 import com.hak.wymi.validations.groups.Creation;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Null;
 import java.security.Principal;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -88,7 +88,7 @@ public class PostController {
 
             post.setTopic(topic);
             post.setUser(user);
-            final long base = new Date().getTime() / MILLISECONDS_IN_A_SECOND - baseTime;
+            final long base = new DateTime().getMillis() / MILLISECONDS_IN_A_SECOND - baseTime;
             post.setBase((double) base);
             post.setPoints(0);
             post.setDonations(0);

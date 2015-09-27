@@ -1,8 +1,7 @@
 package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public class SecurePost implements SecureToSend {
     private final Integer postId;
@@ -14,7 +13,7 @@ public class SecurePost implements SecureToSend {
     private final String text;
     private final Double score;
     private final Integer points;
-    private final Date created;
+    private final DateTime created;
 
     public SecurePost(Post post) {
         this.postId = post.getPostId();
@@ -53,8 +52,8 @@ public class SecurePost implements SecureToSend {
         return points;
     }
 
-    public Date getCreated() {
-        return (Date) created.clone();
+    public DateTime getCreated() {
+        return created;
     }
 
     public Integer getPostId() {

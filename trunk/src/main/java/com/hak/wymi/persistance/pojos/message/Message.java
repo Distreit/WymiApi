@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.message;
 
-import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import javax.persistence.Entity;
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "message")
-public class Message extends PersistentObject {
+public class Message extends AbstractPersistentObject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer messageId;
@@ -48,7 +48,7 @@ public class Message extends PersistentObject {
     }
 
     public Message() {
-        // Needed for bean creation.
+        super();
     }
 
     public Integer getMessageId() {

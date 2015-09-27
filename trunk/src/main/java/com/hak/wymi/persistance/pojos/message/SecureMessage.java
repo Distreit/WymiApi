@@ -1,8 +1,7 @@
 package com.hak.wymi.persistance.pojos.message;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public class SecureMessage implements SecureToSend {
 
@@ -18,7 +17,7 @@ public class SecureMessage implements SecureToSend {
 
     private final boolean alreadyRead;
 
-    private final Date created;
+    private final DateTime created;
 
     public SecureMessage(Message message) {
         this.messageId = message.getMessageId();
@@ -58,7 +57,7 @@ public class SecureMessage implements SecureToSend {
         return alreadyRead;
     }
 
-    public Date getCreated() {
-        return (Date) created.clone();
+    public DateTime getCreated() {
+        return created;
     }
 }

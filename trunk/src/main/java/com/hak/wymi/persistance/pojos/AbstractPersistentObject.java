@@ -1,24 +1,27 @@
 package com.hak.wymi.persistance.pojos;
 
 import com.hak.wymi.validations.groups.Creation;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import javax.validation.constraints.Null;
-import java.util.Date;
 
 @MappedSuperclass
-public class PersistentObject {
+public abstract class AbstractPersistentObject {
 
     @Version
     @Null(groups = Creation.class)
     private Integer version;
 
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @Null(groups = Creation.class)
-    private Date created;
+    private DateTime created;
 
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @Null(groups = Creation.class)
-    private Date updated;
+    private DateTime updated;
 
     public Integer getVersion() {
         return version;
@@ -28,19 +31,19 @@ public class PersistentObject {
         this.version = version;
     }
 
-    public Date getCreated() {
+    public DateTime getCreated() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(DateTime created) {
         this.created = created;
     }
 
-    public Date getUpdated() {
+    public DateTime getUpdated() {
         return updated;
     }
 
-    public void setUpdated(Date updated) {
+    public void setUpdated(DateTime updated) {
         this.updated = updated;
     }
 }

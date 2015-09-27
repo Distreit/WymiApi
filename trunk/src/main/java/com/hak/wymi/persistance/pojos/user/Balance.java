@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.user;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "balance")
-public class Balance extends PersistentObject implements HasPointsBalance {
+public class Balance extends AbstractPersistentObject implements HasPointsBalance {
     @Id
     private Integer userId;
 

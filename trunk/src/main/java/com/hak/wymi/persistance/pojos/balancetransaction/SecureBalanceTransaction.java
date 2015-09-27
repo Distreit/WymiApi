@@ -2,8 +2,7 @@ package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.utility.BalanceTransactionManager;
-
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public class SecureBalanceTransaction implements SecureToSend {
 
@@ -17,9 +16,9 @@ public class SecureBalanceTransaction implements SecureToSend {
 
     private final String url;
 
-    private final Date created;
+    private final DateTime created;
 
-    private final Date commitTime;
+    private final DateTime commitTime;
 
     public SecureBalanceTransaction(BalanceTransaction transaction) {
         this.transactionId = transaction.getTransactionId();
@@ -28,7 +27,7 @@ public class SecureBalanceTransaction implements SecureToSend {
         this.recipientName = transaction.getDestination().getName();
         this.url = transaction.getTargetUrl();
         this.created = transaction.getCreated();
-        this.commitTime = new Date(this.created.getTime() + BalanceTransactionManager.TRANSACTION_WAIT_PERIOD);
+        this.commitTime = new DateTime(this.created.plusMillis(BalanceTransactionManager.TRANSACTION_WAIT_PERIOD));
     }
 
     public Integer getAmount() {
@@ -43,11 +42,11 @@ public class SecureBalanceTransaction implements SecureToSend {
         return recipientName;
     }
 
-    public Date getCreated() {
+    public DateTime getCreated() {
         return created;
     }
 
-    public Date getCommitTime() {
+    public DateTime getCommitTime() {
         return commitTime;
     }
 

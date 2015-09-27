@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
-import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.EnumType;
@@ -12,7 +12,7 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.Null;
 
 @MappedSuperclass
-public abstract class GenericBalanceTransaction extends PersistentObject implements BalanceTransaction {
+public abstract class AbstractBalanceTransaction extends AbstractPersistentObject implements BalanceTransaction {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transactionLogId")

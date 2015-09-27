@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.balancetransaction.GenericBalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
@@ -18,7 +18,7 @@ import javax.validation.groups.Default;
 
 @Entity
 @Table(name = "postCreation")
-public class PostCreation extends GenericBalanceTransaction {
+public class PostCreation extends AbstractBalanceTransaction {
     @Id
     private Integer postId;
 

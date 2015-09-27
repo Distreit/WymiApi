@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -19,7 +19,7 @@ import javax.validation.constraints.Null;
 
 @Entity
 @Table(name = "topicBid")
-public class TopicBid extends PersistentObject implements HasPointsBalance {
+public class TopicBid extends AbstractPersistentObject implements HasPointsBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class})

@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.user;
 
 import com.hak.wymi.persistance.interfaces.HasPassword;
-import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.validations.Email;
 import com.hak.wymi.validations.EmailDoesNotExist;
@@ -31,7 +31,7 @@ import java.util.Set;
 @PasswordsMatch(groups = Creation.class)
 @EmailsMatch(groups = Creation.class)
 @NameDoesNotExist(groups = Creation.class)
-public class User extends PersistentObject implements HasPassword {
+public class User extends AbstractPersistentObject implements HasPassword {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)

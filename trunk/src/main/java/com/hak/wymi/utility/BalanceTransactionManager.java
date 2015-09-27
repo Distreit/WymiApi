@@ -8,6 +8,7 @@ import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.post.PostCreationDao;
 import com.hak.wymi.persistance.pojos.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.user.User;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -65,7 +65,7 @@ public class BalanceTransactionManager {
 
     private boolean preprocessQueueHasValueToProcess() {
         final BalanceTransaction transaction = preprocessQueue.peek();
-        return transaction != null && new Date(transaction.getCreated().getTime() + TRANSACTION_WAIT_PERIOD).before(new Date());
+        return transaction != null && transaction.getCreated().plusMillis(TRANSACTION_WAIT_PERIOD).isBefore(new DateTime());
     }
 
     @Async

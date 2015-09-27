@@ -1,11 +1,13 @@
 package com.hak.wymi.persistance.pojos.topic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.groups.Creation;
 import com.hak.wymi.validations.groups.Update;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -24,13 +26,12 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
-import java.util.Date;
 import java.util.Set;
 
 @Entity
 @Table(name = "topic")
 @NameDoesNotExist(groups = {Creation.class})
-public class Topic extends PersistentObject {
+public class Topic extends AbstractPersistentObject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class, Update.class})
@@ -62,8 +63,9 @@ public class Topic extends PersistentObject {
     @Null(groups = {Creation.class, Update.class})
     private Integer rent;
 
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @Null(groups = {Creation.class, Update.class})
-    private Date rentDueDate;
+    private DateTime rentDueDate;
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "subscription",
@@ -117,11 +119,11 @@ public class Topic extends PersistentObject {
         this.rent = rent;
     }
 
-    public Date getRentDueDate() {
-        return (Date) rentDueDate.clone();
+    public DateTime getRentDueDate() {
+        return rentDueDate;
     }
 
-    public void setRentDueDate(Date rentDueDate) {
+    public void setRentDueDate(DateTime rentDueDate) {
         this.rentDueDate = rentDueDate;
     }
 

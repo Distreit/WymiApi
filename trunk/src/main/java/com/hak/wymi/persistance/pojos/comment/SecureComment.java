@@ -1,8 +1,8 @@
 package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import org.joda.time.DateTime;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +16,7 @@ public class SecureComment implements SecureToSend {
 
     private final String content;
 
-    private final Date created;
+    private final DateTime created;
 
     private final Double score;
 
@@ -58,11 +58,8 @@ public class SecureComment implements SecureToSend {
         return content;
     }
 
-    public Date getCreated() {
-        if (this.created == null) {
-            return null;
-        }
-        return (Date) created.clone();
+    public DateTime getCreated() {
+        return created;
     }
 
     public List<SecureComment> getReplies() {

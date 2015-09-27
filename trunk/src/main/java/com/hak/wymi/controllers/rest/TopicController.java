@@ -10,7 +10,7 @@ import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.validations.groups.Creation;
 import com.hak.wymi.validations.groups.Update;
-import org.apache.commons.lang3.time.DateUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ public class TopicController {
 
         topic.setOwner(user);
         topic.setRent(0);
-        topic.setRentDueDate(DateUtils.addDays(new Date(), THIRTY_DAYS));
+        topic.setRentDueDate(new DateTime().plusDays(THIRTY_DAYS));
         topic.setSubscriberCount(0);
         topic.setFilterCount(0);
 

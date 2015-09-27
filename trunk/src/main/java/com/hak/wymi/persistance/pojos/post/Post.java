@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.UrlOrText;
@@ -23,7 +23,7 @@ import javax.validation.constraints.Null;
 @Entity
 @Table(name = "post")
 @UrlOrText(groups = Creation.class)
-public class Post extends PersistentObject implements HasPointsBalance {
+public class Post extends AbstractPersistentObject implements HasPointsBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)

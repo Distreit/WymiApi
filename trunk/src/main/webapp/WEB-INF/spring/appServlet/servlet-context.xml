@@ -24,14 +24,16 @@
     <context:property-placeholder location="classpath:application.properties"/>
 
     <bean id="myBeansValidator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
-    <mvc:annotation-driven validator="myBeansValidator"/>
 
     <!-- Enables the Spring MVC @Controller programming model -->
-    <mvc:annotation-driven>
+    <mvc:annotation-driven validator="myBeansValidator">
         <mvc:message-converters>
             <bean id="jacksonHttpMessageConverter"
                   class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                 <property name="prettyPrint" value="true"/>
+                <property name="objectMapper">
+                    <bean class="com.hak.wymi.utility.JodaObjectMapper"/>
+                </property>
             </bean>
         </mvc:message-converters>
     </mvc:annotation-driven>
