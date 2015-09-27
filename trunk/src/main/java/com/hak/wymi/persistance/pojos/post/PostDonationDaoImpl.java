@@ -35,4 +35,16 @@ public class PostDonationDaoImpl implements PostDonationDao {
         session.close();
         return postDonationList;
     }
+
+    @Override
+    public List<PostDonation> get(String topicName) {
+        final Session session = sessionFactory.openSession();
+        final List<PostDonation> postDonationList = session
+                .createQuery("from PostDonation where state=:state and post.topic.name=:topicName")
+                .setParameter("state", TransactionState.PROCESSED)
+                .setParameter("topicName", topicName)
+                .list();
+        session.close();
+        return postDonationList;
+    }
 }

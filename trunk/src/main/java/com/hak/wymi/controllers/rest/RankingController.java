@@ -3,9 +3,10 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-import com.hak.wymi.persistance.pojos.comment.CommentDonation;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
+import com.hak.wymi.persistance.pojos.post.PostDonationDao;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 public class RankingController {
@@ -28,6 +30,9 @@ public class RankingController {
 
     @Autowired
     private CommentDonationDao commentDonationDao;
+
+    @Autowired
+    private PostDonationDao postDonationDao;
 
     @Value("${ranking.delta}")
     private Double minDelta;
@@ -53,11 +58,14 @@ public class RankingController {
     public ResponseEntity<UniversalResponse> getRanks(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final List<CommentDonation> commentDonations = commentDonationDao.get(topicName);
+        final List<? extends BalanceTransaction> donations = Stream.concat(
+                commentDonationDao.get(topicName).stream(),
+                postDonationDao.get(topicName).stream()
+        ).collect(Collectors.toList());
 
         final UserTopicRanker ranker = new UserTopicRanker();
 
-        ranker.addDonations(commentDonations);
+        ranker.addDonations(donations);
         Double delta = 1d;
         int iterationCount = 0;
         while (delta > minDelta && iterationCount < maxIterations) {

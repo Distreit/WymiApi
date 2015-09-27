@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.ranker;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-import com.hak.wymi.persistance.pojos.comment.CommentDonation;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.utility.JSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,8 +70,8 @@ public class UserTopicRanker implements SecureToSend {
         return result;
     }
 
-    public void addDonations(List<CommentDonation> commentDonations) {
-        for (CommentDonation donation : commentDonations) {
+    public void addDonations(List<? extends BalanceTransaction> donations) {
+        for (BalanceTransaction donation : donations) {
             getRankUser(donation.getDestination().getName()).addIncomingDonation(donation);
             getRankUser(donation.getSourceUser().getName()).addOutgoingDonation(donation);
         }

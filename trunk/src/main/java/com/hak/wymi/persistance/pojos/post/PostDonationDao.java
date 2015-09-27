@@ -6,4 +6,6 @@ public interface PostDonationDao {
     boolean save(PostDonation postDonation);
 
     List<PostDonation> getUnprocessed();
+
+    List<PostDonation> get(String topicName);
 }
