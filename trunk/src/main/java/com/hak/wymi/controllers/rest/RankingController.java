@@ -63,7 +63,7 @@ public class RankingController {
         while (delta > minDelta && iterationCount < maxIterations) {
             delta = ranker.iterate(dampeningFactor);
             iterationCount += 1;
-            LOGGER.debug("Delta: {}", delta);
+            LOGGER.debug("delta: {}, iterationCount: {}", delta, iterationCount);
         }
 
         return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);

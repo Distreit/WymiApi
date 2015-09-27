@@ -91,7 +91,7 @@ public class TopicBidController {
             topicBidCreation.setAmount(amount);
 
             if (topicBidDao.save(topicBidCreation) && balanceTransactionManager.process(topicBidCreation)) {
-                SecureToSend secureTopicBid = new SecureTopicBid(topicBidCreation.getTopicBid());
+                final SecureToSend secureTopicBid = new SecureTopicBid(topicBidCreation.getTopicBid());
                 return new ResponseEntity<>(universalResponse.setData(secureTopicBid), HttpStatus.ACCEPTED);
             }
         }

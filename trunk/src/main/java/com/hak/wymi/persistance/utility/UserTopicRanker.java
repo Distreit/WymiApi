@@ -114,7 +114,7 @@ public class UserTopicRanker implements SecureToSend {
 
 
         for (int i = 0; i < FAVORITE_LOOP_LENGTH; i += 1) {
-            if (currentUser.getFavoriteName() == null || currentUser.getFavoriteName().equals("")) {
+            if (currentUser.getFavoriteName() == null || "".equals(currentUser.getFavoriteName())) {
                 return null;
             }
 

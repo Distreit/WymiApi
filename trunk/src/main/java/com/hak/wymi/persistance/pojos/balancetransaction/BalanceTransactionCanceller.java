@@ -18,19 +18,31 @@ public class BalanceTransactionCanceller {
     @Autowired
     private SessionFactory sessionFactory;
 
+    private static boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
+        transaction.setState(TransactionState.CANCELED);
+        final Message message = new Message(transaction.getSourceUser(), null, "Transfer failure",
+                String.format("Transaction from %s for %d canceled.",
+                        transaction.getTargetUrl(),
+                        transaction.getAmount()));
+
+        if (transaction.getDependent() == null) {
+            session.update(transaction);
+        } else {
+            session.delete(transaction);
+            session.delete(transaction.getDependent());
+        }
+
+        message.setSourceDeleted(Boolean.TRUE);
+        session.save(message);
+        return true;
+    }
+
     public boolean cancel(BalanceTransaction transaction) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            switch (transaction.getState()) {
-                case UNPROCESSED:
-                    return cancelUnprocessed(session, transaction);
-                case PROCESSED:
-                    return cancelProcessed(session, transaction);
-                case UNCONFIRMED:
-                    // Not in use.
-                    break;
-                default:
-                    // Nothing to do.
-                    break;
+            if (transaction.getState() == TransactionState.UNPROCESSED) {
+                return cancelUnprocessed(session, transaction);
+            } else if (transaction.getState() == TransactionState.PROCESSED) {
+                return cancelProcessed(session, transaction);
             }
             return false;
         });
@@ -97,25 +109,6 @@ public class BalanceTransactionCanceller {
             }
             return false;
         }
-        return true;
-    }
-
-    private boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
-        transaction.setState(TransactionState.CANCELED);
-        final Message message = new Message(transaction.getSourceUser(), null, "Transfer failure",
-                String.format("Transaction from %s for %d canceled.",
-                        transaction.getTargetUrl(),
-                        transaction.getAmount()));
-
-        if (transaction.getDependent() == null) {
-            session.update(transaction);
-        } else {
-            session.delete(transaction);
-            session.delete(transaction.getDependent());
-        }
-
-        message.setSourceDeleted(Boolean.TRUE);
-        session.save(message);
         return true;
     }
 }
