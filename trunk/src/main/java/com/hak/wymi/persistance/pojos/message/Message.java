@@ -36,7 +36,12 @@ public class Message extends AbstractPersistentObject {
 
     private Boolean sourceDeleted;
 
+    public Message() {
+        super();
+    }
+
     public Message(User destinationUser, User sourceUser, String subject, String content) {
+        super();
         this.destinationUser = destinationUser;
         this.sourceUser = sourceUser;
         this.subject = subject;
@@ -45,10 +50,6 @@ public class Message extends AbstractPersistentObject {
         this.alreadyRead = Boolean.FALSE;
         this.destinationDeleted = Boolean.FALSE;
         this.sourceDeleted = Boolean.FALSE;
-    }
-
-    public Message() {
-        super();
     }
 
     public Integer getMessageId() {

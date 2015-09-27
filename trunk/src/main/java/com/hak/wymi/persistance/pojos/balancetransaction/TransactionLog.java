@@ -40,6 +40,7 @@ public class TransactionLog extends AbstractPersistentObject {
     }
 
     public TransactionLog(BalanceTransaction transaction) {
+        super();
         this.transactionClass = transaction.getClass();
         this.transactionId = transaction.getTransactionId();
     }
