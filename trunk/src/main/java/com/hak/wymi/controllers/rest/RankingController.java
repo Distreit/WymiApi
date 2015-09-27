@@ -50,7 +50,7 @@ public class RankingController {
         ranker.addDonations(commentDonations);
         Double delta = 1d;
         int iterationCount = 0;
-        while (delta > 0.00001 && iterationCount < 1000) {
+        while (iterationCount < 100 || (delta > 0.00001 && iterationCount < 1000)) {
             delta = ranker.iterate(0.825);
             iterationCount += 1;
             LOGGER.debug("Delta: {}", delta);

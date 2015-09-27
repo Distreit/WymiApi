@@ -40,22 +40,27 @@ public class UserTopicRanker implements SecureToSend {
         return Math.abs(startingSum - endingSum);
     }
 
-    private double incomingLinkValues(String userName, ConcurrentMap<String, Double> startingRanks, int userCount) {
+    private double incomingLinkValues(String userName, ConcurrentMap<String, Double> ranks, int userCount) {
         double result = 0d;
+        RankUser receivingUser = users.get(userName);
 
         for (Entry<String, RankUser> userEntry : users.entrySet()) {
-            RankUser user = userEntry.getValue();
-            if (user.getTotalOut() > 0) {
-                if (users.get(userName).getIncomingDonations().containsKey(userEntry.getKey())) {
-                    Integer incomingDonationAmount = users.get(userName).getIncomingDonations().get(userEntry.getKey());
+            double userAddition = 0;
+            RankUser sendingUser = userEntry.getValue();
+            String sendingUserName = userEntry.getKey();
 
-                    result += startingRanks.get(userEntry.getKey());
-                    result *= incomingDonationAmount / (double) user.getTotalOut();
-                    result *= Math.log10(incomingDonationAmount) / maxDonationLog10;
+            if (sendingUser.getTotalOut() > 0) {
+                if (receivingUser.getIncomingDonations().containsKey(sendingUserName)) {
+                    Integer incomingDonationAmount = receivingUser.getIncomingDonations().get(sendingUserName);
+
+                    userAddition = ranks.get(sendingUserName);
+                    userAddition *= incomingDonationAmount / (double) sendingUser.getTotalOut();
+                    userAddition *= Math.log10(incomingDonationAmount) / maxDonationLog10;
                 }
             } else {
-                result += startingRanks.get(userEntry.getKey()) / userCount;
+                userAddition = ranks.get(sendingUserName) / userCount;
             }
+            result += userAddition;
         }
 
         return result;
