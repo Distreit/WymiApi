@@ -3,10 +3,12 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
 import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
 import com.hak.wymi.persistance.pojos.post.PostDonationDao;
+import com.hak.wymi.persistance.pojos.topic.TopicDao;
+import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRankDao;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,12 @@ public class RankingController {
 
     @Autowired
     private CommentDonationDao commentDonationDao;
+
+    @Autowired
+    private UserTopicRankDao userTopicRankDao;
+
+    @Autowired
+    private TopicDao topicDao;
 
     @Autowired
     private PostDonationDao postDonationDao;
@@ -58,7 +66,7 @@ public class RankingController {
     public ResponseEntity<UniversalResponse> getRanks(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final List<? extends BalanceTransaction> donations = Stream.concat(
+        final List<? extends DonationTransaction> donations = Stream.concat(
                 commentDonationDao.get(topicName).stream(),
                 postDonationDao.get(topicName).stream()
         ).collect(Collectors.toList());
@@ -72,6 +80,7 @@ public class RankingController {
             delta = ranker.iterate(dampeningFactor);
             iterationCount += 1;
         }
+        userTopicRankDao.save(ranker, topicDao.get(topicName));
         LOGGER.debug("delta: {}, iterationCount: {}", delta, iterationCount);
 
         return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);

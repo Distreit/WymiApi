@@ -1,7 +1,10 @@
 package com.hak.wymi.persistance.ranker;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
+import com.hak.wymi.persistance.pojos.topic.Topic;
+import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
 import com.hak.wymi.utility.JSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +15,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 /**
  * Ranks users based on donations. To use add a list of donations to the ranker then run the iterate method until the
@@ -34,10 +38,10 @@ public class UserTopicRanker implements SecureToSend {
      *
      * @param donations A list of BalanceTransactions which are donations.
      */
-    public void addDonations(List<? extends BalanceTransaction> donations) {
-        for (BalanceTransaction donation : donations) {
-            getRankUser(donation.getDestination().getName()).addIncomingDonation(donation);
-            getRankUser(donation.getSourceUser().getName()).addOutgoingDonation(donation);
+    public void addDonations(List<? extends DonationTransaction> donations) {
+        for (DonationTransaction donation : donations) {
+            getRankUser(donation.getDestinationUser()).addIncomingDonation(donation);
+            getRankUser(donation.getSourceUser()).addOutgoingDonation(donation);
         }
 
         pruneFavorites();
@@ -169,11 +173,12 @@ public class UserTopicRanker implements SecureToSend {
         return null;
     }
 
-    private RankUser getRankUser(String userName) {
-        if (!users.containsKey(userName)) {
-            users.put(userName, new RankUser(userName));
+    private RankUser getRankUser(User user) {
+
+        if (!users.containsKey(user.getName())) {
+            users.put(user.getName(), new RankUser(user));
         }
-        return users.get(userName);
+        return users.get(user.getName());
     }
 
     public ConcurrentMap<String, RankUser> getUsers() {
@@ -182,5 +187,11 @@ public class UserTopicRanker implements SecureToSend {
 
     public ConcurrentMap<String, Double> getRanks() {
         return ranks;
+    }
+
+    public List<UserTopicRank> getUserRanks(Topic topic) {
+        return users.values()
+                .stream().map((u) -> new UserTopicRank(u.getUser(), topic, ranks.get(u.getUserName())))
+                .collect(Collectors.toList());
     }
 }

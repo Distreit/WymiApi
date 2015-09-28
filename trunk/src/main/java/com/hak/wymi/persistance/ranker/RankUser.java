@@ -1,6 +1,8 @@
 package com.hak.wymi.persistance.ranker;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.user.User;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -10,6 +12,8 @@ public class RankUser {
     private final ConcurrentMap<String, Integer> incomingDonations = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Integer> outgoingDonations = new ConcurrentHashMap<>();
 
+    @JsonIgnore
+    private final User user;
     private Integer inLink = 0;
     private Integer outLink = 0;
     private Integer totalIn = 0;
@@ -17,8 +21,9 @@ public class RankUser {
     private String favoriteName;
     private Integer favoriteValue = 0;
 
-    public RankUser(String userName) {
-        this.userName = userName;
+    public RankUser(User user) {
+        this.userName = user.getName();
+        this.user = user;
     }
 
     public void addIncomingDonation(BalanceTransaction donation) {
@@ -93,5 +98,9 @@ public class RankUser {
 
     public String getUserName() {
         return userName;
+    }
+
+    public User getUser() {
+        return user;
     }
 }
