@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
 CREATE TABLE IF NOT EXISTS `commentcreation` (
   `commentId`        INT(11)                                                     NOT NULL AUTO_INCREMENT,
   `transactionLogId` INT(10) UNSIGNED                                                     DEFAULT NULL,
-  `feeFlat` INT(10) UNSIGNED NOT NULL,
+  `feeFlat`          INT(10) UNSIGNED                                            NOT NULL,
   `feePercent`       SMALLINT(5) UNSIGNED                                        NOT NULL,
   `state`            ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
   `version`          INT(10) UNSIGNED                                            NOT NULL,
@@ -343,6 +343,26 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `name` (`name`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table wymi.usertopicrank
+CREATE TABLE IF NOT EXISTS `usertopicrank` (
+  `userId`  INT(11)          NOT NULL,
+  `topicId` INT(11)          NOT NULL,
+  `rank`    FLOAT            NOT NULL,
+  `version` INT(10) UNSIGNED NOT NULL,
+  `created` TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`userId`, `topicId`),
+  UNIQUE KEY `userId_topicId` (`userId`, `topicId`),
+  KEY `FK_usertopicrank_topic` (`topicId`),
+  CONSTRAINT `FK_usertopicrank_topic` FOREIGN KEY (`topicId`) REFERENCES `topic` (`topicId`),
+  CONSTRAINT `FK_usertopicrank_user` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
 
 -- Data exporting was unselected.
 
