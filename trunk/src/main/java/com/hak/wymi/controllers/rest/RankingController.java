@@ -76,12 +76,14 @@ public class RankingController {
         ranker.addDonations(donations);
         Double delta = 1d;
         int iterationCount = 0;
+        long start = System.nanoTime();
         while (delta > minDelta && iterationCount < maxIterations) {
             delta = ranker.iterate(dampeningFactor);
             iterationCount += 1;
         }
+        long elapsedTime = System.nanoTime() - start;
         userTopicRankDao.save(ranker, topicDao.get(topicName));
-        LOGGER.debug("delta: {}, iterationCount: {}", delta, iterationCount);
+        LOGGER.debug("delta: {}, iterationCount: {}, in: {}", delta, iterationCount, elapsedTime / 1000000000.0);
 
         return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);
     }

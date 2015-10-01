@@ -3,6 +3,7 @@ package com.hak.wymi.persistance.pojos.topic;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
@@ -51,6 +52,16 @@ public class TopicDaoImpl implements TopicDao {
     public List<Topic> getAll() {
         final Session session = sessionFactory.openSession();
         final List<Topic> topicList = session.createQuery("from Topic").list();
+        session.close();
+        return topicList;
+    }
+
+    @Override
+    public List<Topic> getRentDue() {
+        final Session session = sessionFactory.openSession();
+        final List<Topic> topicList = session.createQuery("from Topic where rentDueDate<:now")
+                .setParameter("now", new DateTime())
+                .list();
         session.close();
         return topicList;
     }

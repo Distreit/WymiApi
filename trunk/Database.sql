@@ -157,6 +157,28 @@ CREATE TABLE IF NOT EXISTS `message` (
 -- Data exporting was unselected.
 
 
+-- Dumping structure for table wymi.ownershiptransaction
+CREATE TABLE IF NOT EXISTS `ownershiptransaction` (
+  `ownershipTransactionId`  INT(10) UNSIGNED             NOT NULL AUTO_INCREMENT,
+  `topicId`                 INT(11)                      NOT NULL,
+  `winningBidId`            INT(10) UNSIGNED                      DEFAULT NULL,
+  `state`                   ENUM('WAITING', 'PROCESSED') NOT NULL,
+  `waitingPeriodExpiration` DATETIME                     NOT NULL,
+  `version`                 INT(10) UNSIGNED             NOT NULL,
+  `updated`                 TIMESTAMP                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`                 TIMESTAMP                    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ownershipTransactionId`),
+  KEY `FK_ownershiptransaction_topicbid` (`winningBidId`),
+  KEY `FK_ownershiptransaction_topic` (`topicId`),
+  CONSTRAINT `FK_ownershiptransaction_topic` FOREIGN KEY (`topicId`) REFERENCES `topic` (`topicId`),
+  CONSTRAINT `FK_ownershiptransaction_topicbid` FOREIGN KEY (`winningBidId`) REFERENCES `topicbid` (`topicBidId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table wymi.post
 CREATE TABLE IF NOT EXISTS `post` (
   `postId` int(11) NOT NULL AUTO_INCREMENT,
@@ -267,13 +289,14 @@ CREATE TABLE IF NOT EXISTS `topic` (
 
 -- Dumping structure for table wymi.topicbid
 CREATE TABLE IF NOT EXISTS `topicbid` (
-  `topicBidId`     INT(10) UNSIGNED    NOT NULL AUTO_INCREMENT,
-  `topicId`        INT(10)             NOT NULL,
-  `userId`         INT(10)             NOT NULL,
-  `currentBalance` BIGINT(20) UNSIGNED NOT NULL,
-  `version`        INT(10) UNSIGNED    NOT NULL,
-  `updated`        TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created`        TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `topicBidId`     INT(10) UNSIGNED                         NOT NULL AUTO_INCREMENT,
+  `topicId`        INT(10)                                  NOT NULL,
+  `userId`         INT(10)                                  NOT NULL,
+  `currentBalance` BIGINT(20) UNSIGNED                      NOT NULL,
+  `state`          ENUM('WAITING', 'ACCEPTED', 'PROCESSED') NOT NULL,
+  `version`        INT(10) UNSIGNED                         NOT NULL,
+  `updated`        TIMESTAMP                                NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`        TIMESTAMP                                NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`topicBidId`),
   KEY `FK_bid_topic` (`topicId`),
   KEY `FK_bid_user` (`userId`),

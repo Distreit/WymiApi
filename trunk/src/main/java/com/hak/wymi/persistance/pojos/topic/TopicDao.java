@@ -13,4 +13,6 @@ public interface TopicDao {
     Topic update(Topic topic, Principal principal);
 
     List<Topic> getAll();
+
+    List<Topic> getRentDue();
 }

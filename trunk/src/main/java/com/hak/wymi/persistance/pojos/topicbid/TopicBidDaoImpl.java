@@ -19,6 +19,7 @@ public class TopicBidDaoImpl implements TopicBidDao {
     public boolean save(TopicBidCreation topicBidCreation) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             final TopicBid topicBid = topicBidCreation.getTopicBid();
+            topicBid.setTopicBidCreation(topicBidCreation);
 
             topicBidCreation.setState(TransactionState.UNPROCESSED);
             session.save(topicBid);
@@ -33,10 +34,11 @@ public class TopicBidDaoImpl implements TopicBidDao {
     }
 
     @Override
-    public List<TopicBid> get(String topicName) {
+    public List<TopicBid> get(String topicName, TopicBidState state) {
         final Session session = sessionFactory.openSession();
-        final List<TopicBid> topicBids = session.createQuery("from TopicBid where topic.name=:topicName")
+        final List<TopicBid> topicBids = session.createQuery("from TopicBid where topic.name=:topicName and state=:state")
                 .setParameter("topicName", topicName)
+                .setParameter("state", state)
                 .list();
         session.close();
         return topicBids;
@@ -51,5 +53,18 @@ public class TopicBidDaoImpl implements TopicBidDao {
         topicBidCreation.getTransactionLog().getCanceled();
         session.close();
         return topicBidCreation;
+    }
+
+    @Override
+    public List<TopicBid> getForRentTransaction(String topicName) {
+        final Session session = sessionFactory.openSession();
+        final List<TopicBid> topicBids = session
+                .createQuery("from TopicBid where topic.name=:topicName and state=:state and topicBidCreation.state=:creationState order by created")
+                .setParameter("topicName", topicName)
+                .setParameter("state", TopicBidState.WAITING)
+                .setParameter("creationState", TransactionState.PROCESSED)
+                .list();
+        session.close();
+        return topicBids;
     }
 }

@@ -11,13 +11,15 @@
             http://www.springframework.org/schema/task/spring-task-3.0.xsd
 
             http://www.springframework.org/schema/context
-            http://www.springframework.org/schema/context/spring-context.xsd">
+            http://www.springframework.org/schema/context/spring-context.xsd
+            ">
 
     <task:annotation-driven executor="executor"/>
     <task:executor id="executor" pool-size="10"/>
 
     <context:component-scan base-package="com.hak.wymi.persistance"/>
     <context:component-scan base-package="com.hak.wymi.utility"/>
+    <context:component-scan base-package="com.hak.wymi.rent"/>
     <context:component-scan base-package="com.hak.wymi.controllers.rest.helpers"/>
 
     <import resource="/**/web-security-config.xml"/>

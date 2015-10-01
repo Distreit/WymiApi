@@ -18,7 +18,7 @@ public class BalanceTransactionCanceller {
     @Autowired
     private SessionFactory sessionFactory;
 
-    private static boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
+    public static boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
         transaction.setState(TransactionState.CANCELED);
         final Message message = new Message(transaction.getSourceUser(), null, "Transfer failure",
                 String.format("Transaction from %s for %d canceled.",

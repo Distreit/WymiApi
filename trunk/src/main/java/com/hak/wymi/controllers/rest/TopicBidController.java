@@ -9,6 +9,7 @@ import com.hak.wymi.persistance.pojos.topicbid.SecureTopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidCreation;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDao;
+import com.hak.wymi.persistance.pojos.topicbid.TopicBidState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.BalanceTransactionManager;
@@ -45,7 +46,7 @@ public class TopicBidController {
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getTopicBidsForTopic(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final List<SecureToSend> secureTopicBids = topicBidDao.get(topicName)
+        final List<SecureToSend> secureTopicBids = topicBidDao.get(topicName, TopicBidState.WAITING)
                 .stream()
                 .map(SecureTopicBid::new)
                 .collect(Collectors.toCollection(LinkedList::new));

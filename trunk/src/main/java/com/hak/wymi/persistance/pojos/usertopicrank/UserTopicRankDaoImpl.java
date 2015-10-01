@@ -17,8 +17,7 @@ public class UserTopicRankDaoImpl implements UserTopicRankDao {
 
     @Override
     public Boolean save(UserTopicRanker ranker, Topic topic) {
-
-        List<UserTopicRank> ranks = ranker.getUserRanks(topic);
+        final List<UserTopicRank> ranks = ranker.getUserRanks(topic);
 
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             session.createQuery("delete UserTopicRank where userTopic.topic.topicId=:topicId")

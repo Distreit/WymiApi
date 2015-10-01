@@ -7,11 +7,15 @@ import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -35,10 +39,16 @@ public class TopicBid extends AbstractPersistentObject implements HasPointsBalan
     @Null(groups = {Creation.class})
     private Topic topic;
 
+    @OneToOne(mappedBy = "topicBid", fetch = FetchType.LAZY)
+    private TopicBidCreation topicBidCreation;
+
     @NotNull
     @Min(value = 0)
     @Null(groups = {Creation.class})
     private Integer currentBalance;
+
+    @Enumerated(EnumType.STRING)
+    private TopicBidState state = TopicBidState.WAITING;
 
     public Integer getCurrentBalance() {
         return currentBalance;
@@ -103,5 +113,21 @@ public class TopicBid extends AbstractPersistentObject implements HasPointsBalan
     @Override
     public Integer getBalanceId() {
         return this.getTopicBidId();
+    }
+
+    public TopicBidState getState() {
+        return state;
+    }
+
+    public void setState(TopicBidState state) {
+        this.state = state;
+    }
+
+    public TopicBidCreation getTopicBidCreation() {
+        return topicBidCreation;
+    }
+
+    public void setTopicBidCreation(TopicBidCreation topicBidCreation) {
+        this.topicBidCreation = topicBidCreation;
     }
 }
