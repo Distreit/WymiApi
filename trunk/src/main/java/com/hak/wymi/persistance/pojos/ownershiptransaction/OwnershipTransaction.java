@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.ownershiptransaction;
 
-import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import org.hibernate.annotations.Type;
@@ -18,7 +18,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "ownershipTransaction")
-public class OwnershipTransaction extends AbstractPersistentObject {
+public class OwnershipTransaction extends PersistentObject {
+    private static final long serialVersionUID = -4652506078182812805L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ownershipTransactionId;
@@ -42,6 +44,7 @@ public class OwnershipTransaction extends AbstractPersistentObject {
     }
 
     public OwnershipTransaction(Topic topic, TopicBid winningBid) {
+        super();
         this.topic = topic;
         this.winningBid = winningBid;
         this.state = OwnershipTransactionState.WAITING;

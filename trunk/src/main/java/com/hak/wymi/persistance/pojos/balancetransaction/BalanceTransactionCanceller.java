@@ -56,22 +56,20 @@ public class BalanceTransactionCanceller {
             final HasPointsBalance sourceBalance = (HasPointsBalance) session
                     .load(Balance.class, transaction.getSourceUserId(), pessimisticWrite);
 
-            final boolean cancelTargetSuccessful = removePointsFromTarget(session, transaction, transactionLog);
+            final HasPointsBalance siteBalance = (HasPointsBalance) session
+                    .load(Balance.class, -1, pessimisticWrite);
 
             session.buildLockRequest(pessimisticWrite).lock(transaction.getDestination());
 
-            final HasPointsBalance siteBalance = (HasPointsBalance) session.load(Balance.class, -1, pessimisticWrite);
-
-            final boolean removePointsFromTaxerSuccessful = removePointsFromTaxer(session, transaction, transactionLog);
+            boolean success = removePointsFromTarget(session, transaction, transactionLog);
+            success = success && removePointsFromTaxer(session, transaction, transactionLog);
+            success = success && sourceBalance.addPoints(transactionLog.getAmountPayed());
+            success = success && transaction.getDestination().removePoints(transactionLog.getDestinationReceived());
+            success = success && siteBalance.removePoints(transactionLog.getSiteReceived());
 
             transactionLog.setCanceled(Boolean.TRUE);
 
-            if (sourceBalance.addPoints(transactionLog.getAmountPayed())
-                    && cancelTargetSuccessful
-                    && transaction.getDestination().removePoints(transactionLog.getDestinationReceived())
-                    && siteBalance.removePoints(transactionLog.getSiteReceived())
-                    && removePointsFromTaxerSuccessful) {
-
+            if (success) {
                 session.update(sourceBalance);
                 session.update(transaction.getDestination());
                 session.update(siteBalance);

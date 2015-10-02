@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.callbackcode;
 
-import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import javax.persistence.Entity;
@@ -15,7 +15,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "callbackcode")
-public class CallbackCode extends AbstractPersistentObject {
+public class CallbackCode extends PersistentObject {
+    private static final long serialVersionUID = 7090393023840235379L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer callbackCodeId;

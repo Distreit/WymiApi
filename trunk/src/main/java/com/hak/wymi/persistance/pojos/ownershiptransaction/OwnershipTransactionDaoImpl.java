@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.ownershiptransaction;
 
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionCanceller;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
@@ -17,8 +18,12 @@ import java.util.concurrent.ThreadLocalRandom;
 @Repository
 @SuppressWarnings("unchecked")
 public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
+    private static final int HOURS_IN_A_DAY = 24;
+    private static final int RENT_PERIOD_IN_DAYS = 30;
+
     @Autowired
     private SessionFactory sessionFactory;
+
 
     @Override
     public boolean process(OwnershipTransaction ownershipTransaction) {
@@ -34,15 +39,15 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
             if (failedBids != null) {
                 final TopicBid winningBid = ownershipTransaction.getWinningBid();
                 if (winningBid != null) {
-                    failedBids.stream().filter(b -> b != winningBid)
-                            .forEach(t -> BalanceTransactionCanceller.cancelUnprocessed(session, t.getTopicBidCreation()));
+                    failedBids.stream().filter(b -> !b.equals(winningBid))
+                            .forEach(t -> BalanceTransactionCanceller.cancelUnprocessed(session, (BalanceTransaction) t.getTopicBidCreation()));
                     winningBid.setState(TopicBidState.ACCEPTED);
                     session.update(winningBid);
                 }
             }
 
-            final int randHours = ThreadLocalRandom.current().nextInt(0, 24);
-            topic.setRentDueDate(topic.getRentDueDate().plusDays(30).dayOfMonth().roundFloorCopy().plusHours(randHours));
+            final int randHours = ThreadLocalRandom.current().nextInt(0, HOURS_IN_A_DAY);
+            topic.setRentDueDate(topic.getRentDueDate().plusDays(RENT_PERIOD_IN_DAYS).dayOfMonth().roundFloorCopy().plusHours(randHours));
             session.update(topic);
             session.save(ownershipTransaction);
             return true;

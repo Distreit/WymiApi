@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.message;
 
-import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import javax.persistence.Entity;
@@ -13,7 +13,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "message")
-public class Message extends AbstractPersistentObject {
+public class Message extends PersistentObject {
+    private static final long serialVersionUID = -7274116205201326082L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer messageId;

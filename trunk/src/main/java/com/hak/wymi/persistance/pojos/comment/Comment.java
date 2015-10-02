@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -25,7 +25,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "comment")
-public class Comment extends AbstractPersistentObject implements HasPointsBalance {
+public class Comment extends PersistentObject implements HasPointsBalance {
+    private static final long serialVersionUID = 1949625540493733465L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class})

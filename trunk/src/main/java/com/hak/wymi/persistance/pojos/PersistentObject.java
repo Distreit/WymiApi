@@ -7,9 +7,11 @@ import org.joda.time.DateTime;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import javax.validation.constraints.Null;
+import java.io.Serializable;
 
 @MappedSuperclass
-public abstract class AbstractPersistentObject {
+public class PersistentObject implements Serializable {
+    private static final long serialVersionUID = 8585086635066620410L;
 
     @Version
     @Null(groups = Creation.class)
@@ -22,6 +24,10 @@ public abstract class AbstractPersistentObject {
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @Null(groups = Creation.class)
     private DateTime updated;
+
+    protected PersistentObject() {
+        // Disable instantiation.
+    }
 
     public Integer getVersion() {
         return version;

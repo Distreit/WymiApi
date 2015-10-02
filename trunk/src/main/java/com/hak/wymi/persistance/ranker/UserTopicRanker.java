@@ -191,7 +191,8 @@ public class UserTopicRanker implements SecureToSend {
 
     public List<UserTopicRank> getUserRanks(Topic topic) {
         return users.values()
-                .stream().map((u) -> new UserTopicRank(u.getUser(), topic, ranks.get(u.getUserName())))
+                .stream()
+                .map(u -> new UserTopicRank(u.getUser(), topic, ranks.get(u.getUserName())))
                 .collect(Collectors.toList());
     }
 }

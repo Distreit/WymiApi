@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 @RestController
 public class RankingController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RankingController.class);
+    private static final double NANO_SECONDS_PER_SECOND = 1000000000.0;
 
     @Autowired
     private CommentDonationDao commentDonationDao;
@@ -76,14 +77,14 @@ public class RankingController {
         ranker.addDonations(donations);
         Double delta = 1d;
         int iterationCount = 0;
-        long start = System.nanoTime();
+        final long start = System.nanoTime();
         while (delta > minDelta && iterationCount < maxIterations) {
             delta = ranker.iterate(dampeningFactor);
             iterationCount += 1;
         }
-        long elapsedTime = System.nanoTime() - start;
+        final long elapsedTime = System.nanoTime() - start;
         userTopicRankDao.save(ranker, topicDao.get(topicName));
-        LOGGER.debug("delta: {}, iterationCount: {}, in: {}", delta, iterationCount, elapsedTime / 1000000000.0);
+        LOGGER.debug("delta: {}, iterationCount: {}, in: {}", delta, iterationCount, elapsedTime / NANO_SECONDS_PER_SECOND);
 
         return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);
     }

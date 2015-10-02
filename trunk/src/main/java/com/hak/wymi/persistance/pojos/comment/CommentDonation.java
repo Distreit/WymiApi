@@ -21,6 +21,8 @@ import javax.validation.groups.Default;
 @Entity
 @Table(name = "commentdonation")
 public class CommentDonation extends AbstractBalanceTransaction implements DonationTransaction {
+    private static final long serialVersionUID = -6257413713811479971L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = Creation.class)

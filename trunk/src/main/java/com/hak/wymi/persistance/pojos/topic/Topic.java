@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.topic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.groups.Creation;
@@ -31,7 +31,9 @@ import java.util.Set;
 @Entity
 @Table(name = "topic")
 @NameDoesNotExist(groups = {Creation.class})
-public class Topic extends AbstractPersistentObject {
+public class Topic extends PersistentObject {
+    private static final long serialVersionUID = -7800925884021933493L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class, Update.class})

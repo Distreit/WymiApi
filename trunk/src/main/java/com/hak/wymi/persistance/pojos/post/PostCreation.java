@@ -19,6 +19,8 @@ import javax.validation.groups.Default;
 @Entity
 @Table(name = "postCreation")
 public class PostCreation extends AbstractBalanceTransaction {
+    private static final long serialVersionUID = -6435436692312120281L;
+
     @Id
     private Integer postId;
 

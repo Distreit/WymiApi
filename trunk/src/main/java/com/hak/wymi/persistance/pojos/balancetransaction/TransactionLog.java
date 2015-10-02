@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
-import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
@@ -12,7 +12,8 @@ import javax.validation.constraints.Null;
 
 @Entity
 @Table(name = "transactionLog")
-public class TransactionLog extends AbstractPersistentObject {
+public class TransactionLog extends PersistentObject {
+    private static final long serialVersionUID = 7506282118915273476L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.usertopicrank;
 
-import com.hak.wymi.persistance.pojos.AbstractPersistentObject;
+import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 
@@ -14,7 +14,9 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "UserTopicRank")
-public class UserTopicRank extends AbstractPersistentObject {
+public class UserTopicRank extends PersistentObject {
+    private static final long serialVersionUID = -8067075395686649833L;
+
     @EmbeddedId()
     private UserTopic userTopic;
 
@@ -25,6 +27,7 @@ public class UserTopicRank extends AbstractPersistentObject {
     }
 
     public UserTopicRank(User user, Topic topic, Double rank) {
+        super();
         this.userTopic = new UserTopic(user, topic);
         this.rank = rank;
     }
@@ -67,6 +70,8 @@ public class UserTopicRank extends AbstractPersistentObject {
 
     @Embeddable
     public static class UserTopic implements Serializable {
+        private static final long serialVersionUID = 1624280427438838488L;
+
         @ManyToOne
         @JoinColumn(name = "topicId")
         protected Topic topic;
@@ -80,6 +85,7 @@ public class UserTopicRank extends AbstractPersistentObject {
         }
 
         public UserTopic(User user, Topic topic) {
+            super();
             this.user = user;
             this.topic = topic;
         }
@@ -88,22 +94,22 @@ public class UserTopicRank extends AbstractPersistentObject {
             return this.user != null && this.topic != null;
         }
 
-//        @Override
-//        public int hashCode() {
-//            return user.hashCode() + topic.hashCode();
-//        }
-//
-//        @Override
-//        public boolean equals(Object obj) {
-//            if (obj instanceof UserTopic) {
-//                UserTopic that = (UserTopic) obj;
-//                if (this.isValid() && that.isValid()) {
-//                    return this.user.getUserId().equals(that.user.getUserId())
-//                            && this.topic.getTopicId().equals(that.topic.getTopicId());
-//                }
-//            }
-//            return false;
-//        }
+        @Override
+        public int hashCode() {
+            return user.hashCode() + topic.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj.getClass() == this.getClass()) {
+                final UserTopic that = (UserTopic) obj;
+                if (this.isValid() && that.isValid()) {
+                    return this.user.getUserId().equals(that.user.getUserId())
+                            && this.topic.getTopicId().equals(that.topic.getTopicId());
+                }
+            }
+            return false;
+        }
 
         public Topic getTopic() {
             return topic;
