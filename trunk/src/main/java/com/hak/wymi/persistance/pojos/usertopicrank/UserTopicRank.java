@@ -101,7 +101,7 @@ public class UserTopicRank extends PersistentObject {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj.getClass() == this.getClass()) {
+            if (obj != null && obj.getClass() == this.getClass()) {
                 final UserTopic that = (UserTopic) obj;
                 if (this.isValid() && that.isValid()) {
                     return this.user.getUserId().equals(that.user.getUserId())
