@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.Balance;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
@@ -19,8 +20,6 @@ public class BalanceTransactionCanceller {
 
     public static boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
         transaction.setState(TransactionState.CANCELED);
-        // TODO: Fix cancellation message.
-//        final Message message = transaction.getCancellationMessage();
 
         if (transaction.getDependent() == null) {
             session.update(transaction);
@@ -29,8 +28,11 @@ public class BalanceTransactionCanceller {
             session.delete(transaction.getDependent());
         }
 
-//        message.setSourceDeleted(Boolean.TRUE);
-//        session.save(message);
+        final Message message = transaction.getCancellationMessage();
+        if (message != null) {
+            message.setSourceDeleted(Boolean.TRUE);
+            session.save(message);
+        }
         return true;
     }
 

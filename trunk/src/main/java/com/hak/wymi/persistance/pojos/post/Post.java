@@ -48,7 +48,7 @@ public class Post extends PersistentObject implements HasPointsBalance {
     @Formula("(select count(t.postId) from comment t where t.postId=postId)")
     private Integer commentCounts;
 
-    private String url;
+    private String href;
 
     private String text;
 
@@ -94,12 +94,12 @@ public class Post extends PersistentObject implements HasPointsBalance {
         this.title = title;
     }
 
-    public String getUrl() {
-        return url;
+    public String getHref() {
+        return href;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setHref(String url) {
+        this.href = url;
     }
 
     public String getText() {
@@ -194,5 +194,9 @@ public class Post extends PersistentObject implements HasPointsBalance {
 
     public void setDonations(Integer donations) {
         this.donations = donations;
+    }
+
+    public String getUrl() {
+        return String.format("%s/%s", this.topic.getUrl(), this.postId);
     }
 }

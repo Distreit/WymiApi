@@ -17,7 +17,7 @@ public class UrlOrTextValidator implements ConstraintValidator<UrlOrText, Post> 
         if (post.getIsText()) {
             return post.getText() != null && !"".equals(post.getText());
         }
-        return UrlValidatorConstraint.isValidUrl(post.getUrl());
+        return UrlValidatorConstraint.isValidUrl(post.getHref());
     }
 
 }

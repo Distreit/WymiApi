@@ -196,4 +196,8 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     public void setScore(Double score) {
         this.score = score;
     }
+
+    public String getUrl() {
+        return String.format("%s/comments/%s", this.getPost(), this.commentId);
+    }
 }

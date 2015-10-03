@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
+import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
@@ -59,8 +60,7 @@ public class PostCreation extends AbstractBalanceTransaction {
 
     @Override
     public String getTargetUrl() {
-        // TODO: CREATE URL
-        return "http://localhost/home";
+        return this.post.getUrl();
     }
 
     @Override
@@ -116,6 +116,20 @@ public class PostCreation extends AbstractBalanceTransaction {
     @Override
     public boolean paySiteTax() {
         return true;
+    }
+
+    @Override
+    public Message getCancellationMessage() {
+        final String postContent;
+        if (post.getIsText()) {
+            postContent = post.getText();
+        } else {
+            postContent = post.getHref();
+        }
+
+        final String messageText = String.format("Your post to the topic %s failed and was cancelled.\n\n\"%s\n%s\"",
+                post.getTopic().getUrl(), post.getTitle(), postContent);
+        return new Message(this.getPost().getUser(), null, "Comment creation failure", messageText);
     }
 
     public void setPostId(Integer postId) {

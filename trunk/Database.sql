@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS `post` (
   `topicId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `url` varchar(1000) NOT NULL,
+  `href`      VARCHAR(1000)       NOT NULL,
   `text` varchar(15000) NOT NULL,
   `isText` tinyint(4) NOT NULL,
   `points`    BIGINT(20) UNSIGNED NOT NULL,
@@ -322,6 +322,31 @@ CREATE TABLE IF NOT EXISTS `topicbidcreation` (
   KEY `FK_topicbidcreation_transactionlog` (`transactionLogId`),
   CONSTRAINT `FK_topicbidcreation_topicbid` FOREIGN KEY (`topicBidId`) REFERENCES `topicbid` (`topicBidId`),
   CONSTRAINT `FK_topicbidcreation_transactionlog` FOREIGN KEY (`transactionLogId`) REFERENCES `transactionlog` (`transactionLogId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
+
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table wymi.topicbiddispersion
+CREATE TABLE IF NOT EXISTS `topicbiddispersion` (
+  `topicBidDispersionId` INT(10) UNSIGNED                                            NOT NULL AUTO_INCREMENT,
+  `destinationUserId`    INT(11)                                                     NOT NULL,
+  `topicBidId`           INT(11) UNSIGNED                                            NOT NULL,
+  `amount`               BIGINT(20) UNSIGNED                                         NOT NULL,
+  `transactionLogId`     INT(10) UNSIGNED                                                     DEFAULT NULL,
+  `state`                ENUM('UNCONFIRMED', 'UNPROCESSED', 'PROCESSED', 'CANCELED') NOT NULL,
+  `version`              INT(10) UNSIGNED                                            NOT NULL,
+  `updated`              TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`              TIMESTAMP                                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`topicBidDispersionId`),
+  KEY `FK_topicbiddispersion_transactionlog` (`transactionLogId`),
+  KEY `FK_topicbiddispersion_user` (`destinationUserId`),
+  KEY `FK_topicbiddispersion_topicbid` (`topicBidId`),
+  CONSTRAINT `FK_topicbiddispersion_topicbid` FOREIGN KEY (`topicBidId`) REFERENCES `topicbid` (`topicBidId`),
+  CONSTRAINT `FK_topicbiddispersion_transactionlog` FOREIGN KEY (`transactionLogId`) REFERENCES `transactionlog` (`transactionLogId`),
+  CONSTRAINT `FK_topicbiddispersion_user` FOREIGN KEY (`destinationUserId`) REFERENCES `user` (`userId`)
 )
   ENGINE =InnoDB
   DEFAULT CHARSET =utf8;

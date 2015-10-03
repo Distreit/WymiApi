@@ -3,6 +3,7 @@ package com.hak.wymi.persistance.pojos.comment;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
+import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 import org.hibernate.annotations.Formula;
@@ -66,8 +67,7 @@ public class CommentDonation extends AbstractBalanceTransaction implements Donat
 
     @Override
     public String getTargetUrl() {
-        // TODO: CREATE URL
-        return "http://localhost/home";
+        return this.comment.getUrl();
     }
 
     @Override
@@ -126,5 +126,12 @@ public class CommentDonation extends AbstractBalanceTransaction implements Donat
     @Override
     public boolean paySiteTax() {
         return true;
+    }
+
+    @Override
+    public Message getCancellationMessage() {
+        final String messageText = String
+                .format("Your tip of %d to the comment %s was cancelled.", this.amount, comment.getUrl());
+        return new Message(this.sourceUser, null, "Comment tip cancelled", messageText);
     }
 }

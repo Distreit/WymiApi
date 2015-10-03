@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
+import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
@@ -104,5 +105,13 @@ public class TopicBidCreation extends AbstractBalanceTransaction {
     @Override
     public boolean paySiteTax() {
         return false;
+    }
+
+    @Override
+    public Message getCancellationMessage() {
+        final String messageText = String
+                .format("Your bid for control of the topic %s for %d failed to register.",
+                        this.topicBid.getTopic().getUrl(), this.amount);
+        return new Message(this.topicBid.getUser(), null, "Comment tip cancelled", messageText);
     }
 }

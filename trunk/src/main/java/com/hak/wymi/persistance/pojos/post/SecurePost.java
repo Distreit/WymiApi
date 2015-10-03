@@ -21,7 +21,7 @@ public class SecurePost implements SecureToSend {
         this.topic = post.getTopic().getName();
         this.title = post.getTitle();
         this.commentCount = post.getCommentCounts();
-        this.url = post.getUrl();
+        this.url = post.getHref();
         this.text = post.getText();
         this.points = post.getPoints();
         this.created = post.getCreated();

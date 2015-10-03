@@ -3,7 +3,9 @@ package com.hak.wymi.persistance.pojos.topicbid;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.User;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +18,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "TopicBidDispersion")
 public class TopicBidDispersion extends AbstractBalanceTransaction {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TopicBidDispersion.class);
     private static final long serialVersionUID = 1510099288221998596L;
 
     @Id
@@ -101,6 +104,12 @@ public class TopicBidDispersion extends AbstractBalanceTransaction {
     @Override
     public boolean paySiteTax() {
         return false;
+    }
+
+    @Override
+    public Message getCancellationMessage() {
+        LOGGER.error("Topic bid dispersion was cancelled for some reason. That shouldn't happen.");
+        return null;
     }
 
     public void setDestinationUser(User destinationUser) {

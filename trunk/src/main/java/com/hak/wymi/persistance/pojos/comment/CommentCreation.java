@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
+import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
@@ -59,8 +60,7 @@ public class CommentCreation extends AbstractBalanceTransaction {
 
     @Override
     public String getTargetUrl() {
-        // TODO: CREATE URL
-        return "http://localhost/home";
+        return this.comment.getUrl();
     }
 
     @Override
@@ -100,6 +100,21 @@ public class CommentCreation extends AbstractBalanceTransaction {
     @Override
     public boolean paySiteTax() {
         return true;
+    }
+
+    @Override
+    public Message getCancellationMessage() {
+        final String messageText;
+        if (comment.getParentComment() == null) {
+            messageText = String
+                    .format("Your comment to the post %s has been cancelled.\n\n\"%s\"",
+                            comment.getPost().getHref(), comment.getContent());
+        } else {
+            messageText = String
+                    .format("Your reply to the comment %s for the post %s has been cancelled.\n\n\"%s\"",
+                            comment.getUrl(), comment.getPost().getHref(), comment.getContent());
+        }
+        return new Message(this.comment.getAuthor(), null, "Comment creation failure", messageText);
     }
 
     public Integer getFeeFlat() {

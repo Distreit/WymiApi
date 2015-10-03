@@ -2,6 +2,8 @@ package com.hak.wymi.persistance.pojos.ownershiptransaction;
 
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionCanceller;
+import com.hak.wymi.persistance.pojos.message.Message;
+import com.hak.wymi.persistance.pojos.message.MessageDao;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
@@ -37,6 +39,9 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
 
     @Autowired
     private SessionFactory sessionFactory;
+
+    @Autowired
+    private MessageDao messageDao;
 
     @Value("${site.taxRate}")
     private Double taxRate;
@@ -79,7 +84,12 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
                 session -> changeOwnerAndSplitRent(session, transactions, ownershipTransaction, winningRanks));
 
         if (changeSuccessful) {
-            // TODO: EMAIL NEW OWNER.
+            final String messageText = String
+                    .format("Congratulations, you are now/still the administrator of the topic %s",
+                            ownershipTransaction.getTopic().getUrl());
+            final Message message = new Message(
+                    ownershipTransaction.getTopic().getOwner(), null, "Topic ownership", messageText);
+            messageDao.save(message);
             return transactions;
         }
         return null;

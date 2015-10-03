@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.message.Message;
 import org.joda.time.DateTime;
 
 public interface BalanceTransaction {
@@ -77,4 +78,9 @@ public interface BalanceTransaction {
     TransactionLog getTransactionLog();
 
     void setTransactionLog(TransactionLog transactionLog);
+
+    /**
+     * @return Message to be sent on cancellation of the transaction.
+     */
+    Message getCancellationMessage();
 }
