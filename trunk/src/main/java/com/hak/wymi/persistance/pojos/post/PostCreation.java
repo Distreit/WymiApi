@@ -127,7 +127,7 @@ public class PostCreation extends AbstractBalanceTransaction {
             postContent = post.getHref();
         }
 
-        final String messageText = String.format("Your post to the topic %s failed and was cancelled.\n\n\"%s\n%s\"",
+        final String messageText = String.format("Your post to the topic %s failed and was cancelled.%n%n\"%s%n%s\"",
                 post.getTopic().getUrl(), post.getTitle(), postContent);
         return new Message(this.getPost().getUser(), null, "Comment creation failure", messageText);
     }

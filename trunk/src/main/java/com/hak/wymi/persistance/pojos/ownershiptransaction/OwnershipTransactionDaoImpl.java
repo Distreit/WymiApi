@@ -76,6 +76,15 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
         return transactions;
     }
 
+    private static DateTime getNextRentExpirationDate(Topic topic) {
+        final int randHours = ThreadLocalRandom.current().nextInt(0, HOURS_IN_A_DAY);
+        return topic.getRentDueDate()
+                .plusSeconds(RENT_PERIOD_SECONDS)
+                .dayOfMonth()
+                .roundFloorCopy()
+                .plusHours(randHours);
+    }
+
     @Override
     public List<TopicBidDispersion> process(OwnershipTransaction ownershipTransaction, List<UserTopicRank> winningRanks) {
         final List<TopicBidDispersion> transactions = new LinkedList<>();
@@ -182,15 +191,6 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
                 .filter(b -> !b.equals(winningBid))
                 .forEach(t -> BalanceTransactionCanceller
                         .cancelUnprocessed(session, (BalanceTransaction) t.getTopicBidCreation()));
-    }
-
-    private DateTime getNextRentExpirationDate(Topic topic) {
-        final int randHours = ThreadLocalRandom.current().nextInt(0, HOURS_IN_A_DAY);
-        return topic.getRentDueDate()
-                .plusSeconds(RENT_PERIOD_SECONDS)
-                .dayOfMonth()
-                .roundFloorCopy()
-                .plusHours(randHours);
     }
 
     @Override

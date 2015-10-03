@@ -10,8 +10,6 @@ import com.hak.wymi.persistance.pojos.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRankDao;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,9 +26,6 @@ import java.util.stream.Stream;
 
 @RestController
 public class RankingController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RankingController.class);
-    private static final double NANO_SECONDS_PER_SECOND = 1000000000.0;
-
     @Autowired
     private CommentDonationDao commentDonationDao;
 

@@ -107,11 +107,11 @@ public class CommentCreation extends AbstractBalanceTransaction {
         final String messageText;
         if (comment.getParentComment() == null) {
             messageText = String
-                    .format("Your comment to the post %s has been cancelled.\n\n\"%s\"",
+                    .format("Your comment to the post %s has been cancelled.%n%n\"%s\"",
                             comment.getPost().getHref(), comment.getContent());
         } else {
             messageText = String
-                    .format("Your reply to the comment %s for the post %s has been cancelled.\n\n\"%s\"",
+                    .format("Your reply to the comment %s for the post %s has been cancelled.%n%n\"%s\"",
                             comment.getUrl(), comment.getPost().getHref(), comment.getContent());
         }
         return new Message(this.comment.getAuthor(), null, "Comment creation failure", messageText);
