@@ -7,6 +7,15 @@ import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
 import java.util.List;
 
 public interface OwnershipTransactionDao {
+    /**
+     * Changes topic ownership based on the winning bid and divides the bid between the top contributors to the topic.
+     *
+     * @param ownershipTransaction The transaction that contains information about who won the bid and for how much.
+     * @param winningRanks         This should be a sorted list of users who contributed to the topic. Sorted from
+     *                             highest to lowest.
+     *
+     * @return A list of dispersion transactions that need to be processed, or null when the transaction fails.
+     */
     List<TopicBidDispersion> process(OwnershipTransaction ownershipTransaction, List<UserTopicRank> winningRanks);
 
     boolean save(OwnershipTransaction ownershipTransaction, List<TopicBid> failedBids);

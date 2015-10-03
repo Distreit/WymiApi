@@ -24,22 +24,22 @@ public abstract class AbstractBalanceTransaction extends PersistentObject implem
     private TransactionState state;
 
     @Override
-    public TransactionState getState() {
+    public final TransactionState getState() {
         return this.state;
     }
 
     @Override
-    public void setState(TransactionState state) {
+    public final void setState(TransactionState state) {
         this.state = state;
     }
 
     @Override
-    public TransactionLog getTransactionLog() {
+    public final TransactionLog getTransactionLog() {
         return transactionLog;
     }
 
     @Override
-    public void setTransactionLog(TransactionLog transactionLog) {
+    public final void setTransactionLog(TransactionLog transactionLog) {
         this.transactionLog = transactionLog;
     }
 }

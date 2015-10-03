@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.usertopicrank;
 
-import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.SessionFactory;
@@ -16,12 +15,12 @@ public class UserTopicRankDaoImpl implements UserTopicRankDao {
     private SessionFactory sessionFactory;
 
     @Override
-    public Boolean save(UserTopicRanker ranker, Topic topic) {
-        final List<UserTopicRank> ranks = ranker.getUserRanks(topic);
+    public Boolean save(UserTopicRanker ranker) {
+        final List<UserTopicRank> ranks = ranker.getUserRanks();
 
-        return ranks.size() <= 0 || DaoHelper.genericTransaction(sessionFactory.openSession(),
+        return ranks.isEmpty() || DaoHelper.genericTransaction(sessionFactory.openSession(),
                 session -> {
-                    session.createQuery("delete UserTopicRank where userTopic.topic.topicId=:topicId").setParameter("topicId", topic.getTopicId()).executeUpdate();
+                    session.createQuery("delete UserTopicRank where userTopic.topic.topicId=:topicId").setParameter("topicId", ranker.getTopic().getTopicId()).executeUpdate();
                     ranks.stream().forEach(session::save);
                     return true;
                 });

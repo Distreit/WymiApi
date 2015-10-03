@@ -1,5 +1,6 @@
 package com.hak.wymi.rent;
 
+import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
 import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransaction;
 import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransactionDao;
@@ -8,6 +9,7 @@ import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDao;
+import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRankDao;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RentManager {
@@ -72,38 +75,40 @@ public class RentManager {
 
         final OwnershipTransaction transaction = new OwnershipTransaction(topic, maxBid);
         if (ownershipTransactionDao.save(transaction, bids)) {
-            if (maxBid != null && !maxBid.getUser().equals(topic.getOwner())) {
+            if (maxBid == null || maxBid.getUser().equals(topic.getOwner())) {
+                LOGGER.info("Topic {} ownership staying with {} as there are no bids.",
+                        topic.getName(), topic.getOwner().getName());
+            } else {
                 LOGGER.info("Topic {} going to transfer ownership to {} unless owner responds by {}.",
                         topic.getName(), maxBid.getUser().getName(), transaction.getWaitingPeriodExpiration());
                 //TODO: Email/Message current owner with expiration time.
-            } else {
-                LOGGER.info("Topic {} ownership staying with {} as there are no bids.",
-                        topic.getName(), topic.getOwner().getName());
             }
         }
     }
 
     private void processRentPeriodExpired(OwnershipTransaction ownershipTransaction) {
-        UserTopicRanker userTopicRanker = new UserTopicRanker();
-        UserTopicRanker.runOn(ownershipTransaction.getTopic(),
-                commentDonationDao,
-                postDonationDao,
-                userTopicRankDao,
-                minDelta,
-                maxIterations,
-                dampeningFactor,
-                userTopicRanker);
+        final Topic topic = ownershipTransaction.getTopic();
+        final UserTopicRanker userTopicRanker = new UserTopicRanker(topic);
 
-        List<UserTopicRank> winningRanks = userTopicRanker
-                .getUserRanks(ownershipTransaction.getTopic());
+        final List<? extends DonationTransaction> donations = Stream.concat(
+                commentDonationDao.get(topic.getName()).stream(),
+                postDonationDao.get(topic.getName()).stream()
+        ).collect(Collectors.toList());
 
-        winningRanks = winningRanks.stream()
-                .sorted((a, b) -> b.getRank().compareTo(a.getRank()))
-                .limit(winningRanks.size() / 2)
-                .collect(Collectors.toList());
+        userTopicRanker.runOn(donations, minDelta, maxIterations, dampeningFactor);
+        if (userTopicRankDao.save(userTopicRanker)) {
+            List<UserTopicRank> winningRanks = userTopicRanker.getUserRanks();
 
-        ownershipTransactionDao.process(ownershipTransaction, winningRanks)
-                .stream()
-                .forEach(balanceTransactionManager::process);
+            // Sort by highest to lowest rank and take return top half.
+            winningRanks = winningRanks.stream()
+                    .sorted((a, b) -> b.getRank().compareTo(a.getRank()))
+                    .limit(winningRanks.size() / 2)
+                    .collect(Collectors.toList());
+
+            List<TopicBidDispersion> dispersions = ownershipTransactionDao.process(ownershipTransaction, winningRanks);
+            if (dispersions != null) {
+                dispersions.stream().forEach(balanceTransactionManager::process);
+            }
+        }
     }
 }

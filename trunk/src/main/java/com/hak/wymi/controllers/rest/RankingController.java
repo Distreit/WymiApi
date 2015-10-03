@@ -72,19 +72,10 @@ public class RankingController {
                 postDonationDao.get(topicName).stream()
         ).collect(Collectors.toList());
 
-        final UserTopicRanker ranker = new UserTopicRanker();
+        final UserTopicRanker ranker = new UserTopicRanker(topicDao.get(topicName));
 
-        ranker.addDonations(donations);
-        Double delta = 1d;
-        int iterationCount = 0;
-        final long start = System.nanoTime();
-        while (delta > minDelta && iterationCount < maxIterations) {
-            delta = ranker.iterate(dampeningFactor);
-            iterationCount += 1;
-        }
-        final long elapsedTime = System.nanoTime() - start;
-        userTopicRankDao.save(ranker, topicDao.get(topicName));
-        LOGGER.debug("delta: {}, iterationCount: {}, in: {}", delta, iterationCount, elapsedTime / NANO_SECONDS_PER_SECOND);
+        ranker.runOn(donations, minDelta, maxIterations, dampeningFactor);
+        userTopicRankDao.save(ranker);
 
         return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);
     }
