@@ -1,7 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.Balance;
 import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
@@ -20,10 +19,8 @@ public class BalanceTransactionCanceller {
 
     public static boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
         transaction.setState(TransactionState.CANCELED);
-        final Message message = new Message(transaction.getSourceUser(), null, "Transfer failure",
-                String.format("Transaction from %s for %d canceled.",
-                        transaction.getTargetUrl(),
-                        transaction.getAmount()));
+        // TODO: Fix cancellation message.
+//        final Message message = transaction.getCancellationMessage();
 
         if (transaction.getDependent() == null) {
             session.update(transaction);
@@ -32,8 +29,8 @@ public class BalanceTransactionCanceller {
             session.delete(transaction.getDependent());
         }
 
-        message.setSourceDeleted(Boolean.TRUE);
-        session.save(message);
+//        message.setSourceDeleted(Boolean.TRUE);
+//        session.save(message);
         return true;
     }
 
@@ -54,7 +51,7 @@ public class BalanceTransactionCanceller {
 
         if (!transactionLog.getCanceled()) {
             final HasPointsBalance sourceBalance = (HasPointsBalance) session
-                    .load(Balance.class, transaction.getSourceUserId(), pessimisticWrite);
+                    .load(transaction.getSource().getClass(), transaction.getSource().getBalanceId(), pessimisticWrite);
 
             final HasPointsBalance siteBalance = (HasPointsBalance) session
                     .load(Balance.class, -1, pessimisticWrite);

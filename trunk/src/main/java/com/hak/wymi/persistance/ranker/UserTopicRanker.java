@@ -2,9 +2,12 @@ package com.hak.wymi.persistance.ranker;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
+import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
+import com.hak.wymi.persistance.pojos.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
+import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRankDao;
 import com.hak.wymi.utility.JSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Ranks users based on donations. To use add a list of donations to the ranker then run the iterate method until the
@@ -30,6 +34,29 @@ public class UserTopicRanker implements SecureToSend {
 
     private Double maxTotalOutLog10;
 
+    public static void runOn(Topic topic,
+                             CommentDonationDao commentDonationDao,
+                             PostDonationDao postDonationDao,
+                             UserTopicRankDao userTopicRankDao,
+                             double minDelta,
+                             int maxIterations,
+                             double dampeningFactor,
+                             UserTopicRanker userTopicRanker) {
+        final List<? extends DonationTransaction> donations = Stream.concat(
+                commentDonationDao.get(topic.getName()).stream(),
+                postDonationDao.get(topic.getName()).stream()
+        ).collect(Collectors.toList());
+
+        userTopicRanker.addDonations(donations);
+        Double delta = 1d;
+        int iterationCount = 0;
+        while (delta > minDelta && iterationCount < maxIterations) {
+            delta = userTopicRanker.iterate(dampeningFactor);
+            iterationCount += 1;
+        }
+        userTopicRankDao.save(userTopicRanker, topic);
+    }
+
     /**
      * After creating a the UserTopicRanker add donations to it using this method.
      * <p/>
@@ -39,15 +66,17 @@ public class UserTopicRanker implements SecureToSend {
      * @param donations A list of BalanceTransactions which are donations.
      */
     public void addDonations(List<? extends DonationTransaction> donations) {
-        for (DonationTransaction donation : donations) {
-            getRankUser(donation.getDestinationUser()).addIncomingDonation(donation);
-            getRankUser(donation.getSourceUser()).addOutgoingDonation(donation);
+        if (donations.size() > 0) {
+            for (DonationTransaction donation : donations) {
+                getRankUser(donation.getDestinationUser()).addIncomingDonation(donation);
+                getRankUser(donation.getSourceUser()).addOutgoingDonation(donation);
+            }
+
+            pruneFavorites();
+
+            maxTotalOutLog10 = Math.log10(findMaxTotalOut());
+            createRanks();
         }
-
-        pruneFavorites();
-
-        maxTotalOutLog10 = Math.log10(findMaxTotalOut());
-        createRanks();
     }
 
     /**
@@ -63,16 +92,19 @@ public class UserTopicRanker implements SecureToSend {
         final ConcurrentMap<String, Double> startingRanks = new ConcurrentHashMap<>(ranks);
         final int userCount = ranks.size();
 
-        ranks.forEach((key, val) -> ranks.compute(key, (userName, rank) -> {
-            rank = (1 - dampeningFactor) / userCount;
-            rank += dampeningFactor * incomingLinkValues(userName, startingRanks, userCount);
-            return rank;
-        }));
+        if (userCount > 0) {
+            ranks.forEach((key, val) -> ranks.compute(key, (userName, rank) -> {
+                rank = (1 - dampeningFactor) / userCount;
+                rank += dampeningFactor * incomingLinkValues(userName, startingRanks, userCount);
+                return rank;
+            }));
 
-        final double startingSum = startingRanks.values().stream().mapToDouble(Double::doubleValue).sum();
-        final double endingSum = ranks.values().stream().mapToDouble(Double::doubleValue).sum();
+            final double startingSum = startingRanks.values().stream().mapToDouble(Double::doubleValue).sum();
+            final double endingSum = ranks.values().stream().mapToDouble(Double::doubleValue).sum();
 
-        return Math.abs(startingSum - endingSum);
+            return Math.abs(startingSum - endingSum);
+        }
+        return 0d;
     }
 
     /**

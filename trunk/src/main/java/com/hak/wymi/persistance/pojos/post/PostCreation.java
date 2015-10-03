@@ -2,7 +2,6 @@ package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
-import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
@@ -44,11 +43,6 @@ public class PostCreation extends AbstractBalanceTransaction {
     }
 
     @Override
-    public Integer getSourceUserId() {
-        return this.post.getUser().getUserId();
-    }
-
-    @Override
     public HasPointsBalance getDestination() {
         return this.post.getTopic().getOwner().getBalance();
     }
@@ -59,8 +53,8 @@ public class PostCreation extends AbstractBalanceTransaction {
     }
 
     @Override
-    public User getSourceUser() {
-        return this.post.getUser();
+    public HasPointsBalance getSource() {
+        return this.post.getUser().getBalance();
     }
 
     @Override

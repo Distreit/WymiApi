@@ -2,7 +2,6 @@ package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.AbstractBalanceTransaction;
-import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
 
 import javax.persistence.Entity;
@@ -44,13 +43,8 @@ public class CommentCreation extends AbstractBalanceTransaction {
     }
 
     @Override
-    public Integer getSourceUserId() {
-        return this.comment.getAuthorId();
-    }
-
-    @Override
-    public User getSourceUser() {
-        return this.comment.getAuthor();
+    public HasPointsBalance getSource() {
+        return this.comment.getAuthor().getBalance();
     }
 
     @Override

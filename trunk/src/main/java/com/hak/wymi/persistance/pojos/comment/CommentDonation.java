@@ -51,6 +51,11 @@ public class CommentDonation extends AbstractBalanceTransaction implements Donat
     }
 
     @Override
+    public HasPointsBalance getSource() {
+        return sourceUser.getBalance();
+    }
+
+    @Override
     public User getSourceUser() {
         return sourceUser;
     }
@@ -97,11 +102,6 @@ public class CommentDonation extends AbstractBalanceTransaction implements Donat
 
     public void setAmount(Integer amount) {
         this.amount = amount;
-    }
-
-    @Override
-    public Integer getSourceUserId() {
-        return this.sourceUser.getUserId();
     }
 
     @Override

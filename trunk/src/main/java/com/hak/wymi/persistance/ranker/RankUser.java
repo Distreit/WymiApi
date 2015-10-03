@@ -27,7 +27,7 @@ public class RankUser {
     }
 
     public void addIncomingDonation(BalanceTransaction donation) {
-        final String donatorName = donation.getSourceUser().getName();
+        final String donatorName = donation.getSource().getName();
         if (!incomingDonations.containsKey(donatorName)) {
             incomingDonations.put(donatorName, 0);
             inLink += 1;

@@ -10,7 +10,7 @@ public class SecureCommentDonation implements SecureToSend {
 
     public SecureCommentDonation(CommentDonation commentDonation) {
         this.amount = commentDonation.getAmount();
-        this.sourceUserName = commentDonation.getSourceUser().getName();
+        this.sourceUserName = commentDonation.getSource().getName();
         this.destinationUserName = commentDonation.getComment().getAuthor().getName();
     }
 

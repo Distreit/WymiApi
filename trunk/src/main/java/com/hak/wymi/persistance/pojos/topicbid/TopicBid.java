@@ -114,7 +114,7 @@ public class TopicBid extends PersistentObject implements HasPointsBalance {
 
     @Override
     public Integer getBalanceId() {
-        return this.getTopicBidId();
+        return topicBidId;
     }
 
     public TopicBidState getState() {

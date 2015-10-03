@@ -1,7 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.user.User;
 import org.joda.time.DateTime;
 
 public interface BalanceTransaction {
@@ -20,14 +19,9 @@ public interface BalanceTransaction {
     Integer getAmount();
 
     /**
-     * @return The id of the user who initiated the transaction (The paying user).
+     * @return The source which initiated the transaction (The paying user).
      */
-    Integer getSourceUserId();
-
-    /**
-     * @return The user who initiated the transaction (The paying user).
-     */
-    User getSourceUser();
+    HasPointsBalance getSource();
 
     /**
      * @return The actual object that will be receiving the points after being taxed.

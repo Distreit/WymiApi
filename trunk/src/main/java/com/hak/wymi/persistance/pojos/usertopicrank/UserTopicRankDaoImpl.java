@@ -19,12 +19,11 @@ public class UserTopicRankDaoImpl implements UserTopicRankDao {
     public Boolean save(UserTopicRanker ranker, Topic topic) {
         final List<UserTopicRank> ranks = ranker.getUserRanks(topic);
 
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            session.createQuery("delete UserTopicRank where userTopic.topic.topicId=:topicId")
-                    .setParameter("topicId", topic.getTopicId())
-                    .executeUpdate();
-            ranks.stream().forEach(session::save);
-            return true;
-        });
+        return ranks.size() <= 0 || DaoHelper.genericTransaction(sessionFactory.openSession(),
+                session -> {
+                    session.createQuery("delete UserTopicRank where userTopic.topic.topicId=:topicId").setParameter("topicId", topic.getTopicId()).executeUpdate();
+                    ranks.stream().forEach(session::save);
+                    return true;
+                });
     }
 }

@@ -11,6 +11,7 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -18,9 +19,7 @@ import org.springframework.stereotype.Repository;
 public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionDaoImpl.class);
 
-    private static final Double TAX_RATE = 0.05;
     private static final Double ONE_HUNDRED = 100.0;
-
     private final LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
     @Autowired
@@ -28,6 +27,9 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     @Autowired
     private BalanceTransactionCanceller balanceTransactionCanceller;
+
+    @Value("${site.taxRate}")
+    private Double taxRate;
 
     private static boolean checkOutput(Integer startingAmount, Integer siteTax, Integer topicTax, Integer finalAmount) {
         if (startingAmount - siteTax - topicTax - finalAmount == 0) {
@@ -158,7 +160,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             return 0;
         }
         final HasPointsBalance sitesBalance = (HasPointsBalance) session.load(Balance.class, -1, pessimisticWrite);
-        final Integer tax = Math.max(1, (int) (transaction.getAmount() * TAX_RATE));
+        final Integer tax = Math.max(1, (int) (transaction.getAmount() * taxRate));
 
         if (sitesBalance.addPoints(tax)) {
             transaction.getTransactionLog().setSiteReceived(tax);
@@ -189,7 +191,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     private boolean removePointsFromSourceUser(Session session, BalanceTransaction transaction) {
-        final HasPointsBalance fromBalance = (HasPointsBalance) session.load(Balance.class, transaction.getSourceUserId(), pessimisticWrite);
+        final HasPointsBalance fromBalance = (HasPointsBalance) session.load(transaction.getSource().getClass(), transaction.getSource().getBalanceId(), pessimisticWrite);
         if (fromBalance.removePoints(transaction.getAmount())) {
             transaction.getTransactionLog().setAmountPayed(transaction.getAmount());
             session.update(fromBalance);

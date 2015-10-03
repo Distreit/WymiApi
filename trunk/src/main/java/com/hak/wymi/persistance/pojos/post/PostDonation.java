@@ -59,6 +59,11 @@ public class PostDonation extends AbstractBalanceTransaction implements Donation
     }
 
     @Override
+    public HasPointsBalance getSource() {
+        return this.sourceUser.getBalance();
+    }
+
+    @Override
     public User getSourceUser() {
         return this.sourceUser;
     }
@@ -105,11 +110,6 @@ public class PostDonation extends AbstractBalanceTransaction implements Donation
 
     public void setAmount(Integer amount) {
         this.amount = amount;
-    }
-
-    @Override
-    public Integer getSourceUserId() {
-        return this.sourceUser.getUserId();
     }
 
     @Override

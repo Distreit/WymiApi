@@ -94,9 +94,9 @@ public class BalanceTransactionManager {
     }
 
     public boolean process(BalanceTransaction transaction) {
-        final Integer userId = transaction.getSourceUserId();
-        if (userTransactions.containsKey(userId)) {
-            userTransactions.get(userId).remove(transaction);
+        final Integer balanceId = transaction.getSource().getBalanceId();
+        if (userTransactions.containsKey(balanceId)) {
+            userTransactions.get(balanceId).remove(transaction);
         }
         if (transaction.getState() == TransactionState.UNPROCESSED) {
             return balanceTransactionDao.process(transaction);
@@ -113,12 +113,12 @@ public class BalanceTransactionManager {
     }
 
     private void addToUserMap(BalanceTransaction transaction) {
-        final Integer userId = transaction.getSourceUserId();
-        if (!userTransactions.containsKey(userId)) {
-            userTransactions.put(userId, new HashSet<>());
+        final Integer balanceId = transaction.getSource().getBalanceId();
+        if (!userTransactions.containsKey(balanceId)) {
+            userTransactions.put(balanceId, new HashSet<>());
         }
 
-        userTransactions.get(userId).add(transaction);
+        userTransactions.get(balanceId).add(transaction);
     }
 
     public Set<BalanceTransaction> getTransactionsForUser(Integer userId) {
@@ -144,6 +144,6 @@ public class BalanceTransactionManager {
     }
 
     public boolean cancel(User user, BalanceTransaction transaction) {
-        return transaction.getSourceUser().getUserId().equals(user.getUserId()) && balanceTransactionDao.cancel(transaction);
+        return transaction.getSource().getBalanceId().equals(user.getBalance().getBalanceId()) && balanceTransactionDao.cancel(transaction);
     }
 }
