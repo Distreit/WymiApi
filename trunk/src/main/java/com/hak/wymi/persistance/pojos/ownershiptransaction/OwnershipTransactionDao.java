@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.ownershiptransaction;
 
+import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
@@ -18,7 +19,15 @@ public interface OwnershipTransactionDao {
      */
     List<TopicBidDispersion> process(OwnershipTransaction ownershipTransaction, List<UserTopicRank> winningRanks);
 
-    boolean save(OwnershipTransaction ownershipTransaction, List<TopicBid> failedBids);
+    /**
+     * @param ownershipTransaction The ownership transaction to saveOrUpdate.
+     * @param failedBids           These bids will be canceled.
+     *
+     * @return true when successful
+     */
+    boolean saveOrUpdate(OwnershipTransaction ownershipTransaction, List<TopicBid> failedBids);
 
     List<OwnershipTransaction> getRentPeriodExpired();
+
+    OwnershipTransaction getRentPeriodNotExpired(Topic topic);
 }

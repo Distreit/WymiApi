@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.topic;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import org.joda.time.DateTime;
 
 public class SecureTopic implements SecureToSend {
 
@@ -10,6 +11,7 @@ public class SecureTopic implements SecureToSend {
     private final String owner;
     private final Integer subscriberCount;
     private final Integer filterCount;
+    private final DateTime rentDueDate;
 
     public SecureTopic(Topic topic) {
         this.name = topic.getName();
@@ -18,6 +20,7 @@ public class SecureTopic implements SecureToSend {
         this.owner = topic.getOwner().getName();
         this.subscriberCount = topic.getSubscriberCount();
         this.filterCount = topic.getFilterCount();
+        this.rentDueDate = topic.getRentDueDate().dayOfMonth().roundFloorCopy();
     }
 
     public String getName() {
@@ -46,5 +49,9 @@ public class SecureTopic implements SecureToSend {
 
     public String getUrl() {
         return String.format("t/%s", this.getName());
+    }
+
+    public DateTime getRentDueDate() {
+        return rentDueDate;
     }
 }

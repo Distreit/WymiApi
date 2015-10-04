@@ -10,7 +10,7 @@ public interface UserTopicRankDao {
      *
      * @param ranker The ranker containing the user/rank information.
      *
-     * @return True if the save was successful
+     * @return True if the saveOrUpdate was successful
      */
     Boolean save(UserTopicRanker ranker);
 }

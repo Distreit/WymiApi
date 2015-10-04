@@ -42,6 +42,13 @@ public class UniversalResponse {
         return entries;
     }
 
+    public UniversalResponse setData(int value) {
+        final ConcurrentMap<String, Object> container = new ConcurrentHashMap<>();
+        container.put("value", value);
+        this.entries.put(DATA, container);
+        return this;
+    }
+
     public UniversalResponse setData(SecureToSend secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;

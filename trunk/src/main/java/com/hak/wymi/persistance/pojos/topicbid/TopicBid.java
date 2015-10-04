@@ -47,10 +47,20 @@ public class TopicBid extends PersistentObject implements HasPointsBalance {
     @NotNull
     @Min(value = 0)
     @Null(groups = {Creation.class})
-    private Integer currentBalance;
+    private Integer currentBalance = 0;
 
     @Enumerated(EnumType.STRING)
     private TopicBidState state = TopicBidState.WAITING;
+
+    protected TopicBid() {
+        super();
+    }
+
+    public TopicBid(User user, Topic topic) {
+        super();
+        this.user = user;
+        this.topic = topic;
+    }
 
     public Integer getCurrentBalance() {
         return currentBalance;

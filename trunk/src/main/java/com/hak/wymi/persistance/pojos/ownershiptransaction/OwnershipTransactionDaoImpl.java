@@ -25,15 +25,11 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Repository
 @SuppressWarnings("unchecked")
 public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(OwnershipTransactionDaoImpl.class);
-
-    private static final int HOURS_IN_A_DAY = 24;
-    private static final int RENT_PERIOD_SECONDS = 30 * 24 * 60 * 60;
 
     private final LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
@@ -74,15 +70,6 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
             transactions.add(dispersion);
         }
         return transactions;
-    }
-
-    private static DateTime getNextRentExpirationDate(Topic topic) {
-        final int randHours = ThreadLocalRandom.current().nextInt(0, HOURS_IN_A_DAY);
-        return topic.getRentDueDate()
-                .plusSeconds(RENT_PERIOD_SECONDS)
-                .dayOfMonth()
-                .roundFloorCopy()
-                .plusHours(randHours);
     }
 
     @Override
@@ -165,7 +152,7 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     }
 
     @Override
-    public boolean save(OwnershipTransaction ownershipTransaction, List<TopicBid> failedBids) {
+    public boolean saveOrUpdate(OwnershipTransaction ownershipTransaction, List<TopicBid> failedBids) {
         return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
             final Topic topic = ownershipTransaction.getTopic();
             session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(topic);
@@ -179,9 +166,8 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
                 }
             }
 
-            topic.setRentDueDate(getNextRentExpirationDate(topic));
             session.update(topic);
-            session.save(ownershipTransaction);
+            session.saveOrUpdate(ownershipTransaction);
             return true;
         });
     }
@@ -201,6 +187,19 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
                 .setParameter("now", new DateTime())
                 .setParameter("state", OwnershipTransactionState.WAITING)
                 .list();
+        session.close();
+        return ownershipTransactions;
+    }
+
+    @Override
+    public OwnershipTransaction getRentPeriodNotExpired(Topic topic) {
+        final Session session = sessionFactory.openSession();
+        final OwnershipTransaction ownershipTransactions = (OwnershipTransaction) session
+                .createQuery("from OwnershipTransaction where waitingPeriodExpiration>:now and state=:state and topic.topicId=:topicId")
+                .setParameter("now", new DateTime())
+                .setParameter("state", OwnershipTransactionState.WAITING)
+                .setParameter("topicId", topic.getTopicId())
+                .uniqueResult();
         session.close();
         return ownershipTransactions;
     }

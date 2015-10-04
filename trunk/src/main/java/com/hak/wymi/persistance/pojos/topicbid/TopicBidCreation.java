@@ -32,6 +32,16 @@ public class TopicBidCreation extends AbstractBalanceTransaction {
     @NotNull(groups = {Default.class, Creation.class})
     private Integer amount;
 
+    protected TopicBidCreation() {
+        super();
+    }
+
+    public TopicBidCreation(TopicBid topicBid, Integer amount) {
+        super();
+        this.topicBid = topicBid;
+        this.amount = amount;
+    }
+
     public Integer getTopicBidId() {
         return topicBidId;
     }
