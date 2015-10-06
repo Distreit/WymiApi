@@ -23,9 +23,6 @@ public class TopicDaoImpl implements TopicDao {
     @Transactional(propagation = Propagation.MANDATORY)
     public boolean update(Topic topic) {
         sessionFactory.getCurrentSession().update(topic);
-        if (topic != null) {
-            throw new UnsupportedOperationException();
-        }
         return true;
     }
 
