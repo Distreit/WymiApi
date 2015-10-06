@@ -2,14 +2,14 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
+import com.hak.wymi.persistance.managers.BalanceManager;
+import com.hak.wymi.persistance.managers.CommentDonationManager;
+import com.hak.wymi.persistance.managers.CommentManager;
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.comment.Comment;
-import com.hak.wymi.persistance.pojos.comment.CommentDao;
 import com.hak.wymi.persistance.pojos.comment.CommentDonation;
-import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
-import com.hak.wymi.persistance.pojos.user.BalanceDao;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.utility.TransactionProcessor;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,19 +28,19 @@ import java.security.Principal;
 @RequestMapping(value = "/comment/{commentId}")
 public class CommentTransactionController {
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @Autowired
-    private CommentDao commentDao;
+    private CommentManager commentManager;
 
     @Autowired
-    private BalanceDao balanceDao;
+    private BalanceManager balanceManager;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @Autowired
-    private CommentDonationDao commentDonationDao;
+    private CommentDonationManager commentDonationManager;
 
     @RequestMapping(value = "/donation", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
@@ -51,8 +51,8 @@ public class CommentTransactionController {
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final User user = userDao.get(principal);
-        final Comment comment = commentDao.get(commentId);
+        final User user = userManager.get(principal);
+        final Comment comment = commentManager.get(commentId);
 
         if (user != null && comment != null) {
             if (comment.getAuthorId().equals(user.getUserId())) {
@@ -62,11 +62,11 @@ public class CommentTransactionController {
             commentDonation.setComment(comment);
             commentDonation.setSourceUser(user);
 
-            commentDonationDao.save(commentDonation);
+            commentDonationManager.save(commentDonation);
 
-            balanceTransactionManager.add(commentDonation);
+            transactionProcessor.add(commentDonation);
 
-            universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
+            universalResponse.addTransactions(principal, user, transactionProcessor, balanceManager);
 
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }

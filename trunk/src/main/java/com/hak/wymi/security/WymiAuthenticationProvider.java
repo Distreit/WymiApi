@@ -1,7 +1,7 @@
 package com.hak.wymi.security;
 
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class WymiAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         final String userName = authentication.getPrincipal().toString();
-        final User user = userDao.getFromName(userName);
+        final User user = userManager.getFromName(userName);
 
         if (user == null || !user.getName().equalsIgnoreCase(userName)) {
             throw new UsernameNotFoundException("Invalid credentials");

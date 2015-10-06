@@ -3,18 +3,18 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.managers.PostCreationManager;
+import com.hak.wymi.persistance.managers.PostManger;
+import com.hak.wymi.persistance.managers.TopicManager;
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.PostCreation;
-import com.hak.wymi.persistance.pojos.post.PostCreationDao;
-import com.hak.wymi.persistance.pojos.post.PostDao;
 import com.hak.wymi.persistance.pojos.post.SecurePost;
 import com.hak.wymi.persistance.pojos.topic.SecureTopic;
 import com.hak.wymi.persistance.pojos.topic.Topic;
-import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.utility.TransactionProcessor;
 import com.hak.wymi.validations.groups.Creation;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,19 +44,19 @@ public class PostController {
     private static final int MAX_RESULTS_PER_REQUEST = 100;
 
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @Autowired
-    private PostDao postDao;
+    private PostManger postManger;
 
     @Autowired
-    private TopicDao topicDao;
+    private TopicManager topicManager;
 
     @Autowired
-    private PostCreationDao postCreationDao;
+    private PostCreationManager postCreationManager;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @Value("${score.baseTime}")
     private Integer baseTime;
@@ -69,8 +69,8 @@ public class PostController {
             Principal principal
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final User user = userDao.get(principal);
-        final Topic topic = topicDao.get(topicName);
+        final User user = userManager.get(principal);
+        final Topic topic = topicManager.get(topicName);
         final Post post = postAndTransaction.getPost();
         final PostCreation postCreation = postAndTransaction.getPostCreation();
 
@@ -94,7 +94,7 @@ public class PostController {
             post.setDonations(0);
             post.setScore((double) base);
 
-            if (postCreationDao.save(transaction) && balanceTransactionManager.process(transaction)) {
+            if (postCreationManager.save(transaction) && transactionProcessor.process(transaction)) {
                 return new ResponseEntity<>(universalResponse.setData(new SecurePost(post)), HttpStatus.ACCEPTED);
             }
 
@@ -114,7 +114,7 @@ public class PostController {
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final List<Post> posts = postDao.get(topicName, firstResult, Math.min(MAX_RESULTS_PER_REQUEST, maxResults));
+        final List<Post> posts = postManger.get(topicName, firstResult, Math.min(MAX_RESULTS_PER_REQUEST, maxResults));
         final List<SecureToSend> secureTopics = posts.stream().map(SecurePost::new).collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
@@ -123,7 +123,7 @@ public class PostController {
     @RequestMapping(value = "/topic/{topicName}/post/{postId}", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPost(@PathVariable Integer postId) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final Post post = postDao.get(postId);
+        final Post post = postManger.get(postId);
         final SecurePost securePost = new SecurePost(post);
 
         return new ResponseEntity<>(universalResponse.setData(securePost), HttpStatus.ACCEPTED);
@@ -136,7 +136,7 @@ public class PostController {
                                                      @RequestParam(required = false, defaultValue = "false") Boolean filter) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final List<String> topicList = Arrays.asList(topics.split(","));
-        final List<SecureToSend> posts = postDao.get(topicList, firstResult, maxResults, filter)
+        final List<SecureToSend> posts = postManger.get(topicList, firstResult, maxResults, filter)
                 .stream().map(SecurePost::new)
                 .collect(Collectors.toCollection(LinkedList::new));
 

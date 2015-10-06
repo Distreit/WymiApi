@@ -1,7 +1,7 @@
 package com.hak.wymi.validations.constraints;
 
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.validations.EmailDoesNotExist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import javax.validation.ConstraintValidatorContext;
 @Component
 public class EmailDoesNotExistValidator implements ConstraintValidator<EmailDoesNotExist, Object> {
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @Override
     public void initialize(EmailDoesNotExist emailDoesNotExist) {
@@ -29,7 +29,7 @@ public class EmailDoesNotExistValidator implements ConstraintValidator<EmailDoes
                 email = (String) object;
             }
             if (email != null && !"".equals(email)) {
-                return userDao.getFromEmail(email) == null;
+                return userManager.getFromEmail(email) == null;
             }
         }
 

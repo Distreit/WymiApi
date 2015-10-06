@@ -1,12 +1,13 @@
 package com.hak.wymi.persistance.pojos.topic;
 
-import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
@@ -19,66 +20,63 @@ public class TopicDaoImpl implements TopicDao {
     private SessionFactory sessionFactory;
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean update(Topic topic) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            session.update(topic);
-            return true;
-        });
+        sessionFactory.getCurrentSession().update(topic);
+        if (topic != null) {
+            throw new UnsupportedOperationException();
+        }
+        return true;
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Topic update(Topic partialTopic, Principal principal) {
-        final Session firstSession = sessionFactory.openSession();
-        final Topic topic = (Topic) firstSession.createQuery("from Topic where lower(name)=:name and owner.name=:ownerName")
+        final Session session = sessionFactory.getCurrentSession();
+        final Topic topic = (Topic) session.createQuery("from Topic where lower(name)=:name and owner.name=:ownerName")
                 .setParameter("name", partialTopic.getName().toLowerCase(Locale.ENGLISH))
                 .setParameter("ownerName", principal.getName())
                 .uniqueResult();
-        firstSession.close();
 
-
-        if (DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            topic.setFeePercent(partialTopic.getFeePercent());
-            topic.setFeeFlat(partialTopic.getFeeFlat());
-            session.update(topic);
-            topic.getOwner();
-            return true;
-        })) {
-            return topic;
-        }
-        return null;
+        topic.setFeePercent(partialTopic.getFeePercent());
+        topic.setFeeFlat(partialTopic.getFeeFlat());
+        session.update(topic);
+        topic.getOwner();
+        return topic;
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public List<Topic> getAll() {
-        final Session session = sessionFactory.openSession();
+        final Session session = sessionFactory.getCurrentSession();
         final List<Topic> topicList = session.createQuery("from Topic").list();
-        session.close();
         return topicList;
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public List<Topic> getRentDue() {
-        final Session session = sessionFactory.openSession();
+        final Session session = sessionFactory.getCurrentSession();
         final List<Topic> topicList = session.createQuery("from Topic where rentDueDate<:now")
                 .setParameter("now", new DateTime())
                 .list();
-        session.close();
         return topicList;
     }
 
     @Override
     @Secured("ROLE_USER")
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean save(Topic topic) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            session.persist(topic);
-            return true;
-        });
+        final Session session = sessionFactory.getCurrentSession();
+        session.persist(topic);
+        return true;
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Topic get(String name) {
         if (name != null && !"".equals(name)) {
-            final Session session = sessionFactory.openSession();
+            final Session session = sessionFactory.getCurrentSession();
             final Topic topic = (Topic) session.createQuery("from Topic where lower(name)=:name")
                     .setParameter("name", name.toLowerCase(Locale.ENGLISH))
                     .uniqueResult();
@@ -86,7 +84,6 @@ public class TopicDaoImpl implements TopicDao {
                 topic.getSubscribers().size();
                 topic.getFilters().size();
             }
-            session.close();
             return topic;
         }
         return null;

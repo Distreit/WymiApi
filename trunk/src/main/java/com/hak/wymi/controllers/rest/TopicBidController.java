@@ -3,19 +3,19 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.managers.OwnershipTransactionManager;
+import com.hak.wymi.persistance.managers.TopicBidManager;
+import com.hak.wymi.persistance.managers.TopicManager;
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransaction;
-import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransactionDao;
 import com.hak.wymi.persistance.pojos.topic.Topic;
-import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.topicbid.SecureTopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidCreation;
-import com.hak.wymi.persistance.pojos.topicbid.TopicBidDao;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidState;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.rent.RentManager;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.utility.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -36,19 +36,19 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/topic/{topicName}/bid")
 public class TopicBidController {
     @Autowired
-    private TopicBidDao topicBidDao;
+    private TopicBidManager topicBidManager;
 
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @Autowired
-    private TopicDao topicDao;
+    private TopicManager topicManager;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @Autowired
-    private OwnershipTransactionDao ownershipTransactionDao;
+    private OwnershipTransactionManager ownershipTransactionManager;
 
     @Autowired
     private RentManager rentManager;
@@ -59,7 +59,7 @@ public class TopicBidController {
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getTopicBidsForTopic(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final List<SecureToSend> secureTopicBids = topicBidDao.get(topicName, TopicBidState.WAITING)
+        final List<SecureToSend> secureTopicBids = topicBidManager.get(topicName, TopicBidState.WAITING)
                 .stream()
                 .map(SecureTopicBid::new)
                 .collect(Collectors.toCollection(LinkedList::new));
@@ -71,11 +71,11 @@ public class TopicBidController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> cancelTopicBid(@PathVariable Integer topicBidId, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final TopicBidCreation topicBidCreation = topicBidDao.getTransaction(topicBidId);
+        final TopicBidCreation topicBidCreation = topicBidManager.getTransaction(topicBidId);
         if (topicBidCreation != null) {
             final SecureTopicBid secureTopicBid = new SecureTopicBid(topicBidCreation.getTopicBid());
-            final User user = userDao.get(principal);
-            if (balanceTransactionManager.cancel(user, topicBidCreation)) {
+            final User user = userManager.get(principal);
+            if (transactionProcessor.cancel(user, topicBidCreation)) {
                 return new ResponseEntity<>(universalResponse.setData(secureTopicBid), HttpStatus.ACCEPTED);
             }
         }
@@ -92,8 +92,8 @@ public class TopicBidController {
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
         if (amount != null && amount > 0) {
-            final User user = userDao.get(principal);
-            final Topic topic = topicDao.get(topicName);
+            final User user = userManager.get(principal);
+            final Topic topic = topicManager.get(topicName);
 
             final TopicBidCreation topicBidCreation = createTopicBid(topic, user, amount);
 
@@ -111,8 +111,8 @@ public class TopicBidController {
     public ResponseEntity<UniversalResponse> getClaimAmount(@PathVariable String topicName, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final Topic topic = topicDao.get(topicName);
-        final OwnershipTransaction ownershipTransaction = ownershipTransactionDao.getRentPeriodNotExpired(topic);
+        final Topic topic = topicManager.get(topicName);
+        final OwnershipTransaction ownershipTransaction = ownershipTransactionManager.getRentPeriodNotExpired(topic);
 
         final int claimAmount;
         if (ownershipTransaction == null) {
@@ -137,9 +137,9 @@ public class TopicBidController {
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final User user = userDao.get(principal);
-        final Topic topic = topicDao.get(topicName);
-        final OwnershipTransaction ownershipTransaction = ownershipTransactionDao.getRentPeriodNotExpired(topic);
+        final User user = userManager.get(principal);
+        final Topic topic = topicManager.get(topicName);
+        final OwnershipTransaction ownershipTransaction = ownershipTransactionManager.getRentPeriodNotExpired(topic);
 
         if (ownershipTransaction != null) {
             final int compareValue = (int) (ownershipTransaction.getWinningBid().getCurrentBalance() * ownerBidMultiplier);
@@ -154,7 +154,7 @@ public class TopicBidController {
                     final List<TopicBid> failedBids = new LinkedList<>();
                     failedBids.add(ownershipTransaction.getWinningBid());
                     ownershipTransaction.setWinningBid(topicBidCreation.getTopicBid());
-                    ownershipTransactionDao.saveOrUpdate(ownershipTransaction, failedBids);
+                    ownershipTransactionManager.saveOrUpdate(ownershipTransaction, failedBids);
                     rentManager.processRentPeriodExpired(ownershipTransaction);
 
                     return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
@@ -170,7 +170,7 @@ public class TopicBidController {
         final TopicBid topicBid = new TopicBid(user, topic);
         final TopicBidCreation topicBidCreation = new TopicBidCreation(topicBid, amount);
 
-        if (topicBidDao.save(topicBidCreation) && balanceTransactionManager.process(topicBidCreation)) {
+        if (topicBidManager.save(topicBidCreation) && transactionProcessor.process(topicBidCreation)) {
             return topicBidCreation;
         }
         return null;

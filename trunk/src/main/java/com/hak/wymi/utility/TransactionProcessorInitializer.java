@@ -6,12 +6,12 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 @Service
-public class BTMInitializer {
+public class TransactionProcessorInitializer {
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @PostConstruct
     public void initialize() {
-        balanceTransactionManager.start();
+        transactionProcessor.start();
     }
 }

@@ -2,14 +2,14 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
+import com.hak.wymi.persistance.managers.BalanceManager;
+import com.hak.wymi.persistance.managers.PostDonationManager;
+import com.hak.wymi.persistance.managers.PostManger;
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.post.Post;
-import com.hak.wymi.persistance.pojos.post.PostDao;
 import com.hak.wymi.persistance.pojos.post.PostDonation;
-import com.hak.wymi.persistance.pojos.post.PostDonationDao;
-import com.hak.wymi.persistance.pojos.user.BalanceDao;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.utility.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,19 +26,19 @@ import java.security.Principal;
 @RequestMapping(value = "/topic/{topicName}/post/{postId}")
 public class PostTransactionController {
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @Autowired
-    private PostDao postDao;
+    private PostManger postManger;
 
     @Autowired
-    private BalanceDao balanceDao;
+    private BalanceManager balanceManager;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @Autowired
-    private PostDonationDao postDonationDao;
+    private PostDonationManager postDonationManager;
 
     @RequestMapping(value = "/donation", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
@@ -48,9 +48,9 @@ public class PostTransactionController {
             @PathVariable Integer postId
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final User user = userDao.get(principal);
+        final User user = userManager.get(principal);
         if (user != null) {
-            final Post post = postDao.get(postId);
+            final Post post = postManger.get(postId);
             if (post != null) {
                 if (post.getUser().getUserId().equals(user.getUserId())) {
                     return new ResponseEntity<>(universalResponse.addError("Cannot donate to your own post."), HttpStatus.BAD_REQUEST);
@@ -58,10 +58,10 @@ public class PostTransactionController {
                 postDonation.setPost(post);
                 postDonation.setSourceUser(user);
 
-                postDonationDao.save(postDonation);
+                postDonationManager.save(postDonation);
 
-                balanceTransactionManager.add(postDonation);
-                universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
+                transactionProcessor.add(postDonation);
+                universalResponse.addTransactions(principal, user, transactionProcessor, balanceManager);
 
                 return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }

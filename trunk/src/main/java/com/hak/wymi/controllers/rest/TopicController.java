@@ -3,11 +3,11 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.managers.TopicManager;
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.topic.SecureTopic;
 import com.hak.wymi.persistance.pojos.topic.Topic;
-import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.validations.groups.Creation;
 import com.hak.wymi.validations.groups.Update;
 import org.joda.time.DateTime;
@@ -34,16 +34,16 @@ public class TopicController {
     private static final String SUBSCRIBERS = "subscribers";
     private static final String FILTERS = "filters";
     @Autowired
-    private TopicDao topicDao;
+    private TopicManager topicManager;
 
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createTopic(@Validated({Creation.class}) @RequestBody Topic topic, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final User user = userDao.get(principal);
+        final User user = userManager.get(principal);
 
         topic.setOwner(user);
         topic.setRent(0);
@@ -51,7 +51,7 @@ public class TopicController {
         topic.setSubscriberCount(0);
         topic.setFilterCount(0);
 
-        if (topicDao.save(topic)) {
+        if (topicManager.save(topic)) {
             return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.CREATED);
         }
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -62,7 +62,7 @@ public class TopicController {
     public ResponseEntity<UniversalResponse> patchTopic(@Validated({Update.class}) @RequestBody Topic topic, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final Topic freshTopic = topicDao.update(topic, principal);
+        final Topic freshTopic = topicManager.update(topic, principal);
         if (freshTopic != null) {
             return new ResponseEntity<>(universalResponse.setData(new SecureTopic(freshTopic)), HttpStatus.CREATED);
         }
@@ -72,7 +72,7 @@ public class TopicController {
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getTopics() {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final List<SecureToSend> secureTopics = topicDao.getAll()
+        final List<SecureToSend> secureTopics = topicManager.getAll()
                 .stream()
                 .map(SecureTopic::new)
                 .collect(Collectors.toCollection(LinkedList::new));
@@ -83,7 +83,7 @@ public class TopicController {
     @RequestMapping(value = "{topicName}", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getTopic(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final SecureToSend secureTopics = new SecureTopic(topicDao.get(topicName));
+        final SecureToSend secureTopics = new SecureTopic(topicManager.get(topicName));
 
         return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
     }
@@ -115,9 +115,9 @@ public class TopicController {
     }
 
     private ResponseEntity<UniversalResponse> removeOrAddSubscriber(Principal principal, String topicName, boolean remove, boolean isSubscription) {
-        final User user = userDao.get(principal);
+        final User user = userManager.get(principal);
         if (user != null) {
-            final Topic topic = topicDao.get(topicName);
+            final Topic topic = topicManager.get(topicName);
             if (topic != null) {
                 return removeOrAddSubscriber(user, topic, remove, isSubscription);
             }
@@ -142,7 +142,7 @@ public class TopicController {
             }
         }
 
-        if (needsSave && topicDao.update(topic)) {
+        if (needsSave && topicManager.update(topic)) {
             final SecureToSend secureTopics = new SecureTopic(topic);
             return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
         }

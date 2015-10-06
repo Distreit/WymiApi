@@ -1,19 +1,19 @@
 package com.hak.wymi.rent;
 
+import com.hak.wymi.persistance.managers.CommentDonationManager;
+import com.hak.wymi.persistance.managers.OwnershipTransactionManager;
+import com.hak.wymi.persistance.managers.PostDonationManager;
+import com.hak.wymi.persistance.managers.TopicBidManager;
+import com.hak.wymi.persistance.managers.TopicManager;
+import com.hak.wymi.persistance.managers.UserTopicRankManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
-import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransaction;
-import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransactionDao;
-import com.hak.wymi.persistance.pojos.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.topic.Topic;
-import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
-import com.hak.wymi.persistance.pojos.topicbid.TopicBidDao;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
-import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRankDao;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.utility.TransactionProcessor;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,25 +36,25 @@ public class RentManager {
     private static final int RENT_PERIOD_SECONDS = 30 * 24 * 60 * 60;
 
     @Autowired
-    private TopicDao topicDao;
+    private TopicManager topicManager;
 
     @Autowired
-    private TopicBidDao topicBidDao;
+    private TopicBidManager topicBidManager;
 
     @Autowired
-    private OwnershipTransactionDao ownershipTransactionDao;
+    private OwnershipTransactionManager ownershipTransactionManager;
 
     @Autowired
-    private CommentDonationDao commentDonationDao;
+    private CommentDonationManager commentDonationManager;
 
     @Autowired
-    private PostDonationDao postDonationDao;
+    private PostDonationManager postDonationManager;
 
     @Autowired
-    private UserTopicRankDao userTopicRankDao;
+    private UserTopicRankManager userTopicRankManager;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @Value("${ranking.delta}")
     private Double minDelta;
@@ -76,12 +76,12 @@ public class RentManager {
 
     @Scheduled(fixedRate = 5000)
     public void checkRent() {
-        topicDao.getRentDue().stream().forEach(this::processTopic);
-        ownershipTransactionDao.getRentPeriodExpired().stream().forEach(this::processRentPeriodExpired);
+        topicManager.getRentDue().stream().forEach(this::processTopic);
+        ownershipTransactionManager.getRentPeriodExpired().stream().forEach(this::processRentPeriodExpired);
     }
 
     private void processTopic(Topic topic) {
-        final List<TopicBid> bids = topicBidDao.getForRentTransaction(topic.getName());
+        final List<TopicBid> bids = topicBidManager.getForRentTransaction(topic.getName());
         TopicBid maxBid = null;
         if (!bids.isEmpty()) {
             maxBid = bids.stream().max(Comparator.comparing(TopicBid::getCurrentBalance)).get();
@@ -89,7 +89,7 @@ public class RentManager {
 
         final OwnershipTransaction transaction = new OwnershipTransaction(topic, maxBid);
         topic.setRentDueDate(getNextRentExpirationDate(topic));
-        if (ownershipTransactionDao.saveOrUpdate(transaction, bids)) {
+        if (ownershipTransactionManager.saveOrUpdate(transaction, bids)) {
             if (maxBid == null || maxBid.getUser().equals(topic.getOwner())) {
                 LOGGER.info("Topic {} ownership staying with {} as there are no bids.",
                         topic.getName(), topic.getOwner().getName());
@@ -106,12 +106,12 @@ public class RentManager {
         final UserTopicRanker userTopicRanker = new UserTopicRanker(topic);
 
         final List<? extends DonationTransaction> donations = Stream.concat(
-                commentDonationDao.get(topic.getName()).stream(),
-                postDonationDao.get(topic.getName()).stream()
+                commentDonationManager.get(topic.getName()).stream(),
+                postDonationManager.get(topic.getName()).stream()
         ).collect(Collectors.toList());
 
         userTopicRanker.runOn(donations, minDelta, maxIterations, dampeningFactor);
-        if (userTopicRankDao.save(userTopicRanker)) {
+        if (userTopicRankManager.save(userTopicRanker)) {
             List<UserTopicRank> winningRanks = userTopicRanker.getUserRanks();
 
             // Sort by highest to lowest rank and return top half.
@@ -120,9 +120,9 @@ public class RentManager {
                     .limit(winningRanks.size() / 2)
                     .collect(Collectors.toList());
 
-            List<TopicBidDispersion> dispersions = ownershipTransactionDao.process(ownershipTransaction, winningRanks);
+            List<TopicBidDispersion> dispersions = ownershipTransactionManager.process(ownershipTransaction, winningRanks);
             if (dispersions != null) {
-                dispersions.stream().forEach(balanceTransactionManager::process);
+                dispersions.stream().forEach(transactionProcessor::process);
             }
         }
     }

@@ -3,13 +3,14 @@ package com.hak.wymi.persistance.pojos.balancetransaction;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.Balance;
-import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class BalanceTransactionCanceller {
@@ -36,15 +37,15 @@ public class BalanceTransactionCanceller {
         return true;
     }
 
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean cancel(BalanceTransaction transaction) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            if (transaction.getState() == TransactionState.UNPROCESSED) {
-                return cancelUnprocessed(session, transaction);
-            } else if (transaction.getState() == TransactionState.PROCESSED) {
-                return cancelProcessed(session, transaction);
-            }
-            return false;
-        });
+        Session session = sessionFactory.getCurrentSession();
+        if (transaction.getState() == TransactionState.UNPROCESSED) {
+            return cancelUnprocessed(session, transaction);
+        } else if (transaction.getState() == TransactionState.PROCESSED) {
+            return cancelProcessed(session, transaction);
+        }
+        throw new UnsupportedOperationException("Transaction state not supported.");
     }
 
     private boolean cancelProcessed(Session session, BalanceTransaction transaction) {

@@ -2,15 +2,15 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
+import com.hak.wymi.persistance.managers.BalanceManager;
+import com.hak.wymi.persistance.managers.CallbackCodeManager;
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.PasswordChange;
 import com.hak.wymi.persistance.pojos.callbackcode.CallbackCode;
-import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeDao;
 import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeType;
-import com.hak.wymi.persistance.pojos.user.BalanceDao;
 import com.hak.wymi.persistance.pojos.user.SecureCurrentUser;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.utility.TransactionProcessor;
 import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +43,10 @@ public class UserController {
     private static final int RADIX = 32;
 
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @Autowired
-    private CallbackCodeDao callbackCodeDao;
+    private CallbackCodeManager callbackCodeManager;
 
     @Autowired
     private SecureRandom secureRandom;
@@ -55,10 +55,10 @@ public class UserController {
     private JavaMailSender mailSender;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @Autowired
-    private BalanceDao balanceDao;
+    private BalanceManager balanceManager;
 
     @Value("${server.ip}")
     private String ipAddress;
@@ -68,10 +68,10 @@ public class UserController {
     public ResponseEntity<UniversalResponse> getCurrentUser(Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
         if (principal != null && !"".equals(principal.getName())) {
-            final User user = userDao.get(principal);
+            final User user = userManager.get(principal);
             final SecureCurrentUser secureUser = new SecureCurrentUser(user, principal);
 
-            universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
+            universalResponse.addTransactions(principal, user, transactionProcessor, balanceManager);
 
             return new ResponseEntity<>(universalResponse.setData(secureUser), HttpStatus.ACCEPTED);
         }
@@ -81,7 +81,7 @@ public class UserController {
     @RequestMapping(value = "/name/{userName}/password-reset", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getSendPasswordReset(@PathVariable String userName) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final User user = userDao.getFromName(userName);
+        final User user = userManager.getFromName(userName);
 
         if (user != null) {
             final String code = getValidationCode(user, CallbackCodeType.PASSWORD_RESET);
@@ -108,13 +108,13 @@ public class UserController {
     @RequestMapping(value = "/password", method = RequestMethod.PUT, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getSendPasswordChange(@Valid @RequestBody PasswordChange passwordChange) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final CallbackCode callbackCode = callbackCodeDao.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);
+        final CallbackCode callbackCode = callbackCodeManager.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);
 
         if (callbackCode != null) {
             final User user = callbackCode.getUser();
             user.setPassword(DigestUtils.sha256Hex(passwordChange.getPassword()));
-            if (userDao.update(user)) {
-                callbackCodeDao.delete(callbackCode);
+            if (userManager.update(user)) {
+                callbackCodeManager.delete(callbackCode);
                 return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }
         }
@@ -126,7 +126,7 @@ public class UserController {
         final UniversalResponse universalResponse = new UniversalResponse();
         user.setRoles("ROLE_USER");
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-        if (userDao.save(user)) {
+        if (userManager.save(user)) {
             final String code = getValidationCode(user, CallbackCodeType.VALIDATION);
             final SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail());
@@ -146,7 +146,7 @@ public class UserController {
         callbackCode.setUser(user);
         callbackCode.setCode((new BigInteger(NUMBER_OF_CHARACTERS, secureRandom)).toString(RADIX));
         callbackCode.setType(type);
-        callbackCodeDao.save(callbackCode);
+        callbackCodeManager.save(callbackCode);
         return callbackCode.getCode();
     }
 }

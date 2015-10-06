@@ -2,10 +2,10 @@ package com.hak.wymi.controllers.rest;
 
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
-import com.hak.wymi.persistance.pojos.user.BalanceDao;
+import com.hak.wymi.persistance.managers.BalanceManager;
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.utility.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +20,23 @@ import java.security.Principal;
 @RestController
 public class BalanceTransactionController {
     @Autowired
-    private UserDao userDao;
+    private TransactionProcessor transactionProcessor;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private UserManager userManager;
 
     @Autowired
-    private BalanceDao balanceDao;
+    private BalanceManager balanceManager;
 
     @RequestMapping(value = "/donation/{transactionId}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> cancelCommentTransaction(Principal principal, @PathVariable int transactionId) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final User user = userDao.get(principal);
-        if (user != null && balanceTransactionManager.cancel(user, transactionId)) {
-            universalResponse.addTransactions(principal, user, balanceTransactionManager, balanceDao);
+
+        final User user = userManager.get(principal);
+
+        if (user != null && transactionProcessor.cancel(user, transactionId)) {
+            universalResponse.addTransactions(principal, user, transactionProcessor, balanceManager);
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }
 

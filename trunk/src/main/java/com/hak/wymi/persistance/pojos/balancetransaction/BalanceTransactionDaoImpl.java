@@ -2,7 +2,6 @@ package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.user.Balance;
-import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.NonUniqueObjectException;
@@ -13,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -43,25 +44,27 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean process(BalanceTransaction transaction) {
-        final boolean result = DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            final TransactionLog transactionLog = new TransactionLog(transaction);
-            transaction.setTransactionLog(transactionLog);
-            if (transaction.getAmount() > 0) {
-                return processNonZeroTransaction(transaction, session);
-            } else if (transaction.getAmount() == 0) {
-                transaction.setState(TransactionState.PROCESSED);
-                transactionLog.setAmountPayed(0);
-                transactionLog.setTaxerReceived(0);
-                transactionLog.setSiteReceived(0);
-                transactionLog.setTargetReceived(0);
-                transactionLog.setDestinationReceived(0);
-                session.save(transaction.getTransactionLog());
-                session.update(transaction);
-                return true;
-            }
-            return false;
-        });
+        boolean result = false;
+
+        final Session session = sessionFactory.getCurrentSession();
+        final TransactionLog transactionLog = new TransactionLog(transaction);
+        transaction.setTransactionLog(transactionLog);
+        if (transaction.getAmount() > 0) {
+            result = processNonZeroTransaction(transaction, session);
+        } else if (transaction.getAmount() == 0) {
+            transaction.setState(TransactionState.PROCESSED);
+            transactionLog.setAmountPayed(0);
+            transactionLog.setTaxerReceived(0);
+            transactionLog.setSiteReceived(0);
+            transactionLog.setTargetReceived(0);
+            transactionLog.setDestinationReceived(0);
+            session.save(transaction.getTransactionLog());
+            session.update(transaction);
+            result = true;
+        }
+
         if (!result) {
             transaction.setTransactionLog(null);
             cancel(transaction);

@@ -1,10 +1,11 @@
 package com.hak.wymi.persistance.pojos.message;
 
-import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.LinkedList;
@@ -18,28 +19,28 @@ public class MessageDaoImpl implements MessageDao {
     private SessionFactory sessionFactory;
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean save(Message message) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            session.persist(message);
-            return true;
-        });
+        final Session session = sessionFactory.getCurrentSession();
+        session.persist(message);
+        return true;
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean update(Message message) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            session.update(message);
-            return true;
-        });
+        final Session session = sessionFactory.getCurrentSession();
+        session.update(message);
+        return true;
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public List<Message> getAllReceived(Principal principal) {
-        final Session session = sessionFactory.openSession();
+        final Session session = sessionFactory.getCurrentSession();
         final List<Message> postList = session.createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
                 .setParameter("destinationUserName", principal.getName())
                 .list();
-        session.close();
         return postList;
     }
 
@@ -58,8 +59,9 @@ public class MessageDaoImpl implements MessageDao {
         return get(principal, messageId, Boolean.TRUE);
     }
 
+    @Transactional(propagation = Propagation.MANDATORY)
     private Message get(Principal principal, Integer messageId, Boolean sent) {
-        final Session session = sessionFactory.openSession();
+        final Session session = sessionFactory.getCurrentSession();
         final Message message;
         if (sent) {
             message = (Message) session
@@ -74,7 +76,6 @@ public class MessageDaoImpl implements MessageDao {
                     .setParameter("messageId", messageId)
                     .uniqueResult();
         }
-        session.close();
         return message;
     }
 }

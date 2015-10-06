@@ -2,13 +2,13 @@ package com.hak.wymi.controllers.rest.helpers;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.managers.BalanceManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.SecureBalanceTransaction;
 import com.hak.wymi.persistance.pojos.user.Balance;
-import com.hak.wymi.persistance.pojos.user.BalanceDao;
 import com.hak.wymi.persistance.pojos.user.SecureBalance;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.utility.BalanceTransactionManager;
+import com.hak.wymi.utility.TransactionProcessor;
 
 import java.security.Principal;
 import java.util.HashSet;
@@ -42,6 +42,11 @@ public class UniversalResponse {
         return entries;
     }
 
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+        this.entries.put(DATA, secureToSend);
+        return this;
+    }
+
     public UniversalResponse setData(int value) {
         final ConcurrentMap<String, Object> container = new ConcurrentHashMap<>();
         container.put("value", value);
@@ -50,11 +55,6 @@ public class UniversalResponse {
     }
 
     public UniversalResponse setData(SecureToSend secureToSend) {
-        this.entries.put(DATA, secureToSend);
-        return this;
-    }
-
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }
@@ -92,17 +92,17 @@ public class UniversalResponse {
         return this;
     }
 
-    public UniversalResponse addTransactions(Principal principal, User user, BalanceTransactionManager balanceTransactionManager, BalanceDao balanceDao) {
+    public UniversalResponse addTransactions(Principal principal, User user, TransactionProcessor transactionProcessor, BalanceManager balanceManager) {
         if (principal.getName().equalsIgnoreCase(user.getName())) {
-            final Set<BalanceTransaction> userTransactions = balanceTransactionManager.getTransactionsForUser(user.getUserId());
+            final Set<BalanceTransaction> userTransactions = transactionProcessor.getTransactionsForUser(user.getUserId());
 
             if (userTransactions != null) {
                 this.addTransactions(userTransactions.stream()
                         .map(SecureBalanceTransaction::new)
                         .collect(Collectors.toCollection(HashSet::new)));
             }
-            if (balanceDao != null) {
-                this.addBalance(principal, balanceDao);
+            if (balanceManager != null) {
+                this.addBalance(principal, balanceManager);
             }
         }
         return this;
@@ -113,8 +113,8 @@ public class UniversalResponse {
         return this;
     }
 
-    public UniversalResponse addBalance(Principal principal, BalanceDao balanceDao) {
-        final Balance balance = balanceDao.get(principal);
+    public UniversalResponse addBalance(Principal principal, BalanceManager balanceManager) {
+        final Balance balance = balanceManager.get(principal);
         if (balance != null) {
             this.addBalance(new SecureBalance(balance));
         }

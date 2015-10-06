@@ -1,9 +1,9 @@
 package com.hak.wymi.validations.constraints;
 
+import com.hak.wymi.persistance.managers.TopicManager;
+import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.topic.Topic;
-import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.validations.NameDoesNotExist;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,10 +12,10 @@ import javax.validation.ConstraintValidatorContext;
 
 public class NameDoesNotExistValidator implements ConstraintValidator<NameDoesNotExist, Object> {
     @Autowired
-    private UserDao userDao;
+    private UserManager userManager;
 
     @Autowired
-    private TopicDao topicDao;
+    private TopicManager topicManager;
 
     @Override
     public void initialize(NameDoesNotExist nameDoesNotExist) {
@@ -29,12 +29,12 @@ public class NameDoesNotExistValidator implements ConstraintValidator<NameDoesNo
             if (object instanceof User) {
                 name = ((User) object).getName();
                 if (name != null && !"".equals(name)) {
-                    return userDao.getFromName(name) == null;
+                    return userManager.getFromName(name) == null;
                 }
             } else if (object instanceof Topic) {
                 name = ((Topic) object).getName();
                 if (name != null && !"".equals(name)) {
-                    return topicDao.get(name) == null;
+                    return topicManager.get(name) == null;
                 }
             }
         }

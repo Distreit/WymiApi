@@ -1,12 +1,12 @@
 package com.hak.wymi.utility;
 
+import com.hak.wymi.persistance.managers.BalanceTransactionManager;
+import com.hak.wymi.persistance.managers.CommentCreationManager;
+import com.hak.wymi.persistance.managers.CommentDonationManager;
+import com.hak.wymi.persistance.managers.PostCreationManager;
+import com.hak.wymi.persistance.managers.PostDonationManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
-import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionDao;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
-import com.hak.wymi.persistance.pojos.comment.CommentCreationDao;
-import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
-import com.hak.wymi.persistance.pojos.post.PostCreationDao;
-import com.hak.wymi.persistance.pojos.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,9 +26,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 @Service
-public class BalanceTransactionManager {
+public class TransactionProcessor {
     public static final int TRANSACTION_WAIT_PERIOD = 5000;
-    private static final Logger LOGGER = LoggerFactory.getLogger(BalanceTransactionManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionProcessor.class);
     private static final int QUEUE_START_SIZE = 50;
 
     private final BlockingQueue<BalanceTransaction> queue = new LinkedBlockingQueue<>();
@@ -37,19 +38,19 @@ public class BalanceTransactionManager {
     private final ConcurrentMap<Integer, Set<BalanceTransaction>> userTransactions = new ConcurrentHashMap<>();
 
     @Autowired
-    private CommentDonationDao commentDonationDao;
+    private CommentDonationManager commentDonationManager;
 
     @Autowired
-    private PostDonationDao postDonationDao;
+    private PostDonationManager postDonationManager;
 
     @Autowired
-    private BalanceTransactionDao balanceTransactionDao;
+    private BalanceTransactionManager balanceTransactionManager;
 
     @Autowired
-    private CommentCreationDao commentCreationDao;
+    private CommentCreationManager commentCreationManager;
 
     @Autowired
-    private PostCreationDao postCreationDao;
+    private PostCreationManager postCreationManager;
     private boolean processQueue;
 
     @Scheduled(fixedRate = 5000)
@@ -86,11 +87,11 @@ public class BalanceTransactionManager {
     }
 
     private void addUnprocessedTransactions() {
-        postDonationDao.getUnprocessed().forEach(this::add);
-        commentDonationDao.getUnprocessed().forEach(this::add);
+        postDonationManager.getUnprocessed().forEach(this::add);
+        commentDonationManager.getUnprocessed().forEach(this::add);
 
-        commentCreationDao.getUnprocessed().forEach(this::addToProcessQueue);
-        postCreationDao.getUnprocessed().forEach(this::addToProcessQueue);
+        commentCreationManager.getUnprocessed().forEach(this::addToProcessQueue);
+        postCreationManager.getUnprocessed().forEach(this::addToProcessQueue);
     }
 
     public boolean process(BalanceTransaction transaction) {
@@ -99,7 +100,7 @@ public class BalanceTransactionManager {
             userTransactions.get(balanceId).remove(transaction);
         }
         if (transaction.getState() == TransactionState.UNPROCESSED) {
-            return balanceTransactionDao.process(transaction);
+            return balanceTransactionManager.process(transaction);
         } else if (LOGGER.isErrorEnabled()) {
             LOGGER.error("Transaction without UNPROCESSED state trying to be processed. {}",
                     JSONConverter.getJSON(transaction, Boolean.TRUE));
@@ -125,6 +126,7 @@ public class BalanceTransactionManager {
         return userTransactions.get(userId);
     }
 
+    @Transactional
     public boolean cancel(User user, int transactionId) {
         final boolean[] result = {false};
         userTransactions.get(user.getUserId())
@@ -136,7 +138,7 @@ public class BalanceTransactionManager {
                 .ifPresent(transaction -> {
                     if (preprocessQueue.remove(transaction)) {
                         userTransactions.get(user.getUserId()).remove(transaction);
-                        balanceTransactionDao.cancel(transaction);
+                        balanceTransactionManager.cancel(transaction);
                         result[0] = true;
                     }
                 });
@@ -144,6 +146,6 @@ public class BalanceTransactionManager {
     }
 
     public boolean cancel(User user, BalanceTransaction transaction) {
-        return transaction.getSource().getBalanceId().equals(user.getBalance().getBalanceId()) && balanceTransactionDao.cancel(transaction);
+        return transaction.getSource().getBalanceId().equals(user.getBalance().getBalanceId()) && balanceTransactionManager.cancel(transaction);
     }
 }

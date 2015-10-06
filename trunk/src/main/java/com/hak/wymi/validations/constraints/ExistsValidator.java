@@ -1,7 +1,7 @@
 package com.hak.wymi.validations.constraints;
 
+import com.hak.wymi.persistance.managers.PostManger;
 import com.hak.wymi.persistance.pojos.post.Post;
-import com.hak.wymi.persistance.pojos.post.PostDao;
 import com.hak.wymi.validations.Exists;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,7 +10,7 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExistsValidator implements ConstraintValidator<Exists, Object> {
     @Autowired
-    private PostDao postDao;
+    private PostManger postManger;
 
     @Override
     public void initialize(Exists exists) {
@@ -19,7 +19,7 @@ public class ExistsValidator implements ConstraintValidator<Exists, Object> {
 
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext constraintValidatorContext) {
-        return object instanceof Post && postDao.get(((Post) object).getPostId()) != null;
+        return object instanceof Post && postManger.get(((Post) object).getPostId()) != null;
 
     }
 

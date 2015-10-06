@@ -10,7 +10,6 @@ import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
-import com.hak.wymi.persistance.utility.DaoHelper;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
@@ -21,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -73,11 +74,12 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public List<TopicBidDispersion> process(OwnershipTransaction ownershipTransaction, List<UserTopicRank> winningRanks) {
         final List<TopicBidDispersion> transactions = new LinkedList<>();
 
-        final boolean changeSuccessful = DaoHelper.genericTransaction(sessionFactory.openSession(),
-                session -> changeOwnerAndSplitRent(session, transactions, ownershipTransaction, winningRanks));
+        final boolean changeSuccessful =
+                changeOwnerAndSplitRent(sessionFactory.getCurrentSession(), transactions, ownershipTransaction, winningRanks);
 
         if (changeSuccessful) {
             final String messageText = String
@@ -101,17 +103,17 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
         session.buildLockRequest(pessimisticWrite).lock(topic);
 
         final TopicBid topicBid = ownershipTransaction.getWinningBid();
-        session.buildLockRequest(pessimisticWrite).lock(topicBid);
-
-        if (topicBid.getCurrentBalance() > 0) {
-            transactions.addAll(divideBalanceBetweenContributors(session, winningRanks, topicBid));
+        if (topicBid != null) {
+            session.buildLockRequest(pessimisticWrite).lock(topicBid);
+            if (topicBid.getCurrentBalance() > 0) {
+                transactions.addAll(divideBalanceBetweenContributors(session, winningRanks, topicBid));
+            }
+            topic.setOwner(topicBid.getUser());
+            topicBid.setState(TopicBidState.PROCESSED);
+            session.update(topicBid);
         }
 
         ownershipTransaction.setState(OwnershipTransactionState.PROCESSED);
-        topic.setOwner(topicBid.getUser());
-        topicBid.setState(TopicBidState.PROCESSED);
-
-        session.update(topicBid);
         session.update(ownershipTransaction);
         session.update(topic);
         return true;
@@ -152,24 +154,24 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean saveOrUpdate(OwnershipTransaction ownershipTransaction, List<TopicBid> failedBids) {
-        return DaoHelper.genericTransaction(sessionFactory.openSession(), session -> {
-            final Topic topic = ownershipTransaction.getTopic();
-            session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(topic);
+        final Session session = sessionFactory.getCurrentSession();
+        final Topic topic = ownershipTransaction.getTopic();
+        session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(topic);
 
-            if (failedBids != null) {
-                final TopicBid winningBid = ownershipTransaction.getWinningBid();
-                if (winningBid != null) {
-                    cancelFailedBids(session, failedBids, winningBid);
-                    winningBid.setState(TopicBidState.ACCEPTED);
-                    session.update(winningBid);
-                }
+        if (failedBids != null) {
+            final TopicBid winningBid = ownershipTransaction.getWinningBid();
+            if (winningBid != null) {
+                cancelFailedBids(session, failedBids, winningBid);
+                winningBid.setState(TopicBidState.ACCEPTED);
+                session.update(winningBid);
             }
+        }
 
-            session.update(topic);
-            session.saveOrUpdate(ownershipTransaction);
-            return true;
-        });
+        session.update(topic);
+        session.saveOrUpdate(ownershipTransaction);
+        return true;
     }
 
     private void cancelFailedBids(Session session, List<TopicBid> failedBids, TopicBid winningBid) {
@@ -180,27 +182,27 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public List<OwnershipTransaction> getRentPeriodExpired() {
-        final Session session = sessionFactory.openSession();
+        final Session session = sessionFactory.getCurrentSession();
         final List<OwnershipTransaction> ownershipTransactions = session
                 .createQuery("from OwnershipTransaction where waitingPeriodExpiration<:now and state=:state")
                 .setParameter("now", new DateTime())
                 .setParameter("state", OwnershipTransactionState.WAITING)
                 .list();
-        session.close();
         return ownershipTransactions;
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public OwnershipTransaction getRentPeriodNotExpired(Topic topic) {
-        final Session session = sessionFactory.openSession();
+        final Session session = sessionFactory.getCurrentSession();
         final OwnershipTransaction ownershipTransactions = (OwnershipTransaction) session
                 .createQuery("from OwnershipTransaction where waitingPeriodExpiration>:now and state=:state and topic.topicId=:topicId")
                 .setParameter("now", new DateTime())
                 .setParameter("state", OwnershipTransactionState.WAITING)
                 .setParameter("topicId", topic.getTopicId())
                 .uniqueResult();
-        session.close();
         return ownershipTransactions;
     }
 }

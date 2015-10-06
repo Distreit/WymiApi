@@ -3,12 +3,14 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.managers.CommentDonationManager;
+import com.hak.wymi.persistance.managers.PostDonationManager;
+import com.hak.wymi.persistance.managers.TopicManager;
+import com.hak.wymi.persistance.managers.UserTopicRankManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
-import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
-import com.hak.wymi.persistance.pojos.post.PostDonationDao;
-import com.hak.wymi.persistance.pojos.topic.TopicDao;
-import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRankDao;
+import com.hak.wymi.persistance.pojos.topic.SecureTopic;
+import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,16 +29,16 @@ import java.util.stream.Stream;
 @RestController
 public class RankingController {
     @Autowired
-    private CommentDonationDao commentDonationDao;
+    private CommentDonationManager commentDonationManager;
 
     @Autowired
-    private UserTopicRankDao userTopicRankDao;
+    private UserTopicRankManager userTopicRankManager;
 
     @Autowired
-    private TopicDao topicDao;
+    private TopicManager topicManager;
 
     @Autowired
-    private PostDonationDao postDonationDao;
+    private PostDonationManager postDonationManager;
 
     @Value("${ranking.delta}")
     private Double minDelta;
@@ -51,7 +53,7 @@ public class RankingController {
     public ResponseEntity<UniversalResponse> getPost(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final List<SecureToSend> posts = commentDonationDao.get(topicName)
+        final List<SecureToSend> posts = commentDonationManager.get(topicName)
                 .stream().map(SecureCommentDonation::new)
                 .collect(Collectors.toCollection(LinkedList::new));
 
@@ -63,15 +65,27 @@ public class RankingController {
         final UniversalResponse universalResponse = new UniversalResponse();
 
         final List<? extends DonationTransaction> donations = Stream.concat(
-                commentDonationDao.get(topicName).stream(),
-                postDonationDao.get(topicName).stream()
+                commentDonationManager.get(topicName).stream(),
+                postDonationManager.get(topicName).stream()
         ).collect(Collectors.toList());
 
-        final UserTopicRanker ranker = new UserTopicRanker(topicDao.get(topicName));
+        final UserTopicRanker ranker = new UserTopicRanker(topicManager.get(topicName));
 
         ranker.runOn(donations, minDelta, maxIterations, dampeningFactor);
-        userTopicRankDao.save(ranker);
+        userTopicRankManager.save(ranker);
 
         return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/ranking/topic/{topicName}/test", method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> get(@PathVariable String topicName) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+
+        Topic topic = topicManager.get(topicName);
+        topic.setFeeFlat(topic.getFeeFlat() + 1);
+        topicManager.update(topic);
+        SecureTopic secureTopic = new SecureTopic(topic);
+
+        return new ResponseEntity<>(universalResponse.setData(secureTopic), HttpStatus.ACCEPTED);
     }
 }

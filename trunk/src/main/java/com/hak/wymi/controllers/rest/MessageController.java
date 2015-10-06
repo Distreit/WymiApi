@@ -3,8 +3,8 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.managers.MessageManager;
 import com.hak.wymi.persistance.pojos.message.Message;
-import com.hak.wymi.persistance.pojos.message.MessageDao;
 import com.hak.wymi.persistance.pojos.message.SecureMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,17 +25,16 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/message")
 public class MessageController {
     @Autowired
-    private MessageDao messageDao;
+    private MessageManager messageManager;
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> getMessages(Principal principal) {
-        final List<SecureToSend> secureMessages = messageDao
+        final List<SecureToSend> secureMessages = messageManager
                 .getAllReceived(principal)
                 .stream()
                 .map(SecureMessage::new)
                 .collect(Collectors.toCollection(LinkedList::new));
-
         return new ResponseEntity<>(new UniversalResponse().setData(secureMessages), HttpStatus.ACCEPTED);
     }
 
@@ -47,10 +46,10 @@ public class MessageController {
             @PathVariable Integer messageId
     ) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final Message message = messageDao.getReceived(principal, messageId);
+        final Message message = messageManager.getReceived(principal, messageId);
 
         message.setAlreadyRead(alreadyRead);
-        if (messageDao.update(message)) {
+        if (messageManager.update(message)) {
             return new ResponseEntity<>(universalResponse.setData(new SecureMessage(message)), HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -67,14 +66,14 @@ public class MessageController {
 
         Message message;
         if ("sent".equals(messageType)) {
-            message = messageDao.getSent(principal, messageId);
+            message = messageManager.getSent(principal, messageId);
             message.setSourceDeleted(Boolean.TRUE);
         } else {
-            message = messageDao.getReceived(principal, messageId);
+            message = messageManager.getReceived(principal, messageId);
             message.setDestinationDeleted(Boolean.TRUE);
         }
 
-        if (messageDao.update(message)) {
+        if (messageManager.update(message)) {
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
