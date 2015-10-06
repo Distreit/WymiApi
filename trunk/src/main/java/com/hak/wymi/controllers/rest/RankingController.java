@@ -81,11 +81,10 @@ public class RankingController {
     public ResponseEntity<UniversalResponse> get(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        Topic topic = topicManager.get(topicName);
+        final Topic topic = topicManager.get(topicName);
         topic.setFeeFlat(topic.getFeeFlat() + 1);
         topicManager.update(topic);
-        SecureTopic secureTopic = new SecureTopic(topic);
 
-        return new ResponseEntity<>(universalResponse.setData(secureTopic), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.ACCEPTED);
     }
 }

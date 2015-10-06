@@ -34,11 +34,9 @@ public class CommentCreationImpl implements CommentCreationDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<CommentCreation> getUnprocessed() {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<CommentCreation> commentCommentList = session
+        return sessionFactory.getCurrentSession()
                 .createQuery("from CommentCreation p where p.state=:state")
                 .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
-        return commentCommentList;
     }
 }

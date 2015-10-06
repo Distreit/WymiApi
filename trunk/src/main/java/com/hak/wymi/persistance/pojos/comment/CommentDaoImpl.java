@@ -19,23 +19,19 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<Comment> getAll(Integer postId) {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<Comment> commentList = session
+        return sessionFactory.getCurrentSession()
                 .createQuery("from Comment where post.postId=:postId and parentComment=null ORDER BY score DESC")
                 .setParameter("postId", postId)
                 .list();
-        return commentList;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Comment get(Integer commentId) {
-        final Session session = sessionFactory.getCurrentSession();
-        final Comment comment = (Comment) session
+        return (Comment) sessionFactory.getCurrentSession()
                 .createQuery("from Comment where commentId=:commentId")
                 .setParameter("commentId", commentId)
                 .uniqueResult();
-        return comment;
     }
 
     @Override

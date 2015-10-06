@@ -29,23 +29,19 @@ public class PostDonationDaoImpl implements PostDonationDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<PostDonation> getUnprocessed() {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<PostDonation> postDonationList = session
+        return sessionFactory.getCurrentSession()
                 .createQuery("from PostDonation p where p.state=:state")
                 .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
-        return postDonationList;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<PostDonation> get(String topicName) {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<PostDonation> postDonationList = session
+        return sessionFactory.getCurrentSession()
                 .createQuery("from PostDonation where state=:state and post.topic.name=:topicName")
                 .setParameter("state", TransactionState.PROCESSED)
                 .setParameter("topicName", topicName)
                 .list();
-        return postDonationList;
     }
 }

@@ -39,7 +39,7 @@ public class BalanceTransactionCanceller {
 
     @Transactional(propagation = Propagation.MANDATORY)
     public boolean cancel(BalanceTransaction transaction) {
-        Session session = sessionFactory.getCurrentSession();
+        final Session session = sessionFactory.getCurrentSession();
         if (transaction.getState() == TransactionState.UNPROCESSED) {
             return cancelUnprocessed(session, transaction);
         } else if (transaction.getState() == TransactionState.PROCESSED) {

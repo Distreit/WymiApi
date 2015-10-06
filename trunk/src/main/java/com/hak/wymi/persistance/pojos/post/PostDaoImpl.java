@@ -20,13 +20,11 @@ public class PostDaoImpl implements PostDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<Post> get(String topicName, int firstResult, int maxResults) {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<Post> postList = session.createQuery("FROM Post p WHERE p.topic.name=:topicName ORDER BY p.score DESC")
+        return sessionFactory.getCurrentSession().createQuery("FROM Post p WHERE p.topic.name=:topicName ORDER BY p.score DESC")
                 .setParameter("topicName", topicName)
                 .setFirstResult(firstResult)
                 .setMaxResults(maxResults)
                 .list();
-        return postList;
     }
 
     @Override
@@ -40,12 +38,10 @@ public class PostDaoImpl implements PostDao {
             query = session.createQuery("FROM Post p WHERE p.topic.name IN (:topicNames) ORDER BY p.score DESC");
         }
 
-        final List<Post> postList = query
-                .setParameterList("topicNames", topicList)
+        return query.setParameterList("topicNames", topicList)
                 .setFirstResult(firstResult)
                 .setMaxResults(maxResults)
                 .list();
-        return postList;
     }
 
     @Override

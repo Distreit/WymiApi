@@ -184,25 +184,21 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<OwnershipTransaction> getRentPeriodExpired() {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<OwnershipTransaction> ownershipTransactions = session
+        return sessionFactory.getCurrentSession()
                 .createQuery("from OwnershipTransaction where waitingPeriodExpiration<:now and state=:state")
                 .setParameter("now", new DateTime())
                 .setParameter("state", OwnershipTransactionState.WAITING)
                 .list();
-        return ownershipTransactions;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public OwnershipTransaction getRentPeriodNotExpired(Topic topic) {
-        final Session session = sessionFactory.getCurrentSession();
-        final OwnershipTransaction ownershipTransactions = (OwnershipTransaction) session
+        return (OwnershipTransaction) sessionFactory.getCurrentSession()
                 .createQuery("from OwnershipTransaction where waitingPeriodExpiration>:now and state=:state and topic.topicId=:topicId")
                 .setParameter("now", new DateTime())
                 .setParameter("state", OwnershipTransactionState.WAITING)
                 .setParameter("topicId", topic.getTopicId())
                 .uniqueResult();
-        return ownershipTransactions;
     }
 }

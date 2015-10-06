@@ -45,19 +45,18 @@ public class TopicDaoImpl implements TopicDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<Topic> getAll() {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<Topic> topicList = session.createQuery("from Topic").list();
-        return topicList;
+        return sessionFactory.getCurrentSession()
+                .createQuery("from Topic")
+                .list();
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<Topic> getRentDue() {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<Topic> topicList = session.createQuery("from Topic where rentDueDate<:now")
+        return sessionFactory.getCurrentSession()
+                .createQuery("from Topic where rentDueDate<:now")
                 .setParameter("now", new DateTime())
                 .list();
-        return topicList;
     }
 
     @Override

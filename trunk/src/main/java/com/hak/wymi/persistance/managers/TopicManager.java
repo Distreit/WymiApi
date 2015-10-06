@@ -25,13 +25,13 @@ public class TopicManager {
     }
 
     @Transactional
-    public boolean save(Topic topic) {
-        return topicDao.save(topic);
+    public Topic update(Topic topic, Principal principal) {
+        return topicDao.update(topic, principal);
     }
 
     @Transactional
-    public Topic update(Topic topic, Principal principal) {
-        return topicDao.update(topic, principal);
+    public boolean save(Topic topic) {
+        return topicDao.save(topic);
     }
 
     @Transactional

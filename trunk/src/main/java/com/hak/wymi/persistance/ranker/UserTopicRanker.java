@@ -61,7 +61,9 @@ public class UserTopicRanker implements SecureToSend {
      */
     public void runOn(List<? extends DonationTransaction> donations, double minDelta, int maxIterations, double dampeningFactor) {
         init();
-        if (!donations.isEmpty() && topic != null) {
+        if (donations.isEmpty() || topic == null) {
+            userRanks = new LinkedList<>();
+        } else {
             addDonations(donations);
             Double delta = 1d;
             int iterationCount = 0;
@@ -77,8 +79,6 @@ public class UserTopicRanker implements SecureToSend {
             userRanks = users.values().stream()
                     .map(u -> new UserTopicRank(u.getUser(), topic, ranks.get(u.getUserName())))
                     .collect(Collectors.toList());
-        } else {
-            userRanks = new LinkedList<>();
         }
     }
 

@@ -106,6 +106,16 @@ public class TopicBidController {
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    private TopicBidCreation createTopicBid(Topic topic, User user, int amount) {
+        final TopicBid topicBid = new TopicBid(user, topic);
+        final TopicBidCreation topicBidCreation = new TopicBidCreation(topicBid, amount);
+
+        if (topicBidManager.save(topicBidCreation) && transactionProcessor.process(topicBidCreation)) {
+            return topicBidCreation;
+        }
+        return null;
+    }
+
     @RequestMapping(value = "/claim-amount", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> getClaimAmount(@PathVariable String topicName, Principal principal) {
@@ -161,18 +171,6 @@ public class TopicBidController {
                 }
             }
         }
-
-
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private TopicBidCreation createTopicBid(Topic topic, User user, int amount) {
-        final TopicBid topicBid = new TopicBid(user, topic);
-        final TopicBidCreation topicBidCreation = new TopicBidCreation(topicBid, amount);
-
-        if (topicBidManager.save(topicBidCreation) && transactionProcessor.process(topicBidCreation)) {
-            return topicBidCreation;
-        }
-        return null;
     }
 }

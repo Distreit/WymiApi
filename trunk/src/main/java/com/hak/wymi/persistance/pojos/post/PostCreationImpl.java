@@ -34,11 +34,9 @@ public class PostCreationImpl implements PostCreationDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<PostCreation> getUnprocessed() {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<PostCreation> postPostList = session
+        return sessionFactory.getCurrentSession()
                 .createQuery("from PostCreation p where p.state=:state")
                 .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
-        return postPostList;
     }
 }

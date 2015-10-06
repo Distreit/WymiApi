@@ -21,27 +21,23 @@ public class MessageDaoImpl implements MessageDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public boolean save(Message message) {
-        final Session session = sessionFactory.getCurrentSession();
-        session.persist(message);
+        sessionFactory.getCurrentSession().persist(message);
         return true;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public boolean update(Message message) {
-        final Session session = sessionFactory.getCurrentSession();
-        session.update(message);
+        sessionFactory.getCurrentSession().update(message);
         return true;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<Message> getAllReceived(Principal principal) {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<Message> postList = session.createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
+        return sessionFactory.getCurrentSession().createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
                 .setParameter("destinationUserName", principal.getName())
                 .list();
-        return postList;
     }
 
     @Override
@@ -50,16 +46,17 @@ public class MessageDaoImpl implements MessageDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Message getReceived(Principal principal, Integer messageId) {
         return get(principal, messageId, Boolean.FALSE);
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Message getSent(Principal principal, Integer messageId) {
         return get(principal, messageId, Boolean.TRUE);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
     private Message get(Principal principal, Integer messageId, Boolean sent) {
         final Session session = sessionFactory.getCurrentSession();
         final Message message;
