@@ -29,23 +29,19 @@ public class CommentDonationDaoImpl implements CommentDonationDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<CommentDonation> getUnprocessed() {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<CommentDonation> commentDonationList = session
+        return sessionFactory.getCurrentSession()
                 .createQuery("from CommentDonation p where p.state=:state")
                 .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
-        return commentDonationList;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<CommentDonation> get(String topicName) {
-        final Session session = sessionFactory.getCurrentSession();
-        final List<CommentDonation> commentDonationList = session
+        return sessionFactory.getCurrentSession()
                 .createQuery("from CommentDonation where state=:state and comment.post.topic.name=:topicName")
                 .setParameter("state", TransactionState.PROCESSED)
                 .setParameter("topicName", topicName)
                 .list();
-        return commentDonationList;
     }
 }

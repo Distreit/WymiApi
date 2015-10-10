@@ -118,10 +118,12 @@ public class CommentController {
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getComments(@PathVariable Integer postId) {
         final UniversalResponse universalResponse = new UniversalResponse();
+
         final List<SecureToSend> comments = commentManager.getAll(postId)
                 .stream()
                 .map(SecureComment::new)
                 .collect(Collectors.toCollection(LinkedList::new));
+
         return new ResponseEntity<>(universalResponse.setData(comments), HttpStatus.ACCEPTED);
     }
 

@@ -9,8 +9,6 @@ import com.hak.wymi.persistance.managers.TopicManager;
 import com.hak.wymi.persistance.managers.UserTopicRankManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
 import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
-import com.hak.wymi.persistance.pojos.topic.SecureTopic;
-import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,16 +73,5 @@ public class RankingController {
         userTopicRankManager.save(ranker);
 
         return new ResponseEntity<>(universalResponse.setData(ranker), HttpStatus.ACCEPTED);
-    }
-
-    @RequestMapping(value = "/ranking/topic/{topicName}/test", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> get(@PathVariable String topicName) {
-        final UniversalResponse universalResponse = new UniversalResponse();
-
-        final Topic topic = topicManager.get(topicName);
-        topic.setFeeFlat(topic.getFeeFlat() + 1);
-        topicManager.update(topic);
-
-        return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.ACCEPTED);
     }
 }

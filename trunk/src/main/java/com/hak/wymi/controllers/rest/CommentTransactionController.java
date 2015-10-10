@@ -55,6 +55,10 @@ public class CommentTransactionController {
         final Comment comment = commentManager.get(commentId);
 
         if (user != null && comment != null) {
+            if (comment.getDeleted()) {
+                return new ResponseEntity<>(universalResponse.addError("Comment deleted."), HttpStatus.BAD_REQUEST);
+            }
+
             if (comment.getAuthorId().equals(user.getUserId())) {
                 return new ResponseEntity<>(universalResponse.addError("Cannot donate to your own comment."), HttpStatus.BAD_REQUEST);
             }

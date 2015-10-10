@@ -59,7 +59,7 @@ public class Comment extends PersistentObject implements HasPointsBalance {
 
     private Boolean deleted;
 
-    @Size(max = 10000, min = 1)
+    @Size(max = 10000, min = 1, groups = {Creation.class})
     private String content;
 
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.EAGER)
