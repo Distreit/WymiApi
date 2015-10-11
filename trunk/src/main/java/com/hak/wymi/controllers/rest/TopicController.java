@@ -12,6 +12,7 @@ import com.hak.wymi.validations.groups.Creation;
 import com.hak.wymi.validations.groups.Update;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -38,6 +40,9 @@ public class TopicController {
 
     @Autowired
     private UserManager userManager;
+
+    @Value("${topic.max.results.per.request}")
+    private Integer maxResultsPerRequest;
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
@@ -70,9 +75,12 @@ public class TopicController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getTopics() {
+    public ResponseEntity<UniversalResponse> getTopics(
+            @RequestParam(required = false, defaultValue = "0") Integer firstResult,
+            @RequestParam(required = false, defaultValue = "25") Integer maxResults) {
+
         final UniversalResponse universalResponse = new UniversalResponse();
-        final List<SecureToSend> secureTopics = topicManager.getAll()
+        final List<SecureToSend> secureTopics = topicManager.getAll(firstResult, Math.min(maxResultsPerRequest, maxResults))
                 .stream()
                 .map(SecureTopic::new)
                 .collect(Collectors.toCollection(LinkedList::new));

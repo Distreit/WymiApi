@@ -26,11 +26,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Repository
 @SuppressWarnings("unchecked")
 public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(OwnershipTransactionDaoImpl.class);
+
+    private static final int HOURS_IN_A_DAY = 24;
+    private static final int RENT_PERIOD_SECONDS = 30 * 24 * 60 * 60;
 
     private final LockOptions pessimisticWrite = new LockOptions(LockMode.PESSIMISTIC_WRITE);
 
@@ -71,6 +75,15 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
             transactions.add(dispersion);
         }
         return transactions;
+    }
+
+    private static DateTime getNextRentExpirationDate(Topic topic) {
+        final int randHours = ThreadLocalRandom.current().nextInt(0, HOURS_IN_A_DAY);
+        return topic.getRentDueDate()
+                .plusSeconds(RENT_PERIOD_SECONDS)
+                .dayOfMonth()
+                .roundFloorCopy()
+                .plusHours(randHours);
     }
 
     @Override
@@ -168,6 +181,8 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
                 session.update(winningBid);
             }
         }
+
+        topic.setRentDueDate(getNextRentExpirationDate(topic));
 
         session.update(topic);
         session.saveOrUpdate(ownershipTransaction);

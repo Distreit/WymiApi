@@ -89,6 +89,20 @@ public class Topic extends PersistentObject {
     @Null(groups = {Creation.class, Update.class})
     private Integer filterCount;
 
+    @Size(groups = {Default.class, Creation.class},
+            min = 1,
+            max = 100,
+            message = "title must be between 1 and 100 characters in length")
+    @NotNull(groups = {Creation.class, Update.class})
+    private String title;
+
+    @Size(groups = {Default.class, Creation.class},
+            min = 1,
+            max = 500,
+            message = "title must be between 1 and 500 characters in length")
+    @NotNull(groups = {Creation.class, Update.class})
+    private String description;
+
     public Integer getTopicId() {
         return topicId;
     }
@@ -209,5 +223,21 @@ public class Topic extends PersistentObject {
 
     public String getUrl() {
         return String.format("/t/%s", this.name);
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

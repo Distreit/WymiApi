@@ -12,7 +12,7 @@ public interface TopicDao {
 
     Topic update(Topic topic, Principal principal);
 
-    List<Topic> getAll();
+    List<Topic> getAll(int firstResult, int maxResults);
 
     List<Topic> getRentDue();
 }

@@ -35,8 +35,8 @@ public class TopicManager {
     }
 
     @Transactional
-    public List<Topic> getAll() {
-        return topicDao.getAll();
+    public List<Topic> getAll(int firstResult, int maxResults) {
+        return topicDao.getAll(firstResult, maxResults);
     }
 
     @Transactional

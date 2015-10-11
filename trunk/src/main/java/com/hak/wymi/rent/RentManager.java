@@ -14,7 +14,6 @@ import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import com.hak.wymi.utility.TransactionProcessor;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +23,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 public class RentManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(RentManager.class);
-
-    private static final int HOURS_IN_A_DAY = 24;
-    private static final int RENT_PERIOD_SECONDS = 30 * 24 * 60 * 60;
 
     @Autowired
     private TopicManager topicManager;
@@ -65,15 +60,6 @@ public class RentManager {
     @Value("${ranking.dampeningFactor}")
     private Double dampeningFactor;
 
-    private static DateTime getNextRentExpirationDate(Topic topic) {
-        final int randHours = ThreadLocalRandom.current().nextInt(0, HOURS_IN_A_DAY);
-        return topic.getRentDueDate()
-                .plusSeconds(RENT_PERIOD_SECONDS)
-                .dayOfMonth()
-                .roundFloorCopy()
-                .plusHours(randHours);
-    }
-
     @Scheduled(fixedRate = 5000)
     public void checkRent() {
         topicManager.getRentDue().stream().forEach(this::processTopic);
@@ -88,7 +74,6 @@ public class RentManager {
         }
 
         final OwnershipTransaction transaction = new OwnershipTransaction(topic, maxBid);
-        topic.setRentDueDate(getNextRentExpirationDate(topic));
         if (ownershipTransactionManager.saveOrUpdate(transaction, bids)) {
             if (maxBid == null || maxBid.getUser().equals(topic.getOwner())) {
                 LOGGER.info("Topic {} ownership staying with {} as there are no bids.",

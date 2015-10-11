@@ -44,9 +44,11 @@ public class TopicDaoImpl implements TopicDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public List<Topic> getAll() {
+    public List<Topic> getAll(int firstResult, int maxResults) {
         return sessionFactory.getCurrentSession()
                 .createQuery("from Topic")
+                .setFirstResult(firstResult)
+                .setMaxResults(maxResults)
                 .list();
     }
 

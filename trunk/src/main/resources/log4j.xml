@@ -33,6 +33,10 @@
         <level value="info"/>
     </logger>
 
+    <logger name="org.hibernate.Session">
+        <level value="DEBUG"/>
+    </logger>
+
     <logger name="org.hibernate">
         <level value="info"/>
     </logger>

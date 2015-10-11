@@ -12,6 +12,8 @@ public class SecureTopic implements SecureToSend {
     private final Integer subscriberCount;
     private final Integer filterCount;
     private final DateTime rentDueDate;
+    private final String title;
+    private final String description;
 
     public SecureTopic(Topic topic) {
         this.name = topic.getName();
@@ -21,6 +23,8 @@ public class SecureTopic implements SecureToSend {
         this.subscriberCount = topic.getSubscriberCount();
         this.filterCount = topic.getFilterCount();
         this.rentDueDate = topic.getRentDueDate().dayOfMonth().roundFloorCopy();
+        this.title = topic.getTitle();
+        this.description = topic.getDescription();
     }
 
     public String getName() {
@@ -53,5 +57,13 @@ public class SecureTopic implements SecureToSend {
 
     public DateTime getRentDueDate() {
         return rentDueDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }
