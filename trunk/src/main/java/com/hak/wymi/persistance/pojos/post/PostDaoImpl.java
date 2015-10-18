@@ -32,7 +32,8 @@ public class PostDaoImpl implements PostDao {
     public List<Post> get(List<String> topicList, int firstResult, int maxResults, Boolean filtered) {
         final Session session = sessionFactory.getCurrentSession();
         final Query query;
-        if (filtered) {
+        if (filtered || topicList.isEmpty()) {
+            topicList.add("!!!SOMETHINGTHATDOESNTEXISTEVER!!!");
             query = session.createQuery("FROM Post p WHERE p.topic.name NOT IN (:topicNames) ORDER BY p.score DESC");
         } else {
             query = session.createQuery("FROM Post p WHERE p.topic.name IN (:topicNames) ORDER BY p.score DESC");
