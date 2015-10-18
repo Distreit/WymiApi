@@ -29,17 +29,18 @@ public class PostDaoImpl implements PostDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public List<Post> get(List<String> topicList, int firstResult, int maxResults, Boolean filtered) {
+    public List<Post> get(List<String> topicList, int firstResult, int maxResults, boolean filtered, boolean trashed) {
         final Session session = sessionFactory.getCurrentSession();
         final Query query;
         if (filtered || topicList.isEmpty()) {
-            topicList.add("!!!SOMETHINGTHATDOESNTEXISTEVER!!!");
-            query = session.createQuery("FROM Post p WHERE p.topic.name NOT IN (:topicNames) ORDER BY p.score DESC");
+            topicList.add("");
+            query = session.createQuery("FROM Post WHERE topic.name NOT IN (:topicNames) and trashed=:trashed ORDER BY score DESC");
         } else {
-            query = session.createQuery("FROM Post p WHERE p.topic.name IN (:topicNames) ORDER BY p.score DESC");
+            query = session.createQuery("FROM Post WHERE topic.name IN (:topicNames) and trashed=:trashed ORDER BY score DESC");
         }
 
         return query.setParameterList("topicNames", topicList)
+                .setParameter("trashed", trashed)
                 .setFirstResult(firstResult)
                 .setMaxResults(maxResults)
                 .list();

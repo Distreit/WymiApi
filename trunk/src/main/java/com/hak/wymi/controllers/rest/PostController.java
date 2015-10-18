@@ -133,13 +133,14 @@ public class PostController {
     public ResponseEntity<UniversalResponse> getPost(@RequestParam(required = false) String topics,
                                                      @RequestParam(required = false, defaultValue = "0") Integer firstResult,
                                                      @RequestParam(required = false, defaultValue = "25") Integer maxResults,
-                                                     @RequestParam(required = false, defaultValue = "false") Boolean filter) {
+                                                     @RequestParam(required = false, defaultValue = "false") Boolean filter,
+                                                     @RequestParam(required = false, defaultValue = "false") Boolean trashed) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final List<String> topicList = new LinkedList<>();
         if (topics != null) {
             topicList.addAll(Arrays.asList(topics.split(",")));
         }
-        final List<SecureToSend> posts = postManger.get(topicList, firstResult, maxResults, filter)
+        final List<SecureToSend> posts = postManger.get(topicList, firstResult, maxResults, filter, trashed)
                 .stream().map(SecurePost::new)
                 .collect(Collectors.toCollection(LinkedList::new));
 

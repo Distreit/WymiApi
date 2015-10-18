@@ -24,7 +24,7 @@ public class PostManger {
     }
 
     @Transactional
-    public List<Post> get(List<String> topicList, Integer firstResult, Integer maxResults, Boolean filter) {
-        return postDao.get(topicList, firstResult, maxResults, filter);
+    public List<Post> get(List<String> topicList, Integer firstResult, Integer maxResults, Boolean filter, boolean trashed) {
+        return postDao.get(topicList, firstResult, maxResults, filter, trashed);
     }
 }
