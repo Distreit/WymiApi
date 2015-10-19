@@ -8,4 +8,6 @@ public interface PostDao {
     Post get(Integer postId);
 
     List<Post> get(List<String> topicList, int firstResult, int maxResults, boolean filtered, boolean trashed);
+
+    void update(Post post);
 }

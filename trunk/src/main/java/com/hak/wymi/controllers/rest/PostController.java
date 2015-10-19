@@ -16,9 +16,7 @@ import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.utility.TransactionProcessor;
 import com.hak.wymi.validations.groups.Creation;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,7 +38,6 @@ import java.util.stream.Collectors;
 
 @RestController
 public class PostController {
-    private static final int MILLISECONDS_IN_A_SECOND = 1000;
     private static final int MAX_RESULTS_PER_REQUEST = 100;
 
     @Autowired
@@ -57,9 +54,6 @@ public class PostController {
 
     @Autowired
     private TransactionProcessor transactionProcessor;
-
-    @Value("${score.baseTime}")
-    private Integer baseTime;
 
     @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
@@ -88,11 +82,10 @@ public class PostController {
 
             post.setTopic(topic);
             post.setUser(user);
-            final long base = new DateTime().getMillis() / MILLISECONDS_IN_A_SECOND - baseTime;
-            post.setBase((double) base);
+            post.setBase(postManger.getBaseTime());
             post.setPoints(0);
             post.setDonations(0);
-            post.setScore((double) base);
+            post.setScore(post.getBase());
 
             if (postCreationManager.save(transaction) && transactionProcessor.process(transaction)) {
                 return new ResponseEntity<>(universalResponse.setData(new SecurePost(post)), HttpStatus.ACCEPTED);
@@ -145,6 +138,14 @@ public class PostController {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(universalResponse.setData(posts), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/post/{postId}/trashed", method = RequestMethod.PATCH, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> setTrashed(@PathVariable Integer postId,
+                                                        @RequestParam(required = true) Boolean trashed,
+                                                        Principal principal) {
+        postManger.updateTrashed(postId, trashed, principal.getName());
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 
     private static class PostAndTransaction {

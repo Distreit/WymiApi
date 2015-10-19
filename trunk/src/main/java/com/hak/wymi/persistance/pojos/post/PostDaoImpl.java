@@ -48,6 +48,12 @@ public class PostDaoImpl implements PostDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
+    public void update(Post post) {
+        sessionFactory.getCurrentSession().update(post);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Post get(Integer postId) {
         if (postId != null) {
             final Session session = sessionFactory.getCurrentSession();

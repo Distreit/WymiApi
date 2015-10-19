@@ -13,6 +13,7 @@ public class SecurePost implements SecureToSend {
     private final String text;
     private final Double score;
     private final Integer points;
+    private final Boolean trashed;
     private final DateTime created;
 
     public SecurePost(Post post) {
@@ -23,9 +24,10 @@ public class SecurePost implements SecureToSend {
         this.commentCount = post.getCommentCounts();
         this.url = post.getHref();
         this.text = post.getText();
-        this.points = post.getPoints();
-        this.created = post.getCreated();
         this.score = post.getScore();
+        this.points = post.getPoints();
+        this.trashed = post.getTrashed();
+        this.created = post.getCreated();
     }
 
     public String getUser() {
@@ -66,5 +68,9 @@ public class SecurePost implements SecureToSend {
 
     public Double getScore() {
         return score;
+    }
+
+    public Boolean getTrashed() {
+        return trashed;
     }
 }
