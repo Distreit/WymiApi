@@ -123,7 +123,7 @@ public class PostController {
     }
 
     @RequestMapping(value = "/post", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getPost(@RequestParam(required = false) String topics,
+    public ResponseEntity<UniversalResponse> getPost(@RequestParam(required = true) String topics,
                                                      @RequestParam(required = false, defaultValue = "0") Integer firstResult,
                                                      @RequestParam(required = false, defaultValue = "25") Integer maxResults,
                                                      @RequestParam(required = false, defaultValue = "false") Boolean filter,
@@ -134,17 +134,27 @@ public class PostController {
             topicList.addAll(Arrays.asList(topics.split(",")));
         }
         final List<SecureToSend> posts = postManger.get(topicList, firstResult, maxResults, filter, trashed)
-                .stream().map(SecurePost::new)
+                .stream()
+                .map(SecurePost::new)
                 .collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(universalResponse.setData(posts), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/post/{postId}/trashed", method = RequestMethod.PATCH, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> setTrashed(@PathVariable Integer postId,
                                                         @RequestParam(required = true) Boolean trashed,
                                                         Principal principal) {
         postManger.updateTrashed(postId, trashed, principal.getName());
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/post/{postId}", method = RequestMethod.DELETE, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> deletePost(@PathVariable Integer postId,
+                                                        Principal principal) {
+        postManger.delete(postId, principal.getName());
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 

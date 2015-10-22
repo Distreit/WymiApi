@@ -20,7 +20,9 @@ public class PostDaoImpl implements PostDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<Post> get(String topicName, int firstResult, int maxResults) {
-        return sessionFactory.getCurrentSession().createQuery("FROM Post p WHERE p.topic.name=:topicName ORDER BY p.score DESC")
+        return sessionFactory
+                .getCurrentSession()
+                .createQuery("FROM Post p WHERE p.topic.name=:topicName and deleted=false ORDER BY p.score DESC")
                 .setParameter("topicName", topicName)
                 .setFirstResult(firstResult)
                 .setMaxResults(maxResults)
@@ -32,11 +34,13 @@ public class PostDaoImpl implements PostDao {
     public List<Post> get(List<String> topicList, int firstResult, int maxResults, boolean filtered, boolean trashed) {
         final Session session = sessionFactory.getCurrentSession();
         final Query query;
-        if (filtered || topicList.isEmpty()) {
-            topicList.add("");
-            query = session.createQuery("FROM Post WHERE topic.name NOT IN (:topicNames) and trashed=:trashed ORDER BY score DESC");
+        topicList.add("");
+        if (filtered) {
+            query = session
+                    .createQuery("FROM Post WHERE topic.name NOT IN (:topicNames) and deleted=false and trashed=:trashed ORDER BY score DESC");
         } else {
-            query = session.createQuery("FROM Post WHERE topic.name IN (:topicNames) and trashed=:trashed ORDER BY score DESC");
+            query = session
+                    .createQuery("FROM Post WHERE topic.name IN (:topicNames) and deleted=false and trashed=:trashed ORDER BY score DESC");
         }
 
         return query.setParameterList("topicNames", topicList)
@@ -55,15 +59,10 @@ public class PostDaoImpl implements PostDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Post get(Integer postId) {
-        if (postId != null) {
-            final Session session = sessionFactory.getCurrentSession();
-            final List<Post> postList = session.createQuery("FROM Post WHERE postId=:postId")
-                    .setParameter("postId", postId)
-                    .list();
-            if (postList.size() == 1) {
-                return postList.get(0);
-            }
-        }
-        return null;
+        return (Post) sessionFactory
+                .getCurrentSession()
+                .createQuery("FROM Post WHERE postId=:postId and deleted=false")
+                .setParameter("postId", postId)
+                .uniqueResult();
     }
 }

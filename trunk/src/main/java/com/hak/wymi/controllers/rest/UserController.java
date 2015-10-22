@@ -60,8 +60,8 @@ public class UserController {
     @Autowired
     private BalanceManager balanceManager;
 
-    @Value("${server.ip}")
-    private String ipAddress;
+    @Value("${site.domain}")
+    private String siteDomain;
 
     @RequestMapping(value = "/current", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
@@ -92,7 +92,7 @@ public class UserController {
             message.setText(
                     String.format(
                             "Please click here to reset your password: http://%s/password-reset?code=%s",
-                            ipAddress,
+                            siteDomain,
                             code
                     )
             );
@@ -133,7 +133,7 @@ public class UserController {
             message.setSubject("WYMI account validation");
             message.setText(String
                     .format("Please click here to validate your account: http://%s/api/user/%s/validate/%s",
-                            ipAddress, user.getName(), code));
+                            siteDomain, user.getName(), code));
             mailSender.send(message);
 
             return new ResponseEntity<>(universalResponse, HttpStatus.CREATED);

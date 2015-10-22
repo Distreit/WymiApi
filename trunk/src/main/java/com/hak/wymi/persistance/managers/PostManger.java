@@ -17,6 +17,9 @@ public class PostManger {
     @Value("${score.baseTime}")
     private Integer baseTime;
 
+    @Value("${site.domain}")
+    private String siteDomain;
+
     @Autowired
     private PostDao postDao;
 
@@ -46,6 +49,20 @@ public class PostManger {
             postDao.update(post);
         } else {
             throw new UnsupportedOperationException("User is not authorized to update trashed status of post.");
+        }
+    }
+
+    @Transactional
+    public void delete(int postId, String userName) {
+        final Post post = get(postId);
+        if (!post.getDeleted() && post.getUser().getName().equals(userName)) {
+            post.setDeleted(true);
+            post.setTitle("DELETED");
+            post.setHref("http://siteDomain");
+            post.setText("DELETED");
+            postDao.update(post);
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 

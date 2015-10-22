@@ -47,6 +47,8 @@ public class Post extends PersistentObject implements HasPointsBalance {
 
     private Boolean trashed;
 
+    private Boolean deleted;
+
     @Formula("(select count(t.postId) from comment t where t.postId=postId)")
     private Integer commentCounts;
 
@@ -208,5 +210,13 @@ public class Post extends PersistentObject implements HasPointsBalance {
 
     public void setTrashed(Boolean trashed) {
         this.trashed = trashed;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 }
