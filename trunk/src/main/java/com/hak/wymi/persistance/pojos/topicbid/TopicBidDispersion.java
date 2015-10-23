@@ -102,7 +102,7 @@ public class TopicBidDispersion extends AbstractBalanceTransaction {
     }
 
     @Override
-    public boolean paySiteTax() {
+    public boolean shouldPaySiteTax() {
         return false;
     }
 

@@ -4,6 +4,8 @@ import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.managers.BalanceManager;
 import com.hak.wymi.persistance.managers.UserManager;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.utility.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +32,15 @@ public class BalanceTransactionController {
 
     @RequestMapping(value = "/donation/{transactionId}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<UniversalResponse> cancelCommentTransaction(Principal principal, @PathVariable int transactionId) {
+    public ResponseEntity<UniversalResponse> cancelCommentTransaction(Principal principal, @PathVariable int transactionId)
+            throws InvalidValueException, InsufficientFundsException {
+
         final UniversalResponse universalResponse = new UniversalResponse();
 
         final User user = userManager.get(principal);
 
-        if (user != null && transactionProcessor.cancel(user, transactionId)) {
+        if (user != null) {
+            transactionProcessor.cancel(user, transactionId);
             universalResponse.addTransactions(principal, user, transactionProcessor, balanceManager);
             return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
         }

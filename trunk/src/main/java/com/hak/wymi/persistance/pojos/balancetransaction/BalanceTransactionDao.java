@@ -1,7 +1,10 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
-public interface BalanceTransactionDao {
-    boolean process(BalanceTransaction balanceTransaction);
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 
-    boolean cancel(BalanceTransaction balanceTransaction);
+public interface BalanceTransactionDao {
+    void process(BalanceTransaction balanceTransaction) throws InsufficientFundsException, InvalidValueException;
+
+    boolean cancel(BalanceTransaction balanceTransaction) throws InvalidValueException, InsufficientFundsException;
 }

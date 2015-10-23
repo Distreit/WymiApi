@@ -98,7 +98,7 @@ public class CommentCreation extends AbstractBalanceTransaction {
     }
 
     @Override
-    public boolean paySiteTax() {
+    public boolean shouldPaySiteTax() {
         return true;
     }
 

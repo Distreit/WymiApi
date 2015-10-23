@@ -114,7 +114,7 @@ public class PostCreation extends AbstractBalanceTransaction {
     }
 
     @Override
-    public boolean paySiteTax() {
+    public boolean shouldPaySiteTax() {
         return true;
     }
 

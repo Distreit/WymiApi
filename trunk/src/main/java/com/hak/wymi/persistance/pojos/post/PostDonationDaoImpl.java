@@ -18,12 +18,11 @@ public class PostDonationDaoImpl implements PostDonationDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean save(PostDonation postDonation) {
+    public void save(PostDonation postDonation) {
         final Session session = sessionFactory.getCurrentSession();
         postDonation.setState(TransactionState.UNPROCESSED);
         session.persist(postDonation);
         session.refresh(postDonation);
-        return true;
     }
 
     @Override

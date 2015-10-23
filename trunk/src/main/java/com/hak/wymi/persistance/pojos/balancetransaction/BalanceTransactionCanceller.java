@@ -1,6 +1,8 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.Balance;
 import org.hibernate.LockMode;
@@ -38,7 +40,7 @@ public class BalanceTransactionCanceller {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean cancel(BalanceTransaction transaction) {
+    public boolean cancel(BalanceTransaction transaction) throws InvalidValueException, InsufficientFundsException {
         final Session session = sessionFactory.getCurrentSession();
         if (transaction.getState() == TransactionState.UNPROCESSED) {
             return cancelUnprocessed(session, transaction);
@@ -48,7 +50,7 @@ public class BalanceTransactionCanceller {
         throw new UnsupportedOperationException("Transaction state not supported.");
     }
 
-    private boolean cancelProcessed(Session session, BalanceTransaction transaction) {
+    private boolean cancelProcessed(Session session, BalanceTransaction transaction) throws InvalidValueException, InsufficientFundsException {
         final TransactionLog transactionLog = (TransactionLog) session
                 .load(TransactionLog.class, transaction.getTransactionLog().getTransactionLogId(), pessimisticWrite);
 
@@ -61,52 +63,47 @@ public class BalanceTransactionCanceller {
 
             session.buildLockRequest(pessimisticWrite).lock(transaction.getDestination());
 
-            boolean success = removePointsFromTarget(session, transaction, transactionLog);
-            success = success && removePointsFromTaxer(session, transaction, transactionLog);
-            success = success && sourceBalance.addPoints(transactionLog.getAmountPayed());
-            success = success && transaction.getDestination().removePoints(transactionLog.getDestinationReceived());
-            success = success && siteBalance.removePoints(transactionLog.getSiteReceived());
+            removePointsFromTarget(session, transaction, transactionLog);
+            removePointsFromTaxer(session, transaction, transactionLog);
+            sourceBalance.addPoints(transactionLog.getAmountPayed());
+            transaction.getDestination().removePoints(transactionLog.getDestinationReceived());
+            siteBalance.removePoints(transactionLog.getSiteReceived());
 
             transactionLog.setCanceled(Boolean.TRUE);
 
-            if (success) {
-                session.update(sourceBalance);
-                session.update(transaction.getDestination());
-                session.update(siteBalance);
+            session.update(sourceBalance);
+            session.update(transaction.getDestination());
+            session.update(siteBalance);
 
-                session.update(transactionLog);
-                return cancelUnprocessed(session, transaction);
-            }
+            session.update(transactionLog);
+            return cancelUnprocessed(session, transaction);
         }
 
         return false;
     }
 
-    private boolean removePointsFromTaxer(Session session, BalanceTransaction transaction, TransactionLog transactionLog) {
+    private void removePointsFromTaxer(Session session, BalanceTransaction transaction, TransactionLog transactionLog)
+            throws InvalidValueException, InsufficientFundsException {
+
         if (transaction.getTaxerUserId() != null) {
             final HasPointsBalance topicOwnerBalance = (HasPointsBalance) session
                     .load(Balance.class, transaction.getTaxerUserId(), pessimisticWrite);
 
-            if (topicOwnerBalance.removePoints(transactionLog.getTaxerReceived())) {
-                session.update(topicOwnerBalance);
-                return true;
-            }
-            return false;
+            topicOwnerBalance.removePoints(transactionLog.getTaxerReceived());
+            session.update(topicOwnerBalance);
         }
-        return true;
     }
 
-    private boolean removePointsFromTarget(Session session, BalanceTransaction transaction, TransactionLog transactionLog) {
+    private void removePointsFromTarget(Session session, BalanceTransaction transaction, TransactionLog transactionLog)
+            throws InvalidValueException, InsufficientFundsException {
+
         if (transaction.getTarget() != null) {
             final HasPointsBalance targetBalance = (HasPointsBalance) session
                     .load(transaction.getTarget().getClass(), transaction.getTarget().getBalanceId(), pessimisticWrite);
 
-            if (targetBalance.removePoints(transactionLog.getTargetReceived())) {
-                session.update(targetBalance);
-                return true;
-            }
-            return false;
+            targetBalance.removePoints(transactionLog.getTargetReceived());
+            session.update(targetBalance);
+
         }
-        return true;
     }
 }

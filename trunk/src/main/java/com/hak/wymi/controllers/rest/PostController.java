@@ -8,13 +8,14 @@ import com.hak.wymi.persistance.managers.PostManger;
 import com.hak.wymi.persistance.managers.TopicManager;
 import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.PostCreation;
 import com.hak.wymi.persistance.pojos.post.SecurePost;
 import com.hak.wymi.persistance.pojos.topic.SecureTopic;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.utility.TransactionProcessor;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,16 +53,13 @@ public class PostController {
     @Autowired
     private PostCreationManager postCreationManager;
 
-    @Autowired
-    private TransactionProcessor transactionProcessor;
-
     @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createPost(
             @Validated(Creation.class) @RequestBody PostAndTransaction postAndTransaction,
             @PathVariable String topicName,
             Principal principal
-    ) {
+    ) throws InsufficientFundsException, InvalidValueException {
         final UniversalResponse universalResponse = new UniversalResponse();
         final User user = userManager.get(principal);
         final Topic topic = topicManager.get(topicName);
@@ -83,14 +81,14 @@ public class PostController {
             post.setTopic(topic);
             post.setUser(user);
             post.setBase(postManger.getBaseTime());
+            post.setTrashed(false);
+            post.setDeleted(false);
             post.setPoints(0);
             post.setDonations(0);
             post.setScore(post.getBase());
 
-            if (postCreationManager.save(transaction) && transactionProcessor.process(transaction)) {
-                return new ResponseEntity<>(universalResponse.setData(new SecurePost(post)), HttpStatus.ACCEPTED);
-            }
-
+            postCreationManager.save(transaction);
+            return new ResponseEntity<>(universalResponse.setData(new SecurePost(post)), HttpStatus.ACCEPTED);
         } else if (topic != null) {
             return new ResponseEntity<>(universalResponse
                     .setData(new SecureTopic(topic))

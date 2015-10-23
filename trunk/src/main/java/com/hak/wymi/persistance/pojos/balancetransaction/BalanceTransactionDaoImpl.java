@@ -1,6 +1,8 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.Balance;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -32,27 +34,15 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     @Value("${site.taxRate}")
     private Double taxRate;
 
-    private static boolean checkOutput(Integer startingAmount, Integer siteTax, Integer topicTax, Integer finalAmount) {
-        if (startingAmount - siteTax - topicTax - finalAmount == 0) {
-            return true;
-        }
-
-        LOGGER.error(String.format(
-                "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)",
-                siteTax, topicTax, finalAmount, startingAmount));
-        return false;
-    }
-
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean process(BalanceTransaction transaction) {
-        boolean result = false;
+    public void process(BalanceTransaction transaction) throws InsufficientFundsException, InvalidValueException {
 
         final Session session = sessionFactory.getCurrentSession();
         final TransactionLog transactionLog = new TransactionLog(transaction);
         transaction.setTransactionLog(transactionLog);
         if (transaction.getAmount() > 0) {
-            result = processNonZeroTransaction(transaction, session);
+            processNonZeroTransaction(transaction, session);
         } else if (transaction.getAmount() == 0) {
             transaction.setState(TransactionState.PROCESSED);
             transactionLog.setAmountPayed(0);
@@ -62,52 +52,35 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             transactionLog.setDestinationReceived(0);
             session.save(transaction.getTransactionLog());
             session.update(transaction);
-            result = true;
         }
-
-        if (!result) {
-            transaction.setTransactionLog(null);
-            cancel(transaction);
-            LOGGER.debug("Transaction failed and has been canceled!");
-        }
-        return result;
     }
 
-    private boolean processNonZeroTransaction(BalanceTransaction transaction, Session session) {
+    private void processNonZeroTransaction(BalanceTransaction transaction, Session session) throws InsufficientFundsException, InvalidValueException {
         session.buildLockRequest(pessimisticWrite).lock(transaction);
 
-        final boolean fromBalanceSuccessful = removePointsFromSourceUser(session, transaction);
-        final boolean toTargetSuccessful = addPointsToTarget(session, transaction);
-        final boolean toSplitSuccessful = splitPointsToReceivers(session, transaction);
+        removePointsFromSourceUser(session, transaction);
+        addPointsToTarget(session, transaction);
+        splitPointsToReceivers(session, transaction);
 
-        if (fromBalanceSuccessful && toTargetSuccessful && toSplitSuccessful) {
-            transaction.setState(TransactionState.PROCESSED);
-            session.save(transaction.getTransactionLog());
-            session.update(transaction);
-            return true;
-        }
-
-        return false;
+        transaction.setState(TransactionState.PROCESSED);
+        session.save(transaction.getTransactionLog());
+        session.update(transaction);
     }
 
-    private boolean splitPointsToReceivers(Session session, BalanceTransaction transaction) {
+    private void splitPointsToReceivers(Session session, BalanceTransaction transaction) throws InvalidValueException {
         final Integer startingAmount = transaction.getAmount();
+        final int siteTax = paySite(session, transaction);
+        final int topicTax = payTopicOwner(session, transaction, siteTax);
+        final int finalAmount = paySubmitter(session, transaction, siteTax, topicTax);
 
-        final Integer siteTax = paySite(session, transaction);
-        if (siteTax == null || siteTax < 0) {
-            return false;
+        if (startingAmount - siteTax - topicTax - finalAmount != 0) {
+            throw new InvalidValueException(String.format(
+                    "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)",
+                    siteTax, topicTax, finalAmount, startingAmount));
         }
-
-        final Integer topicTax = payTopicOwner(session, transaction, siteTax);
-        if (topicTax == null || topicTax < 0) {
-            return false;
-        }
-
-        final Integer finalAmount = paySubmitter(session, transaction, siteTax, topicTax);
-        return !(finalAmount == null || finalAmount < 0) && checkOutput(startingAmount, siteTax, topicTax, finalAmount);
     }
 
-    private Integer paySubmitter(Session session, BalanceTransaction transaction, Integer siteTax, Integer topicTax) {
+    private int paySubmitter(Session session, BalanceTransaction transaction, int siteTax, int topicTax) throws InvalidValueException {
         HasPointsBalance destination;
         try {
             session.buildLockRequest(pessimisticWrite).lock(transaction.getDestination());
@@ -126,17 +99,14 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
             LOGGER.debug(String.format("The contributor %s got %d", destination.getName(), remainingAmount));
             return remainingAmount;
         } else {
-            if (destination.addPoints(remainingAmount)) {
-                LOGGER.debug(String.format("The contributor %s got %d", destination.getName(), remainingAmount));
-                session.update(destination);
-                return remainingAmount;
-            }
+            destination.addPoints(remainingAmount);
+            LOGGER.debug(String.format("The contributor %s got %d", destination.getName(), remainingAmount));
+            session.update(destination);
+            return remainingAmount;
         }
-
-        return null;
     }
 
-    private Integer payTopicOwner(Session session, BalanceTransaction transaction, Integer siteTax) {
+    private int payTopicOwner(Session session, BalanceTransaction transaction, Integer siteTax) throws InvalidValueException {
         final Double topicTaxRate = transaction.getTaxRate() / ONE_HUNDRED;
 
         if (topicTaxRate == 0) {
@@ -145,67 +115,60 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         }
 
         final HasPointsBalance topicOwnerBalance = (HasPointsBalance) session.load(Balance.class, transaction.getTaxerUserId());
-        Integer topicTax = (int) Math.max(transaction.getAmount() * topicTaxRate, 1);
-        topicTax = Math.min(transaction.getAmount() - siteTax, topicTax);
-        if (topicOwnerBalance.addPoints(topicTax)) {
-            transaction.getTransactionLog().setTaxerReceived(topicTax);
-            session.update(topicOwnerBalance);
-            LOGGER.debug(String.format("The owner %s got %d", topicOwnerBalance.getName(), topicTax));
-            return topicTax;
-        }
+        int topicTax = (int) Math.max(transaction.getAmount() * topicTaxRate, 1);
 
-        return null;
+        topicTax = Math.min(transaction.getAmount() - siteTax, topicTax);
+        topicOwnerBalance.addPoints(topicTax);
+        transaction.getTransactionLog().setTaxerReceived(topicTax);
+        session.update(topicOwnerBalance);
+        LOGGER.debug(String.format("The owner %s got %d", topicOwnerBalance.getName(), topicTax));
+        return topicTax;
     }
 
-    private Integer paySite(Session session, BalanceTransaction transaction) {
-        if (!transaction.paySiteTax()) {
+    private int paySite(Session session, BalanceTransaction transaction) throws InvalidValueException {
+        if (!transaction.shouldPaySiteTax()) {
             transaction.getTransactionLog().setSiteReceived(0);
             return 0;
         }
+
         final HasPointsBalance sitesBalance = (HasPointsBalance) session.load(Balance.class, -1, pessimisticWrite);
         final Integer tax = Math.max(1, (int) (transaction.getAmount() * taxRate));
 
-        if (sitesBalance.addPoints(tax)) {
-            transaction.getTransactionLog().setSiteReceived(tax);
-            session.update(sitesBalance);
-            LOGGER.debug(String.format("The site(%s) got %d", sitesBalance.getName(), tax));
-            return tax;
-        }
-        return null;
+        sitesBalance.addPoints(tax);
+        transaction.getTransactionLog().setSiteReceived(tax);
+        session.update(sitesBalance);
+        LOGGER.debug(String.format("The site(%s) got %d", sitesBalance.getName(), tax));
+        return tax;
     }
 
-    private boolean addPointsToTarget(Session session, BalanceTransaction transaction) {
-        if (transaction.getTarget() == null) {
-            return true;
-        }
-        final HasPointsBalance targetBalance = (HasPointsBalance) session
-                .load(transaction.getTarget().getClass(), transaction.getTarget().getBalanceId(), pessimisticWrite);
-        if (targetBalance.addPoints(transaction.getAmount())) {
+    private void addPointsToTarget(Session session, BalanceTransaction transaction) throws InvalidValueException {
+        if (transaction.getTarget() != null) {
+            final HasPointsBalance targetBalance = (HasPointsBalance) session
+                    .load(transaction.getTarget().getClass(), transaction.getTarget().getBalanceId(), pessimisticWrite);
+
+            targetBalance.addPoints(transaction.getAmount());
             transaction.getTransactionLog().setTargetReceived(transaction.getAmount());
             if (transaction.isUniqueToUser()) {
                 targetBalance.incrementTransactionCount();
             }
             session.update(targetBalance);
             LOGGER.debug(String.format("Target got %d", transaction.getAmount()));
-            return true;
-        }
 
-        return false;
+        }
     }
 
-    private boolean removePointsFromSourceUser(Session session, BalanceTransaction transaction) {
+    private void removePointsFromSourceUser(Session session, BalanceTransaction transaction) throws InsufficientFundsException, InvalidValueException {
         final HasPointsBalance fromBalance = (HasPointsBalance) session.load(transaction.getSource().getClass(), transaction.getSource().getBalanceId(), pessimisticWrite);
-        if (fromBalance.removePoints(transaction.getAmount())) {
-            transaction.getTransactionLog().setAmountPayed(transaction.getAmount());
-            session.update(fromBalance);
-            LOGGER.debug(String.format("The donator %s spent %d", fromBalance.getName(), transaction.getAmount()));
-            return true;
-        }
-        return false;
+
+        fromBalance.removePoints(transaction.getAmount());
+        transaction.getTransactionLog().setAmountPayed(transaction.getAmount());
+        session.update(fromBalance);
+        LOGGER.debug(String.format("The donator %s spent %d", fromBalance.getName(), transaction.getAmount()));
     }
 
     @Override
-    public boolean cancel(BalanceTransaction transaction) {
+    public boolean cancel(BalanceTransaction transaction) throws InvalidValueException, InsufficientFundsException {
+        transaction.setTransactionLog(null);
         return balanceTransactionCanceller.cancel(transaction);
     }
 }

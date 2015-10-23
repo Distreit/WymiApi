@@ -73,7 +73,7 @@ public interface BalanceTransaction {
     /**
      * @return whether the transaction should pay a site tax. Would be true in all cases except for TopicBids so far.
      */
-    boolean paySiteTax();
+    boolean shouldPaySiteTax();
 
     TransactionLog getTransactionLog();
 

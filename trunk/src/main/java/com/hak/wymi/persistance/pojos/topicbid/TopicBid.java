@@ -2,6 +2,8 @@ package com.hak.wymi.persistance.pojos.topicbid;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
@@ -95,21 +97,22 @@ public class TopicBid extends PersistentObject implements HasPointsBalance {
     }
 
     @Override
-    public boolean addPoints(Integer amount) {
-        if (amount >= 0) {
-            this.currentBalance += amount;
-            return true;
+    public void addPoints(Integer amount) throws InvalidValueException {
+        if (amount < 0) {
+            throw new InvalidValueException(ADDING_NEGATIVE_POINTS_MESSAGE);
         }
-        return false;
+        this.currentBalance += amount;
     }
 
     @Override
-    public boolean removePoints(Integer amount) {
-        if (amount >= 0 && this.currentBalance >= amount) {
-            this.currentBalance -= amount;
-            return true;
+    public void removePoints(Integer amount) throws InvalidValueException, InsufficientFundsException {
+        if (amount < 0) {
+            throw new InvalidValueException(REMOVING_NEGATIVE_POINTS_MESSAGE);
         }
-        return false;
+        if (this.currentBalance < amount) {
+            throw new InsufficientFundsException(String.format("Cannot remove %d points from %s with %d balance.", amount, this.getName(), this.currentBalance));
+        }
+        this.currentBalance -= amount;
     }
 
     @Override

@@ -7,6 +7,8 @@ import com.hak.wymi.persistance.managers.OwnershipTransactionManager;
 import com.hak.wymi.persistance.managers.TopicBidManager;
 import com.hak.wymi.persistance.managers.TopicManager;
 import com.hak.wymi.persistance.managers.UserManager;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransaction;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topicbid.SecureTopicBid;
@@ -69,15 +71,16 @@ public class TopicBidController {
 
     @RequestMapping(value = "/{topicBidId}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
-    public ResponseEntity<UniversalResponse> cancelTopicBid(@PathVariable Integer topicBidId, Principal principal) {
+    public ResponseEntity<UniversalResponse> cancelTopicBid(@PathVariable Integer topicBidId, Principal principal)
+            throws InvalidValueException, InsufficientFundsException {
+
         final UniversalResponse universalResponse = new UniversalResponse();
         final TopicBidCreation topicBidCreation = topicBidManager.getTransaction(topicBidId);
         if (topicBidCreation != null) {
             final SecureTopicBid secureTopicBid = new SecureTopicBid(topicBidCreation.getTopicBid());
             final User user = userManager.get(principal);
-            if (transactionProcessor.cancel(user, topicBidCreation)) {
-                return new ResponseEntity<>(universalResponse.setData(secureTopicBid), HttpStatus.ACCEPTED);
-            }
+            transactionProcessor.cancel(user, topicBidCreation);
+            return new ResponseEntity<>(universalResponse.setData(secureTopicBid), HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -89,31 +92,25 @@ public class TopicBidController {
             Principal principal,
             @RequestBody Integer amount,
             @PathVariable String topicName
-    ) {
+    ) throws InsufficientFundsException, InvalidValueException {
         final UniversalResponse universalResponse = new UniversalResponse();
         if (amount != null && amount > 0) {
             final User user = userManager.get(principal);
             final Topic topic = topicManager.get(topicName);
 
             final TopicBidCreation topicBidCreation = createTopicBid(topic, user, amount);
-
-            if (topicBidCreation != null) {
-                final SecureToSend secureTopicBid = new SecureTopicBid(topicBidCreation.getTopicBid());
-                return new ResponseEntity<>(universalResponse.setData(secureTopicBid), HttpStatus.ACCEPTED);
-            }
+            return new ResponseEntity<>(universalResponse.setData(new SecureTopicBid(topicBidCreation.getTopicBid())), HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private TopicBidCreation createTopicBid(Topic topic, User user, int amount) {
+    private TopicBidCreation createTopicBid(Topic topic, User user, int amount) throws InsufficientFundsException, InvalidValueException {
         final TopicBid topicBid = new TopicBid(user, topic);
         final TopicBidCreation topicBidCreation = new TopicBidCreation(topicBid, amount);
 
-        if (topicBidManager.save(topicBidCreation) && transactionProcessor.process(topicBidCreation)) {
-            return topicBidCreation;
-        }
-        return null;
+        topicBidManager.save(topicBidCreation);
+        return topicBidCreation;
     }
 
     @RequestMapping(value = "/claim-amount", method = RequestMethod.GET, produces = Constants.JSON)
@@ -144,7 +141,7 @@ public class TopicBidController {
             Principal principal,
             @RequestBody Integer amount,
             @PathVariable String topicName
-    ) {
+    ) throws InsufficientFundsException, InvalidValueException {
         final UniversalResponse universalResponse = new UniversalResponse();
 
         final User user = userManager.get(principal);
@@ -160,15 +157,13 @@ public class TopicBidController {
                 // TODO: Need to find a way to remove the save here incase the process fails.
                 final TopicBidCreation topicBidCreation = createTopicBid(topic, user, amount);
 
-                if (topicBidCreation != null) {
-                    final List<TopicBid> failedBids = new LinkedList<>();
-                    failedBids.add(ownershipTransaction.getWinningBid());
-                    ownershipTransaction.setWinningBid(topicBidCreation.getTopicBid());
-                    ownershipTransactionManager.saveOrUpdate(ownershipTransaction, failedBids);
-                    rentManager.processRentPeriodExpired(ownershipTransaction);
+                final List<TopicBid> failedBids = new LinkedList<>();
+                failedBids.add(ownershipTransaction.getWinningBid());
+                ownershipTransaction.setWinningBid(topicBidCreation.getTopicBid());
+                ownershipTransactionManager.saveOrUpdate(ownershipTransaction, failedBids);
+                rentManager.processRentPeriodExpired(ownershipTransaction);
 
-                    return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
-                }
+                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
             }
         }
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);

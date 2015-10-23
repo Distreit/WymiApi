@@ -132,7 +132,7 @@ public class PostDonation extends AbstractBalanceTransaction implements Donation
     }
 
     @Override
-    public boolean paySiteTax() {
+    public boolean shouldPaySiteTax() {
         return true;
     }
 

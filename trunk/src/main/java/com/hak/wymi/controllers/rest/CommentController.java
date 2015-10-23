@@ -8,13 +8,14 @@ import com.hak.wymi.persistance.managers.CommentManager;
 import com.hak.wymi.persistance.managers.PostManger;
 import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.comment.Comment;
 import com.hak.wymi.persistance.pojos.comment.CommentCreation;
 import com.hak.wymi.persistance.pojos.comment.SecureComment;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.utility.TransactionProcessor;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,9 +45,6 @@ public class CommentController {
     private CommentCreationManager commentCreationManager;
 
     @Autowired
-    private TransactionProcessor transactionProcessor;
-
-    @Autowired
     private UserManager userManager;
 
     @Autowired
@@ -58,14 +56,10 @@ public class CommentController {
             Principal principal,
             @Validated({Creation.class}) @RequestBody CommentAndTransaction commentAndTransaction,
             @PathVariable Integer postId
-    ) {
+    ) throws InsufficientFundsException, InvalidValueException {
         final UniversalResponse universalResponse = new UniversalResponse();
-
-        if (saveNewComment(commentAndTransaction, principal, postId, null)) {
-            return new ResponseEntity<>(universalResponse.setData(new SecureComment(commentAndTransaction.getComment())), HttpStatus.ACCEPTED);
-        }
-
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        saveNewComment(commentAndTransaction, principal, postId, null);
+        return new ResponseEntity<>(universalResponse.setData(new SecureComment(commentAndTransaction.getComment())), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/{parentCommentId}", method = RequestMethod.POST, produces = Constants.JSON)
@@ -75,18 +69,19 @@ public class CommentController {
             @Validated({Creation.class}) @RequestBody CommentAndTransaction commentAndTransaction,
             @PathVariable Integer postId,
             @PathVariable Integer parentCommentId
-    ) {
+    ) throws InsufficientFundsException, InvalidValueException {
         final UniversalResponse universalResponse = new UniversalResponse();
 
         final Comment parentComment = commentManager.get(parentCommentId);
-        if (parentComment != null && saveNewComment(commentAndTransaction, principal, postId, parentComment)) {
+        if (parentComment != null) {
+            saveNewComment(commentAndTransaction, principal, postId, parentComment);
             return new ResponseEntity<>(universalResponse.setData(new SecureComment(commentAndTransaction.getComment())), HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public boolean saveNewComment(CommentAndTransaction commentAndTransaction, Principal principal, Integer postId, Comment parentComment) {
+    public void saveNewComment(CommentAndTransaction commentAndTransaction, Principal principal, Integer postId, Comment parentComment) throws InsufficientFundsException, InvalidValueException {
         final User user = userManager.get(principal);
         final Post post = postManger.get(postId);
         final Topic topic = post.getTopic();
@@ -108,11 +103,8 @@ public class CommentController {
             comment.setDeleted(Boolean.FALSE);
             comment.setPoints(0);
             comment.setDonations(0);
-            if (commentCreationManager.save(transaction)) {
-                return transactionProcessor.process(transaction);
-            }
+            commentCreationManager.save(transaction);
         }
-        return false;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)

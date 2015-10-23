@@ -1,12 +1,12 @@
 package com.hak.wymi.utility;
 
 import com.hak.wymi.persistance.managers.BalanceTransactionManager;
-import com.hak.wymi.persistance.managers.CommentCreationManager;
 import com.hak.wymi.persistance.managers.CommentDonationManager;
-import com.hak.wymi.persistance.managers.PostCreationManager;
 import com.hak.wymi.persistance.managers.PostDonationManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.User;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -46,11 +46,6 @@ public class TransactionProcessor {
     @Autowired
     private BalanceTransactionManager balanceTransactionManager;
 
-    @Autowired
-    private CommentCreationManager commentCreationManager;
-
-    @Autowired
-    private PostCreationManager postCreationManager;
     private boolean processQueue;
 
     @Scheduled(fixedRate = 5000)
@@ -80,7 +75,7 @@ public class TransactionProcessor {
         while (processQueue) {
             try {
                 process(queue.take());
-            } catch (InterruptedException e) {
+            } catch (InsufficientFundsException | InvalidValueException | InterruptedException e) {
                 LOGGER.error(e.getMessage());
             }
         }
@@ -89,23 +84,19 @@ public class TransactionProcessor {
     private void addUnprocessedTransactions() {
         postDonationManager.getUnprocessed().forEach(this::add);
         commentDonationManager.getUnprocessed().forEach(this::add);
-
-        commentCreationManager.getUnprocessed().forEach(this::addToProcessQueue);
-        postCreationManager.getUnprocessed().forEach(this::addToProcessQueue);
     }
 
-    public boolean process(BalanceTransaction transaction) {
+    public void process(BalanceTransaction transaction) throws InsufficientFundsException, InvalidValueException {
         final Integer balanceId = transaction.getSource().getBalanceId();
         if (userTransactions.containsKey(balanceId)) {
             userTransactions.get(balanceId).remove(transaction);
         }
         if (transaction.getState() == TransactionState.UNPROCESSED) {
-            return balanceTransactionManager.process(transaction);
+            balanceTransactionManager.process(transaction);
         } else if (LOGGER.isErrorEnabled()) {
             LOGGER.error("Transaction without UNPROCESSED state trying to be processed. {}",
                     JSONConverter.getJSON(transaction, Boolean.TRUE));
         }
-        return false;
     }
 
     public void add(BalanceTransaction transaction) {
@@ -126,26 +117,22 @@ public class TransactionProcessor {
         return userTransactions.get(userId);
     }
 
-    @Transactional
-    public boolean cancel(User user, int transactionId) {
-        final boolean[] result = {false};
-        userTransactions.get(user.getUserId())
+    @Transactional(rollbackFor = {InsufficientFundsException.class, InvalidValueException.class})
+    public void cancel(User user, int transactionId) throws InvalidValueException, InsufficientFundsException {
+        BalanceTransaction transaction = userTransactions.get(user.getUserId())
                 .stream()
-                .filter(transaction ->
-                        transaction.getTransactionId().equals(transactionId)
-                                && transaction.getState() == TransactionState.UNPROCESSED)
+                .filter(t ->
+                        t.getTransactionId().equals(transactionId) && t.getState() == TransactionState.UNPROCESSED)
                 .findFirst()
-                .ifPresent(transaction -> {
-                    if (preprocessQueue.remove(transaction)) {
-                        userTransactions.get(user.getUserId()).remove(transaction);
-                        balanceTransactionManager.cancel(transaction);
-                        result[0] = true;
-                    }
-                });
-        return result[0];
+                .get();
+
+        if (transaction != null && preprocessQueue.remove(transaction)) {
+            userTransactions.get(user.getUserId()).remove(transaction);
+            balanceTransactionManager.cancel(transaction);
+        }
     }
 
-    public boolean cancel(User user, BalanceTransaction transaction) {
+    public boolean cancel(User user, BalanceTransaction transaction) throws InvalidValueException, InsufficientFundsException {
         return transaction.getSource().getBalanceId().equals(user.getBalance().getBalanceId()) && balanceTransactionManager.cancel(transaction);
     }
 }

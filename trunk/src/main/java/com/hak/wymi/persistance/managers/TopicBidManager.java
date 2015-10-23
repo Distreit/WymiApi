@@ -1,9 +1,12 @@
 package com.hak.wymi.persistance.managers;
 
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidCreation;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDao;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidState;
+import com.hak.wymi.utility.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,9 @@ public class TopicBidManager {
     @Autowired
     private TopicBidDao topicBidDao;
 
+    @Autowired
+    private TransactionProcessor transactionProcessor;
+
     @Transactional
     public List<TopicBid> get(String topicName, TopicBidState waiting) {
         return topicBidDao.get(topicName, waiting);
@@ -25,9 +31,10 @@ public class TopicBidManager {
         return topicBidDao.getTransaction(topicBidId);
     }
 
-    @Transactional
-    public boolean save(TopicBidCreation topicBidCreation) {
-        return topicBidDao.save(topicBidCreation);
+    @Transactional(rollbackFor = {InsufficientFundsException.class, InvalidValueException.class})
+    public void save(TopicBidCreation topicBidCreation) throws InsufficientFundsException, InvalidValueException {
+        topicBidDao.save(topicBidCreation);
+        transactionProcessor.process(topicBidCreation);
     }
 
     @Transactional
