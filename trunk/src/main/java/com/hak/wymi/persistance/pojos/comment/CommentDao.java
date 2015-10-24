@@ -11,5 +11,5 @@ public interface CommentDao {
 
     Comment get(Integer commentId);
 
-    boolean delete(Integer commentId, Principal principal);
+    void delete(Integer commentId, Principal principal);
 }

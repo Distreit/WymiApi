@@ -45,7 +45,7 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean delete(Integer commentId, Principal principal) {
+    public void delete(Integer commentId, Principal principal) {
         final Session session = sessionFactory.getCurrentSession();
         final Comment comment = (Comment) session
                 .createQuery("from Comment where commentId=:commentId and author.name=:authorName")
@@ -55,6 +55,5 @@ public class CommentDaoImpl implements CommentDao {
         comment.setDeleted(Boolean.TRUE);
         comment.setContent("");
         session.update(comment);
-        return true;
     }
 }
