@@ -1,8 +1,6 @@
 package com.hak.wymi.utility;
 
 import com.hak.wymi.persistance.managers.BalanceTransactionManager;
-import com.hak.wymi.persistance.managers.CommentDonationManager;
-import com.hak.wymi.persistance.managers.PostDonationManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionCanceller;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
@@ -38,12 +36,6 @@ public class TransactionProcessor {
     private final ConcurrentMap<Integer, Set<BalanceTransaction>> userTransactions = new ConcurrentHashMap<>();
 
     @Autowired
-    private CommentDonationManager commentDonationManager;
-
-    @Autowired
-    private PostDonationManager postDonationManager;
-
-    @Autowired
     private BalanceTransactionManager balanceTransactionManager;
 
     @Autowired
@@ -69,7 +61,7 @@ public class TransactionProcessor {
 
     @Async
     public void start() {
-        addUnprocessedTransactions();
+        balanceTransactionManager.getUnprocessedTransactions().forEach(this::add);
         processQueue = true;
         this.run();
     }
@@ -81,7 +73,7 @@ public class TransactionProcessor {
                 transaction = queue.take();
                 processTransactionFromQueue(transaction);
             } catch (InterruptedException e) {
-                LOGGER.error(e.getMessage());
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -90,6 +82,7 @@ public class TransactionProcessor {
         try {
             process(transaction);
         } catch (InvalidValueException e) {
+            LOGGER.info(e.getMessage(), e);
             cancel(transaction);
         }
     }
@@ -98,13 +91,8 @@ public class TransactionProcessor {
         try {
             balanceTransactionCanceller.cancel(transaction);
         } catch (InvalidValueException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
         }
-    }
-
-    private void addUnprocessedTransactions() {
-        postDonationManager.getUnprocessed().forEach(this::add);
-        commentDonationManager.getUnprocessed().forEach(this::add);
     }
 
     public void process(BalanceTransaction transaction) throws InvalidValueException {
