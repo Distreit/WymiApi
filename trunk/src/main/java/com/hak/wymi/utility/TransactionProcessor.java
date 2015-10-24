@@ -4,6 +4,7 @@ import com.hak.wymi.persistance.managers.BalanceTransactionManager;
 import com.hak.wymi.persistance.managers.CommentDonationManager;
 import com.hak.wymi.persistance.managers.PostDonationManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionCanceller;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.User;
@@ -45,6 +46,9 @@ public class TransactionProcessor {
     @Autowired
     private BalanceTransactionManager balanceTransactionManager;
 
+    @Autowired
+    private BalanceTransactionCanceller balanceTransactionCanceller;
+
     private boolean processQueue;
 
     @Scheduled(fixedRate = 5000)
@@ -72,11 +76,29 @@ public class TransactionProcessor {
 
     public void run() {
         while (processQueue) {
+            BalanceTransaction transaction;
             try {
-                process(queue.take());
-            } catch (InvalidValueException | InterruptedException e) {
+                transaction = queue.take();
+                processTransactionFromQueue(transaction);
+            } catch (InterruptedException e) {
                 LOGGER.error(e.getMessage());
             }
+        }
+    }
+
+    private void processTransactionFromQueue(BalanceTransaction transaction) {
+        try {
+            process(transaction);
+        } catch (InvalidValueException e) {
+            cancel(transaction);
+        }
+    }
+
+    private void cancel(BalanceTransaction transaction) {
+        try {
+            balanceTransactionCanceller.cancel(transaction);
+        } catch (InvalidValueException e) {
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -92,7 +114,7 @@ public class TransactionProcessor {
         }
         if (transaction.getState() == TransactionState.UNPROCESSED) {
             balanceTransactionManager.process(transaction);
-        } else if (LOGGER.isErrorEnabled()) {
+        } else {
             LOGGER.error("Transaction without UNPROCESSED state trying to be processed. {}",
                     JSONConverter.getJSON(transaction, Boolean.TRUE));
         }

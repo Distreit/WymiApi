@@ -10,7 +10,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
@@ -20,8 +19,9 @@ public class BalanceTransactionCanceller {
     @Autowired
     private SessionFactory sessionFactory;
 
-    public static boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
+    private static boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
         transaction.setState(TransactionState.CANCELED);
+        transaction.setTransactionLog(null);
 
         if (transaction.getDependent() == null) {
             session.update(transaction);
@@ -38,7 +38,7 @@ public class BalanceTransactionCanceller {
         return true;
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public boolean cancel(BalanceTransaction transaction) throws InvalidValueException {
         final Session session = sessionFactory.getCurrentSession();
         if (transaction.getState() == TransactionState.UNPROCESSED) {

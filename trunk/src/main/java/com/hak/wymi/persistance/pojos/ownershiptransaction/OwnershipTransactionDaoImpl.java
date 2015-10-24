@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.ownershiptransaction;
 
-import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionCanceller;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.message.MessageDao;
 import com.hak.wymi.persistance.pojos.topic.Topic;
@@ -43,6 +43,9 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
 
     @Autowired
     private MessageDao messageDao;
+
+    @Autowired
+    private BalanceTransactionCanceller balanceTransactionCanceller;
 
     @Value("${site.taxRate}")
     private Double taxRate;
@@ -176,7 +179,7 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
         if (failedBids != null) {
             final TopicBid winningBid = ownershipTransaction.getWinningBid();
             if (winningBid != null) {
-                cancelFailedBids(session, failedBids, winningBid);
+                cancelFailedBids(failedBids, winningBid);
                 winningBid.setState(TopicBidState.ACCEPTED);
                 session.update(winningBid);
             }
@@ -189,11 +192,16 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
         return true;
     }
 
-    private void cancelFailedBids(Session session, List<TopicBid> failedBids, TopicBid winningBid) {
+    private void cancelFailedBids(List<TopicBid> failedBids, TopicBid winningBid) {
         failedBids.stream()
                 .filter(b -> !b.equals(winningBid))
-                .forEach(t -> BalanceTransactionCanceller
-                        .cancelUnprocessed(session, (BalanceTransaction) t.getTopicBidCreation()));
+                .forEach(t -> {
+                    try {
+                        balanceTransactionCanceller.cancel(t.getTopicBidCreation());
+                    } catch (InvalidValueException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     @Override
