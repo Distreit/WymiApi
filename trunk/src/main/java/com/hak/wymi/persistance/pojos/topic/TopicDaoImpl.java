@@ -73,17 +73,14 @@ public class TopicDaoImpl implements TopicDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Topic get(String name) {
-        if (name != null && !"".equals(name)) {
-            final Session session = sessionFactory.getCurrentSession();
-            final Topic topic = (Topic) session.createQuery("from Topic where lower(name)=:name")
-                    .setParameter("name", name.toLowerCase(Locale.ENGLISH))
-                    .uniqueResult();
-            if (topic != null) {
-                topic.getSubscribers().size();
-                topic.getFilters().size();
-            }
-            return topic;
+        final Session session = sessionFactory.getCurrentSession();
+        final Topic topic = (Topic) session.createQuery("from Topic where lower(name)=:name")
+                .setParameter("name", name.toLowerCase(Locale.ENGLISH))
+                .uniqueResult();
+        if (topic != null) {
+            topic.getSubscribers().size();
+            topic.getFilters().size();
         }
-        return null;
+        return topic;
     }
 }

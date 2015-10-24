@@ -47,9 +47,9 @@ public class Post extends PersistentObject implements HasPointsBalance {
     @NotNull
     private String title;
 
-    private Boolean trashed;
+    private Boolean trashed = false;
 
-    private Boolean deleted;
+    private Boolean deleted = false;
 
     @Formula("(select count(t.postId) from comment t where t.postId=postId)")
     private Integer commentCounts;
@@ -60,13 +60,13 @@ public class Post extends PersistentObject implements HasPointsBalance {
 
     private Boolean isText;
 
-    private Integer points;
+    private Integer points = 0;
 
-    private Double score;
+    private Double score = 0.0;
 
     private Double base;
 
-    private Integer donations;
+    private Integer donations = 0;
 
     public Integer getPostId() {
         return postId;

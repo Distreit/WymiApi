@@ -1,7 +1,17 @@
 package com.hak.wymi.persistance.managers;
 
+import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.post.Post;
+import com.hak.wymi.persistance.pojos.post.PostCreation;
+import com.hak.wymi.persistance.pojos.post.PostCreationDao;
 import com.hak.wymi.persistance.pojos.post.PostDao;
+import com.hak.wymi.persistance.pojos.topic.Topic;
+import com.hak.wymi.persistance.pojos.topic.TopicDao;
+import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.utility.TransactionProcessor;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +32,18 @@ public class PostManger {
 
     @Autowired
     private PostDao postDao;
+
+    @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private TopicDao topicDao;
+
+    @Autowired
+    private PostCreationDao postCreationDao;
+
+    @Autowired
+    private TransactionProcessor transactionProcessor;
 
     @Transactional
     public List<Post> get(String topicName, Integer firstResult, int min) {
@@ -49,6 +71,31 @@ public class PostManger {
             postDao.update(post);
         } else {
             throw new UnsupportedOperationException("User is not authorized to update trashed status of post.");
+        }
+    }
+
+    @Transactional(rollbackFor = {InsufficientFundsException.class, InvalidValueException.class})
+    public void create(Post post, String topicName, String userName, Integer feeFlat, Integer feePercent)
+            throws InsufficientFundsException, InvalidValueException {
+        final User user = userDao.getFromName(userName);
+        final Topic topic = topicDao.get(topicName);
+
+        if (feePercent.equals(topic.getFeePercent()) && feeFlat.equals(topic.getFeeFlat())) {
+            final PostCreation transaction = new PostCreation();
+            transaction.setState(TransactionState.UNPROCESSED);
+            transaction.setFeeFlat(topic.getFeeFlat());
+            transaction.setFeePercent(topic.getFeePercent());
+            transaction.setPost(post);
+
+            post.setTopic(topic);
+            post.setUser(user);
+            post.setBase(getBaseTime());
+            post.setScore(post.getBase());
+
+            postCreationDao.save(transaction);
+            transactionProcessor.process(transaction);
+        } else {
+            throw new InvalidValueException("Topic fees do not match.");
         }
     }
 

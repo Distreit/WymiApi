@@ -43,18 +43,13 @@ public class UserDaoImpl implements UserDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public User getFromName(String name) {
-        if (name != null && !"".equals(name)) {
-            final Session session = sessionFactory.getCurrentSession();
-            final User user = (User) session.createQuery("from User where lower(name)=:name")
-                    .setParameter("name", name.toLowerCase(Locale.ENGLISH))
-                    .uniqueResult();
-            if (user != null) {
-                user.getSubscriptions().size();
-                user.getFilters().size();
-            }
-            return user;
-        }
-        return null;
+        final Session session = sessionFactory.getCurrentSession();
+        final User user = (User) session.createQuery("from User where lower(name)=:name")
+                .setParameter("name", name.toLowerCase(Locale.ENGLISH))
+                .uniqueResult();
+        user.getSubscriptions().size();
+        user.getFilters().size();
+        return user;
     }
 
     @Override
