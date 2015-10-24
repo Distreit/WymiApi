@@ -3,6 +3,7 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.ResponseError;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,13 @@ public class RestErrorHandler {
     @ResponseBody
     public UniversalResponse processInsufficientFundsException() {
         return new UniversalResponse().addError("Insufficient funds");
+    }
+
+    @ExceptionHandler({InvalidValueException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public UniversalResponse processInsufficientFundsException(Exception exception) {
+        return new UniversalResponse().addError(exception.getMessage());
     }
 
     @ExceptionHandler({AccessDeniedException.class})

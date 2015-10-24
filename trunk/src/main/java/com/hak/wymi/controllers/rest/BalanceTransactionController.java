@@ -34,17 +34,9 @@ public class BalanceTransactionController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> cancelCommentTransaction(Principal principal, @PathVariable int transactionId)
             throws InvalidValueException, InsufficientFundsException {
-
-        final UniversalResponse universalResponse = new UniversalResponse();
-
         final User user = userManager.get(principal);
-
-        if (user != null) {
-            transactionProcessor.cancel(user, transactionId);
-            universalResponse.addTransactions(principal, user, transactionProcessor, balanceManager);
-            return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
-        }
-
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        transactionProcessor.cancel(user, transactionId);
+        return new ResponseEntity<>(new UniversalResponse()
+                .addTransactions(principal, user, transactionProcessor, balanceManager), HttpStatus.ACCEPTED);
     }
 }
