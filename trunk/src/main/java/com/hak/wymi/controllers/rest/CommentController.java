@@ -4,7 +4,6 @@ import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.managers.CommentManager;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.comment.Comment;
 import com.hak.wymi.persistance.pojos.comment.SecureComment;
@@ -41,7 +40,7 @@ public class CommentController {
             @RequestParam(required = true) Integer feePercent,
             @RequestParam(required = false) Integer parentCommentId,
             Principal principal
-    ) throws InsufficientFundsException, InvalidValueException {
+    ) throws InvalidValueException {
         commentManager.create(comment, principal.getName(), postId, feeFlat, feePercent, parentCommentId);
         return new ResponseEntity<>(new UniversalResponse().setData(new SecureComment(comment)), HttpStatus.ACCEPTED);
     }

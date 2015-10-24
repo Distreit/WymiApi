@@ -3,9 +3,9 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.managers.CommentDonationManager;
+import com.hak.wymi.persistance.pojos.balancetransaction.SecureBalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.comment.CommentDonation;
-import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
 import com.hak.wymi.validations.groups.Creation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +34,6 @@ public class CommentTransactionController {
             @PathVariable Integer commentId
     ) throws InvalidValueException {
         commentDonationManager.save(commentDonation, principal.getName(), commentId);
-        return new ResponseEntity<>(new UniversalResponse().setData(new SecureCommentDonation(commentDonation)), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(new UniversalResponse().setData(new SecureBalanceTransaction(commentDonation)), HttpStatus.ACCEPTED);
     }
 }

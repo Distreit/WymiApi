@@ -4,7 +4,6 @@ import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.managers.BalanceManager;
 import com.hak.wymi.persistance.managers.UserManager;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.utility.TransactionProcessor;
@@ -33,7 +32,7 @@ public class BalanceTransactionController {
     @RequestMapping(value = "/donation/{transactionId}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> cancelCommentTransaction(Principal principal, @PathVariable int transactionId)
-            throws InvalidValueException, InsufficientFundsException {
+            throws InvalidValueException {
         final User user = userManager.get(principal);
         transactionProcessor.cancel(user, transactionId);
         return new ResponseEntity<>(new UniversalResponse()

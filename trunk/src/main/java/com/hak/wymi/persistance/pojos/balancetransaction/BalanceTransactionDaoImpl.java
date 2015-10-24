@@ -1,7 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.Balance;
 import org.hibernate.LockMode;
@@ -36,7 +35,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public void process(BalanceTransaction transaction) throws InsufficientFundsException, InvalidValueException {
+    public void process(BalanceTransaction transaction) throws InvalidValueException {
 
         final Session session = sessionFactory.getCurrentSession();
         final TransactionLog transactionLog = new TransactionLog(transaction);
@@ -55,7 +54,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         }
     }
 
-    private void processNonZeroTransaction(BalanceTransaction transaction, Session session) throws InsufficientFundsException, InvalidValueException {
+    private void processNonZeroTransaction(BalanceTransaction transaction, Session session) throws InvalidValueException {
         session.buildLockRequest(pessimisticWrite).lock(transaction);
 
         removePointsFromSourceUser(session, transaction);
@@ -157,7 +156,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         }
     }
 
-    private void removePointsFromSourceUser(Session session, BalanceTransaction transaction) throws InsufficientFundsException, InvalidValueException {
+    private void removePointsFromSourceUser(Session session, BalanceTransaction transaction) throws InvalidValueException {
         final HasPointsBalance fromBalance = (HasPointsBalance) session.load(transaction.getSource().getClass(), transaction.getSource().getBalanceId(), pessimisticWrite);
 
         fromBalance.removePoints(transaction.getAmount());
@@ -167,7 +166,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     }
 
     @Override
-    public boolean cancel(BalanceTransaction transaction) throws InvalidValueException, InsufficientFundsException {
+    public boolean cancel(BalanceTransaction transaction) throws InvalidValueException {
         transaction.setTransactionLog(null);
         return balanceTransactionCanceller.cancel(transaction);
     }

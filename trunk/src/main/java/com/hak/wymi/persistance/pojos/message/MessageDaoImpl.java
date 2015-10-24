@@ -27,15 +27,16 @@ public class MessageDaoImpl implements MessageDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean update(Message message) {
+    public void update(Message message) {
         sessionFactory.getCurrentSession().update(message);
-        return true;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public List<Message> getAllReceived(Principal principal) {
-        return sessionFactory.getCurrentSession().createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
+        return sessionFactory
+                .getCurrentSession()
+                .createQuery("from Message where destinationUser.name=:destinationUserName and destinationDeleted=false")
                 .setParameter("destinationUserName", principal.getName())
                 .list();
     }

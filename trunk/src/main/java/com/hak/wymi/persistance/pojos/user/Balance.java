@@ -42,7 +42,7 @@ public class Balance extends PersistentObject implements HasPointsBalance {
     }
 
     @Override
-    public void removePoints(Integer amount) throws InvalidValueException, InsufficientFundsException {
+    public void removePoints(Integer amount) throws InvalidValueException {
         if (amount < 0) {
             throw new InvalidValueException(REMOVING_NEGATIVE_POINTS_MESSAGE);
         }

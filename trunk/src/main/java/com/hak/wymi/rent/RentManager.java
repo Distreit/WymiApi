@@ -7,7 +7,6 @@ import com.hak.wymi.persistance.managers.TopicBidManager;
 import com.hak.wymi.persistance.managers.TopicManager;
 import com.hak.wymi.persistance.managers.UserTopicRankManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransaction;
 import com.hak.wymi.persistance.pojos.topic.Topic;
@@ -117,7 +116,7 @@ public class RentManager {
     private void process(TopicBidDispersion topicBidDispersion) {
         try {
             transactionProcessor.process(topicBidDispersion);
-        } catch (InvalidValueException | InsufficientFundsException e) {
+        } catch (InvalidValueException e) {
             LOGGER.error("Error dispersing topic bid. This shouldn't happen!!", e);
         }
     }

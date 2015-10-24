@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.managers;
 
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.post.PostCreation;
 import com.hak.wymi.persistance.pojos.post.PostCreationDao;
@@ -19,8 +18,8 @@ public class PostCreationManager {
     @Autowired
     private TransactionProcessor transactionProcessor;
 
-    @Transactional(rollbackFor = {InsufficientFundsException.class, InvalidValueException.class})
-    public void save(PostCreation transaction) throws InsufficientFundsException, InvalidValueException {
+    @Transactional(rollbackFor = {InvalidValueException.class})
+    public void save(PostCreation transaction) throws InvalidValueException {
         postCreationDao.save(transaction);
         transactionProcessor.process(transaction);
     }

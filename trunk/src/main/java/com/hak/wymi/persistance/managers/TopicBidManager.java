@@ -1,11 +1,14 @@
 package com.hak.wymi.persistance.managers;
 
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
+import com.hak.wymi.persistance.pojos.topic.Topic;
+import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidCreation;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDao;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidState;
+import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,12 @@ public class TopicBidManager {
     private TopicBidDao topicBidDao;
 
     @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private TopicDao topicDao;
+
+    @Autowired
     private TransactionProcessor transactionProcessor;
 
     @Transactional
@@ -26,13 +35,8 @@ public class TopicBidManager {
         return topicBidDao.get(topicName, waiting);
     }
 
-    @Transactional
-    public TopicBidCreation getTransaction(Integer topicBidId) {
-        return topicBidDao.getTransaction(topicBidId);
-    }
-
-    @Transactional(rollbackFor = {InsufficientFundsException.class, InvalidValueException.class})
-    public void save(TopicBidCreation topicBidCreation) throws InsufficientFundsException, InvalidValueException {
+    @Transactional(rollbackFor = {InvalidValueException.class})
+    public void save(TopicBidCreation topicBidCreation) throws InvalidValueException {
         topicBidDao.save(topicBidCreation);
         transactionProcessor.process(topicBidCreation);
     }
@@ -40,5 +44,24 @@ public class TopicBidManager {
     @Transactional
     public List<TopicBid> getForRentTransaction(String name) {
         return topicBidDao.getForRentTransaction(name);
+    }
+
+    @Transactional(rollbackFor = {InvalidValueException.class})
+    public void cancel(Integer topicBidId, String userName) throws InvalidValueException {
+        final TopicBidCreation topicBidCreation = topicBidDao.getTransaction(topicBidId);
+        final User user = userDao.getFromName(userName);
+        transactionProcessor.cancel(user, topicBidCreation);
+    }
+
+    @Transactional(rollbackFor = {InvalidValueException.class})
+    public TopicBidCreation create(String topicName, String username, int amount) throws InvalidValueException {
+        final User user = userDao.getFromName(username);
+        final Topic topic = topicDao.get(topicName);
+        final TopicBid topicBid = new TopicBid(user, topic);
+        final TopicBidCreation topicBidCreation = new TopicBidCreation(topicBid, amount);
+
+        topicBidDao.save(topicBidCreation);
+        transactionProcessor.process(topicBidCreation);
+        return topicBidCreation;
     }
 }

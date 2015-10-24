@@ -1,7 +1,6 @@
 package com.hak.wymi.persistance.managers;
 
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.comment.Comment;
 import com.hak.wymi.persistance.pojos.comment.CommentCreation;
@@ -52,9 +51,9 @@ public class CommentManager {
         commentDao.delete(commentId, principal);
     }
 
-    @Transactional(rollbackFor = {InsufficientFundsException.class, InvalidValueException.class})
+    @Transactional(rollbackFor = {InvalidValueException.class})
     public void create(Comment comment, String userName, Integer postId, Integer feeFlat, Integer feePercent, Integer parentCommentId)
-            throws InsufficientFundsException, InvalidValueException {
+            throws InvalidValueException {
         final Post post = postDao.get(postId);
         final Topic topic = post.getTopic();
 

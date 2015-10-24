@@ -1,7 +1,6 @@
 package com.hak.wymi.persistance.managers;
 
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.PostCreation;
@@ -74,9 +73,9 @@ public class PostManger {
         }
     }
 
-    @Transactional(rollbackFor = {InsufficientFundsException.class, InvalidValueException.class})
+    @Transactional(rollbackFor = {InvalidValueException.class})
     public void create(Post post, String topicName, String userName, Integer feeFlat, Integer feePercent)
-            throws InsufficientFundsException, InvalidValueException {
+            throws InvalidValueException {
         final User user = userDao.getFromName(userName);
         final Topic topic = topicDao.get(topicName);
 

@@ -26,8 +26,8 @@ public class MessageManager {
     }
 
     @Transactional
-    public boolean update(Message message) {
-        return messageDao.update(message);
+    public void update(Message message) {
+        messageDao.update(message);
     }
 
     @Transactional

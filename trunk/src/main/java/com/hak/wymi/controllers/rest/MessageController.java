@@ -45,14 +45,10 @@ public class MessageController {
             @RequestBody Boolean alreadyRead,
             @PathVariable Integer messageId
     ) {
-        final UniversalResponse universalResponse = new UniversalResponse();
         final Message message = messageManager.getReceived(principal, messageId);
-
         message.setAlreadyRead(alreadyRead);
-        if (messageManager.update(message)) {
-            return new ResponseEntity<>(universalResponse.setData(new SecureMessage(message)), HttpStatus.ACCEPTED);
-        }
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        messageManager.update(message);
+        return new ResponseEntity<>(new UniversalResponse().setData(new SecureMessage(message)), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/{messageType}/{messageId}", method = RequestMethod.DELETE, produces = Constants.JSON)
@@ -62,9 +58,7 @@ public class MessageController {
             @PathVariable String messageType,
             @PathVariable Integer messageId
     ) {
-        final UniversalResponse universalResponse = new UniversalResponse();
-
-        Message message;
+        final Message message;
         if ("sent".equals(messageType)) {
             message = messageManager.getSent(principal, messageId);
             message.setSourceDeleted(Boolean.TRUE);
@@ -73,9 +67,7 @@ public class MessageController {
             message.setDestinationDeleted(Boolean.TRUE);
         }
 
-        if (messageManager.update(message)) {
-            return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
-        }
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        messageManager.update(message);
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 }

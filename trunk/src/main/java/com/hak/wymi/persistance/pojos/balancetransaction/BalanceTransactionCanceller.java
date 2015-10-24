@@ -1,7 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.Balance;
@@ -40,7 +39,7 @@ public class BalanceTransactionCanceller {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean cancel(BalanceTransaction transaction) throws InvalidValueException, InsufficientFundsException {
+    public boolean cancel(BalanceTransaction transaction) throws InvalidValueException {
         final Session session = sessionFactory.getCurrentSession();
         if (transaction.getState() == TransactionState.UNPROCESSED) {
             return cancelUnprocessed(session, transaction);
@@ -50,7 +49,7 @@ public class BalanceTransactionCanceller {
         throw new UnsupportedOperationException("Transaction state not supported.");
     }
 
-    private boolean cancelProcessed(Session session, BalanceTransaction transaction) throws InvalidValueException, InsufficientFundsException {
+    private boolean cancelProcessed(Session session, BalanceTransaction transaction) throws InvalidValueException {
         final TransactionLog transactionLog = (TransactionLog) session
                 .load(TransactionLog.class, transaction.getTransactionLog().getTransactionLogId(), pessimisticWrite);
 
@@ -83,7 +82,7 @@ public class BalanceTransactionCanceller {
     }
 
     private void removePointsFromTaxer(Session session, BalanceTransaction transaction, TransactionLog transactionLog)
-            throws InvalidValueException, InsufficientFundsException {
+            throws InvalidValueException {
 
         if (transaction.getTaxerUserId() != null) {
             final HasPointsBalance topicOwnerBalance = (HasPointsBalance) session
@@ -95,7 +94,7 @@ public class BalanceTransactionCanceller {
     }
 
     private void removePointsFromTarget(Session session, BalanceTransaction transaction, TransactionLog transactionLog)
-            throws InvalidValueException, InsufficientFundsException {
+            throws InvalidValueException {
 
         if (transaction.getTarget() != null) {
             final HasPointsBalance targetBalance = (HasPointsBalance) session

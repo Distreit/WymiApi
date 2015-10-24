@@ -6,7 +6,7 @@ import java.util.List;
 public interface MessageDao {
     boolean save(Message message);
 
-    boolean update(Message message);
+    void update(Message message);
 
     List<Message> getAllReceived(Principal principal);
 

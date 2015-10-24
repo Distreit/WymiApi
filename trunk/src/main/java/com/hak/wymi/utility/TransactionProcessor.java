@@ -5,7 +5,6 @@ import com.hak.wymi.persistance.managers.CommentDonationManager;
 import com.hak.wymi.persistance.managers.PostDonationManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.User;
 import org.joda.time.DateTime;
@@ -75,7 +74,7 @@ public class TransactionProcessor {
         while (processQueue) {
             try {
                 process(queue.take());
-            } catch (InsufficientFundsException | InvalidValueException | InterruptedException e) {
+            } catch (InvalidValueException | InterruptedException e) {
                 LOGGER.error(e.getMessage());
             }
         }
@@ -86,7 +85,7 @@ public class TransactionProcessor {
         commentDonationManager.getUnprocessed().forEach(this::add);
     }
 
-    public void process(BalanceTransaction transaction) throws InsufficientFundsException, InvalidValueException {
+    public void process(BalanceTransaction transaction) throws InvalidValueException {
         final Integer balanceId = transaction.getSource().getBalanceId();
         if (userTransactions.containsKey(balanceId)) {
             userTransactions.get(balanceId).remove(transaction);
@@ -117,8 +116,8 @@ public class TransactionProcessor {
         return userTransactions.get(userId);
     }
 
-    @Transactional(rollbackFor = {InsufficientFundsException.class, InvalidValueException.class})
-    public void cancel(User user, int transactionId) throws InvalidValueException, InsufficientFundsException {
+    @Transactional(rollbackFor = {InvalidValueException.class})
+    public void cancel(User user, int transactionId) throws InvalidValueException {
         BalanceTransaction transaction = userTransactions.get(user.getUserId())
                 .stream()
                 .filter(t ->
@@ -132,7 +131,7 @@ public class TransactionProcessor {
         }
     }
 
-    public boolean cancel(User user, BalanceTransaction transaction) throws InvalidValueException, InsufficientFundsException {
+    public boolean cancel(User user, BalanceTransaction transaction) throws InvalidValueException {
         return transaction.getSource().getBalanceId().equals(user.getBalance().getBalanceId()) && balanceTransactionManager.cancel(transaction);
     }
 }

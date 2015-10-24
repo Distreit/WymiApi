@@ -4,7 +4,6 @@ import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.managers.PostManger;
-import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.SecurePost;
@@ -42,7 +41,7 @@ public class PostController {
             @RequestParam(required = true) Integer feePercent,
             @PathVariable String topicName,
             Principal principal
-    ) throws InsufficientFundsException, InvalidValueException {
+    ) throws InvalidValueException {
         postManger.create(post, topicName, principal.getName(), feeFlat, feePercent);
         return new ResponseEntity<>(new UniversalResponse().setData(new SecurePost(post)), HttpStatus.ACCEPTED);
     }

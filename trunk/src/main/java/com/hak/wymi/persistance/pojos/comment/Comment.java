@@ -147,7 +147,7 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     }
 
     @Override
-    public void removePoints(Integer amount) throws InvalidValueException, InsufficientFundsException {
+    public void removePoints(Integer amount) throws InvalidValueException {
         if (amount < 0) {
             throw new InvalidValueException(REMOVING_NEGATIVE_POINTS_MESSAGE);
         }
@@ -201,6 +201,6 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     }
 
     public String getUrl() {
-        return String.format("%s/comments/%s", this.getPost(), this.commentId);
+        return String.format("%s/comments/%s", this.getPost().getUrl(), this.commentId);
     }
 }
