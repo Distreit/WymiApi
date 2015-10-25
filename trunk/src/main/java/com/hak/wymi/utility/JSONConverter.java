@@ -1,14 +1,13 @@
 package com.hak.wymi.utility;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class JSONConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JSONConverter.class);
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static JodaObjectMapper mapper = new JodaObjectMapper();
 
     private JSONConverter() {
         // Static only.

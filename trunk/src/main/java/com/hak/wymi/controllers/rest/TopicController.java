@@ -56,10 +56,8 @@ public class TopicController {
         topic.setSubscriberCount(0);
         topic.setFilterCount(0);
 
-        if (topicManager.save(topic)) {
-            return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        topicManager.save(topic);
+        return new ResponseEntity<>(universalResponse.setData(new SecureTopic(topic)), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "", method = RequestMethod.PATCH, produces = Constants.JSON)
@@ -102,9 +100,9 @@ public class TopicController {
                                                            @PathVariable String type,
                                                            Principal principal) {
         if (SUBSCRIBERS.equals(type)) {
-            return removeOrAddSubscriber(principal, topicName, false, true);
+            return removeOrAddSubscriber(principal.getName(), topicName, false, true);
         } else if (FILTERS.equals(type)) {
-            return removeOrAddSubscriber(principal, topicName, false, false);
+            return removeOrAddSubscriber(principal.getName(), topicName, false, false);
         }
         return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -115,45 +113,15 @@ public class TopicController {
                                                               @PathVariable String type,
                                                               Principal principal) {
         if (SUBSCRIBERS.equals(type)) {
-            return removeOrAddSubscriber(principal, topicName, true, true);
+            return removeOrAddSubscriber(principal.getName(), topicName, true, true);
         } else if (FILTERS.equals(type)) {
-            return removeOrAddSubscriber(principal, topicName, true, false);
+            return removeOrAddSubscriber(principal.getName(), topicName, true, false);
         }
         return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private ResponseEntity<UniversalResponse> removeOrAddSubscriber(Principal principal, String topicName, boolean remove, boolean isSubscription) {
-        final User user = userManager.get(principal);
-        if (user != null) {
-            final Topic topic = topicManager.get(topicName);
-            if (topic != null) {
-                return removeOrAddSubscriber(user, topic, remove, isSubscription);
-            }
-        }
-        return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private ResponseEntity<UniversalResponse> removeOrAddSubscriber(User user, Topic topic, boolean remove, boolean isSubscription) {
-        final UniversalResponse universalResponse = new UniversalResponse();
-        final boolean needsSave;
-        if (isSubscription) {
-            if (remove) {
-                needsSave = topic.removeSubscriber(user);
-            } else {
-                needsSave = topic.addSubscriber(user);
-            }
-        } else {
-            if (remove) {
-                needsSave = topic.removeFilter(user);
-            } else {
-                needsSave = topic.addFilter(user);
-            }
-        }
-
-        if (needsSave && topicManager.update(topic)) {
-            final SecureToSend secureTopics = new SecureTopic(topic);
-            return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
-        }
-        return new ResponseEntity<>(new UniversalResponse().addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+    private ResponseEntity<UniversalResponse> removeOrAddSubscriber(String userName, String topicName, boolean remove, boolean isSubscription) {
+        topicManager.removeOrAddSubscriber(userName, topicName, remove, isSubscription);
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 }

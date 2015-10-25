@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.topic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.NameDoesNotExist;
@@ -239,5 +240,10 @@ public class Topic extends PersistentObject {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @JsonValue
+    public SecureTopic getSecureTopic() {
+        return new SecureTopic(this);
     }
 }

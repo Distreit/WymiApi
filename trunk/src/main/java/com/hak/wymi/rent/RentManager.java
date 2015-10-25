@@ -1,17 +1,17 @@
 package com.hak.wymi.rent;
 
-import com.hak.wymi.persistance.managers.CommentDonationManager;
-import com.hak.wymi.persistance.managers.PostDonationManager;
-import com.hak.wymi.persistance.managers.UserTopicRankManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
+import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransaction;
 import com.hak.wymi.persistance.pojos.ownershiptransaction.OwnershipTransactionDao;
+import com.hak.wymi.persistance.pojos.post.PostDonationDao;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBid;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDao;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
+import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRankDao;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import com.hak.wymi.utility.TransactionProcessor;
 import org.slf4j.Logger;
@@ -37,13 +37,13 @@ public class RentManager {
     private OwnershipTransactionDao ownershipTransactionDao;
 
     @Autowired
-    private CommentDonationManager commentDonationManager;
+    private CommentDonationDao commentDonationDao;
 
     @Autowired
-    private PostDonationManager postDonationManager;
+    private PostDonationDao postDonationDao;
 
     @Autowired
-    private UserTopicRankManager userTopicRankManager;
+    private UserTopicRankDao userTopicRankDao;
 
     @Autowired
     private TransactionProcessor transactionProcessor;
@@ -84,12 +84,12 @@ public class RentManager {
         final UserTopicRanker userTopicRanker = new UserTopicRanker(topic);
 
         final List<? extends DonationTransaction> donations = Stream.concat(
-                commentDonationManager.get(topic.getName()).stream(),
-                postDonationManager.get(topic.getName()).stream()
+                commentDonationDao.get(topic.getName()).stream(),
+                postDonationDao.get(topic.getName()).stream()
         ).collect(Collectors.toList());
 
         userTopicRanker.runOn(donations, minDelta, maxIterations, dampeningFactor);
-        if (userTopicRankManager.save(userTopicRanker)) {
+        if (userTopicRankDao.save(userTopicRanker)) {
             List<UserTopicRank> winningRanks = userTopicRanker.getUserRanks();
 
             // Sort by highest to lowest rank and return top half.

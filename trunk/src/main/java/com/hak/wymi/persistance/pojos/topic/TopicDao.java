@@ -4,7 +4,7 @@ import java.security.Principal;
 import java.util.List;
 
 public interface TopicDao {
-    boolean save(Topic topic);
+    void save(Topic topic);
 
     Topic get(String name);
 

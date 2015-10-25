@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.comment;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
@@ -202,5 +203,10 @@ public class Comment extends PersistentObject implements HasPointsBalance {
 
     public String getUrl() {
         return String.format("%s/comments/%s", this.getPost().getUrl(), this.commentId);
+    }
+
+    @JsonValue
+    public SecureComment getSecureComment() {
+        return new SecureComment(this);
     }
 }

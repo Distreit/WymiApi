@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.message;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 
@@ -116,5 +117,10 @@ public class Message extends PersistentObject {
 
     public void setSourceDeleted(Boolean sourceDeleted) {
         this.sourceDeleted = sourceDeleted;
+    }
+
+    @JsonValue
+    public SecureMessage getSecureMessage() {
+        return new SecureMessage(this);
     }
 }

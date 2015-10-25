@@ -20,10 +20,13 @@ public class SecureBalanceTransaction implements SecureToSend {
 
     private final DateTime commitTime;
 
+    private final String sourceName;
+
     public SecureBalanceTransaction(BalanceTransaction transaction) {
         this.transactionId = transaction.getTransactionId();
         this.transactionType = transaction.getClass().getSimpleName().replace("Transaction", "");
         this.amount = transaction.getAmount();
+        this.sourceName = transaction.getSource().getName();
         this.recipientName = transaction.getDestination().getName();
         this.url = transaction.getTargetUrl();
         this.created = transaction.getCreated();
@@ -56,5 +59,9 @@ public class SecureBalanceTransaction implements SecureToSend {
 
     public String getTransactionType() {
         return transactionType;
+    }
+
+    public String getSourceName() {
+        return sourceName;
     }
 }

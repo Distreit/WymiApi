@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.post;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
@@ -221,5 +222,10 @@ public class Post extends PersistentObject implements HasPointsBalance {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    @JsonValue
+    public SecurePost getSecurePost() {
+        return new SecurePost(this);
     }
 }

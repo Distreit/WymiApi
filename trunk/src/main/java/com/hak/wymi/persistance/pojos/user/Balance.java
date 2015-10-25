@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
@@ -21,6 +22,7 @@ public class Balance extends PersistentObject implements HasPointsBalance {
 
     @OneToOne
     @PrimaryKeyJoinColumn
+    @JsonIgnore
     private User user;
 
     private Integer currentBalance;

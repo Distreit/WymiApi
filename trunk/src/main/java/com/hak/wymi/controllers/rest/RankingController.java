@@ -8,7 +8,7 @@ import com.hak.wymi.persistance.managers.PostDonationManager;
 import com.hak.wymi.persistance.managers.TopicManager;
 import com.hak.wymi.persistance.managers.UserTopicRankManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
-import com.hak.wymi.persistance.pojos.comment.SecureCommentDonation;
+import com.hak.wymi.persistance.pojos.balancetransaction.SecureBalanceTransaction;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +52,7 @@ public class RankingController {
         final UniversalResponse universalResponse = new UniversalResponse();
 
         final List<SecureToSend> posts = commentDonationManager.get(topicName)
-                .stream().map(SecureCommentDonation::new)
+                .stream().map(SecureBalanceTransaction::new)
                 .collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(universalResponse.setData(posts), HttpStatus.ACCEPTED);

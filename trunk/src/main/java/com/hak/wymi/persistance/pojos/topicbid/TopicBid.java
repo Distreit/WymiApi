@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos.topicbid;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
@@ -144,5 +145,10 @@ public class TopicBid extends PersistentObject implements HasPointsBalance {
 
     public void setTopicBidCreation(TopicBidCreation topicBidCreation) {
         this.topicBidCreation = topicBidCreation;
+    }
+
+    @JsonValue
+    public SecureTopicBid getSecureTopicBid() {
+        return new SecureTopicBid(this);
     }
 }

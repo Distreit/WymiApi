@@ -199,7 +199,16 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
                     try {
                         balanceTransactionCanceller.cancel(t.getTopicBidCreation());
                     } catch (InvalidValueException e) {
-                        LOGGER.error(e.getMessage(), e);
+                        LOGGER.error(
+                                String.format(
+                                        "Error on transaction name %s, topic %s, user %s, state %s, balance %d, class %s",
+                                        t.getName(),
+                                        t.getTopic(),
+                                        t.getUser().getName(),
+                                        t.getState(),
+                                        t.getCurrentBalance(),
+                                        t.getClass()
+                                ), e);
                     }
                 });
     }

@@ -1,5 +1,7 @@
 package com.hak.wymi.persistance.pojos.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.interfaces.HasPassword;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.topic.Topic;
@@ -71,9 +73,11 @@ public class User extends PersistentObject implements HasPassword {
     private Boolean validated = Boolean.FALSE;
 
     @ManyToMany(mappedBy = "subscribers")
+    @JsonIgnore
     private Set<Topic> subscriptions;
 
     @ManyToMany(mappedBy = "filters")
+    @JsonIgnore
     private Set<Topic> filters;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
@@ -171,5 +175,10 @@ public class User extends PersistentObject implements HasPassword {
 
     public void setBalance(Balance balance) {
         this.balance = balance;
+    }
+
+    @JsonValue
+    public SecureUser getSecureUser() {
+        return new SecureUser(this);
     }
 }

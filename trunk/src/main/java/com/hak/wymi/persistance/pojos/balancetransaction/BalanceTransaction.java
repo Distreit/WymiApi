@@ -83,4 +83,6 @@ public interface BalanceTransaction {
      * @return Message to be sent on cancellation of the transaction.
      */
     Message getCancellationMessage();
+
+    SecureBalanceTransaction getSecureBalanceTransaction();
 }

@@ -64,23 +64,16 @@ public class TopicDaoImpl implements TopicDao {
     @Override
     @Secured("ROLE_USER")
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean save(Topic topic) {
-        final Session session = sessionFactory.getCurrentSession();
-        session.persist(topic);
-        return true;
+    public void save(Topic topic) {
+        sessionFactory.getCurrentSession().persist(topic);
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Topic get(String name) {
-        final Session session = sessionFactory.getCurrentSession();
-        final Topic topic = (Topic) session.createQuery("from Topic where lower(name)=:name")
+        return (Topic) sessionFactory.getCurrentSession()
+                .createQuery("from Topic where lower(name)=:name")
                 .setParameter("name", name.toLowerCase(Locale.ENGLISH))
                 .uniqueResult();
-        if (topic != null) {
-            topic.getSubscribers().size();
-            topic.getFilters().size();
-        }
-        return topic;
     }
 }

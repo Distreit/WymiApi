@@ -82,7 +82,10 @@ public class TransactionProcessor {
         try {
             process(transaction);
         } catch (InvalidValueException e) {
-            LOGGER.info(e.getMessage(), e);
+            LOGGER.info(String.format(
+                    "Canceling transaction for invalid value. %s",
+                    JSONConverter.getJSON(transaction, true)
+            ), e);
             cancel(transaction);
         }
     }
