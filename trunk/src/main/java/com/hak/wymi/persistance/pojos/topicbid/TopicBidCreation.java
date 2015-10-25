@@ -16,7 +16,7 @@ import javax.validation.constraints.Null;
 import javax.validation.groups.Default;
 
 @Entity
-@Table(name = "topicBidCreation")
+@Table(name = "topicbidcreation")
 public class TopicBidCreation extends AbstractBalanceTransaction {
     private static final long serialVersionUID = -6621645087111568268L;
 

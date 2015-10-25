@@ -17,7 +17,7 @@ import javax.validation.constraints.Null;
 import javax.validation.groups.Default;
 
 @Entity
-@Table(name = "commentCreation")
+@Table(name = "commentcreation")
 public class CommentCreation extends AbstractBalanceTransaction {
     private static final long serialVersionUID = 1538010638630429551L;
 

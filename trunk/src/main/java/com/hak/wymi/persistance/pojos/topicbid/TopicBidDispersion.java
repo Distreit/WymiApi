@@ -16,7 +16,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "TopicBidDispersion")
+@Table(name = "topicbiddispersion")
 public class TopicBidDispersion extends AbstractBalanceTransaction {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TopicBidDispersion.class);
     private static final long serialVersionUID = 1510099288221998596L;

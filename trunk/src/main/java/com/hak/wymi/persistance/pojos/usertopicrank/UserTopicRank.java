@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "UserTopicRank")
+@Table(name = "usertopicrank")
 public class UserTopicRank extends PersistentObject {
     private static final long serialVersionUID = -8067075395686649833L;
 

@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Null;
 
 @Entity
-@Table(name = "transactionLog")
+@Table(name = "transactionlog")
 public class TransactionLog extends PersistentObject {
     private static final long serialVersionUID = 7506282118915273476L;
 

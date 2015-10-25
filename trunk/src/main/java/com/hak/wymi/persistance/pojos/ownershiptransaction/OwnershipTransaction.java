@@ -17,7 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ownershipTransaction")
+@Table(name = "ownershiptransaction")
 public class OwnershipTransaction extends PersistentObject {
     private static final long serialVersionUID = -4652506078182812805L;
 

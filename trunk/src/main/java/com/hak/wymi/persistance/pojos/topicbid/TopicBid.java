@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 @Entity
-@Table(name = "topicBid")
+@Table(name = "topicbid")
 public class TopicBid extends PersistentObject implements HasPointsBalance {
     private static final long serialVersionUID = 1956500952252914355L;
 
