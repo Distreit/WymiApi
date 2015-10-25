@@ -2,6 +2,7 @@ package com.hak.wymi.persistance.pojos.topic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.NameDoesNotExist;
@@ -45,7 +46,7 @@ public class Topic extends PersistentObject {
             max = 30,
             message = "Name must be between 3 and 30 characters in length")
     @Pattern(groups = {Default.class, Creation.class},
-            regexp = "([0-9a-zA-Z]+(-[0-9a-zA-Z])?)+")
+            regexp = Constants.TOPIC_NAME_REGEX)
     @NotNull(groups = Update.class)
     private String name;
 
