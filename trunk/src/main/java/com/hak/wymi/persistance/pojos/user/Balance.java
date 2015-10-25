@@ -1,10 +1,10 @@
 package com.hak.wymi.persistance.pojos.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InsufficientFundsException;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.NegativePointsException;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -22,7 +22,6 @@ public class Balance extends PersistentObject implements HasPointsBalance {
 
     @OneToOne
     @PrimaryKeyJoinColumn
-    @JsonIgnore
     private User user;
 
     private Integer currentBalance;
@@ -46,10 +45,10 @@ public class Balance extends PersistentObject implements HasPointsBalance {
     @Override
     public void removePoints(Integer amount) throws InvalidValueException {
         if (amount < 0) {
-            throw new InvalidValueException(REMOVING_NEGATIVE_POINTS_MESSAGE);
+            throw new NegativePointsException(amount, this);
         }
         if (this.currentBalance < amount) {
-            throw new InsufficientFundsException(String.format("Cannot remove %d points from %s with %d balance.", amount, this.getName(), this.currentBalance));
+            throw new InsufficientFundsException(amount, this);
         }
         this.currentBalance -= amount;
     }
@@ -72,7 +71,7 @@ public class Balance extends PersistentObject implements HasPointsBalance {
     @Override
     public void addPoints(Integer amount) throws InvalidValueException {
         if (amount < 0) {
-            throw new InvalidValueException(ADDING_NEGATIVE_POINTS_MESSAGE);
+            throw new NegativePointsException(amount, this);
         }
         this.currentBalance += amount;
     }

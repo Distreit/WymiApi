@@ -11,6 +11,7 @@ import com.hak.wymi.persistance.pojos.post.PostDao;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.utility.JSONConverter;
 import com.hak.wymi.utility.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,7 +77,8 @@ public class CommentManager {
             commentCreationDao.save(transaction);
             transactionProcessor.process(transaction);
         } else {
-            throw new InvalidValueException("Topic fees do not match.");
+            throw new InvalidValueException(String.format("Topic fees do not match.\nFee Flat: %d\nFee percent: %d\nTopic: %s",
+                    feeFlat, feePercent, JSONConverter.getJSON(topic, true)));
         }
     }
 }

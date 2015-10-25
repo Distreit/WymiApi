@@ -25,7 +25,7 @@ public class RestErrorHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public UniversalResponse processValidationError(MethodArgumentNotValidException exception) {
+    public UniversalResponse processMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         final UniversalResponse universalResponse = new UniversalResponse();
         final BindingResult result = exception.getBindingResult();
 
@@ -38,28 +38,30 @@ public class RestErrorHandler {
     @ExceptionHandler({ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public UniversalResponse processValidationError(Exception exception) {
+    public UniversalResponse processValidationException(Exception exception) {
         return new UniversalResponse().addError(exception.getMessage());
     }
 
     @ExceptionHandler({InsufficientFundsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public UniversalResponse processInsufficientFundsException() {
+    public UniversalResponse processInsufficientFundsException(Exception exception) {
+        LOGGER.info("InsufficientFundsException", exception);
         return new UniversalResponse().addError("Insufficient funds");
     }
 
     @ExceptionHandler({InvalidValueException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public UniversalResponse processInsufficientFundsException(Exception exception) {
-        return new UniversalResponse().addError(exception.getMessage());
+    public UniversalResponse processInvalidValueException(Exception exception) {
+        LOGGER.info("Invalid value", exception);
+        return new UniversalResponse().addError("Invalid value.");
     }
 
     @ExceptionHandler({AccessDeniedException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public UniversalResponse processAccessDenied() {
+    public UniversalResponse processAccessDeniedException() {
         return new UniversalResponse();
     }
 

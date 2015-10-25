@@ -10,6 +10,7 @@ import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.utility.JSONConverter;
 import com.hak.wymi.utility.TransactionProcessor;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +95,8 @@ public class PostManger {
             postCreationDao.save(transaction);
             transactionProcessor.process(transaction);
         } else {
-            throw new InvalidValueException("Topic fees do not match.");
+            throw new InvalidValueException(String.format("Topic fees do not match.\nFee Flat: %d\nFee percent: %d\nTopic: %s",
+                    feeFlat, feePercent, JSONConverter.getJSON(topic, true)));
         }
     }
 
@@ -108,7 +110,7 @@ public class PostManger {
             post.setText("DELETED");
             postDao.update(post);
         } else {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("User not allowed to delete post.");
         }
     }
 

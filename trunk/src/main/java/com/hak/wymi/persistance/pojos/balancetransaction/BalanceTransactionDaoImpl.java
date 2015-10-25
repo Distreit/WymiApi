@@ -3,6 +3,7 @@ package com.hak.wymi.persistance.pojos.balancetransaction;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.Balance;
+import com.hak.wymi.utility.JSONConverter;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.NonUniqueObjectException;
@@ -41,7 +42,12 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
         final TransactionLog transactionLog = new TransactionLog(transaction);
         transaction.setTransactionLog(transactionLog);
         if (transaction.getAmount() > 0) {
-            processNonZeroTransaction(transaction, session);
+            try {
+                processNonZeroTransaction(transaction, session);
+            } catch (InvalidValueException e) {
+                transaction.setTransactionLog(null);
+                throw e;
+            }
         } else if (transaction.getAmount() == 0) {
             transaction.setState(TransactionState.PROCESSED);
             transactionLog.setAmountPayed(0);
@@ -74,8 +80,8 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
         if (startingAmount - siteTax - topicTax - finalAmount != 0) {
             throw new InvalidValueException(String.format(
-                    "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)",
-                    siteTax, topicTax, finalAmount, startingAmount));
+                    "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)\n %s",
+                    siteTax, topicTax, finalAmount, startingAmount, JSONConverter.getJSON(transaction, true)));
         }
     }
 
@@ -167,7 +173,6 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
     @Override
     public boolean cancel(BalanceTransaction transaction) throws InvalidValueException {
-        transaction.setTransactionLog(null);
         return balanceTransactionCanceller.cancel(transaction);
     }
 }

@@ -4,6 +4,7 @@ import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.message.Message;
 import com.hak.wymi.persistance.pojos.user.Balance;
+import com.hak.wymi.utility.JSONConverter;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
@@ -21,7 +22,6 @@ public class BalanceTransactionCanceller {
 
     private static boolean cancelUnprocessed(Session session, BalanceTransaction transaction) {
         transaction.setState(TransactionState.CANCELED);
-        transaction.setTransactionLog(null);
 
         if (transaction.getDependent() == null) {
             session.update(transaction);
@@ -46,7 +46,7 @@ public class BalanceTransactionCanceller {
         } else if (transaction.getState() == TransactionState.PROCESSED) {
             return cancelProcessed(session, transaction);
         }
-        throw new UnsupportedOperationException("Transaction state not supported.");
+        throw new UnsupportedOperationException("Transaction state not supported. \n" + JSONConverter.getJSON(transaction, true));
     }
 
     private boolean cancelProcessed(Session session, BalanceTransaction transaction) throws InvalidValueException {
