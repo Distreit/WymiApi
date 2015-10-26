@@ -4,15 +4,19 @@ import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.managers.BalanceManager;
 import com.hak.wymi.persistance.managers.CallbackCodeManager;
+import com.hak.wymi.persistance.managers.EmailManager;
 import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.PasswordChange;
 import com.hak.wymi.persistance.pojos.callbackcode.CallbackCode;
 import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeType;
+import com.hak.wymi.persistance.pojos.email.Email;
 import com.hak.wymi.persistance.pojos.user.SecureCurrentUser;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.utility.TransactionProcessor;
 import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -36,6 +40,8 @@ import java.security.SecureRandom;
 @RestController
 @RequestMapping(value = "/user")
 public class UserController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
     // I think, but I'm not sure, this is the number of characters that the output will have.
     private static final int NUMBER_OF_CHARACTERS = 130;
 
@@ -60,6 +66,9 @@ public class UserController {
     @Autowired
     private BalanceManager balanceManager;
 
+    @Autowired
+    private EmailManager emailManager;
+
     @Value("${site.domain}")
     private String siteDomain;
 
@@ -81,28 +90,26 @@ public class UserController {
     @RequestMapping(value = "/name/{userName}/password-reset", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getSendPasswordReset(@PathVariable String userName) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        final User user = userManager.getFromName(userName);
 
-        if (user != null) {
+        try {
+            final User user = userManager.getFromName(userName);
             final String code = getValidationCode(user, CallbackCodeType.PASSWORD_RESET);
+            final String content = String.format("Please click here to reset your password: http://%s/password-reset?code=%s",
+                    siteDomain, code);
 
-            final SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(user.getEmail());
-            message.setSubject("WYMI password reset request");
-            message.setText(
-                    String.format(
-                            "Please click here to reset your password: http://%s/password-reset?code=%s",
-                            siteDomain,
-                            code
-                    )
-            );
+            final Email email = new Email(user.getEmail(), "WYMI password reset request", content);
+            emailManager.save(email);
 
-            mailSender.send(message);
-
-            return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
+//            final SimpleMailMessage message = new SimpleMailMessage();
+//            message.setTo(user.getEmail());
+//            message.setSubject("WYMI password reset request");
+//            message.setText(content);
+//            mailSender.send(message);
+        } catch (Exception e) {
+            LOGGER.trace("Ignore this, user not found when requesting password reset. " + userName, e);
         }
 
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/password", method = RequestMethod.PUT, produces = Constants.JSON)

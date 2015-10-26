@@ -119,6 +119,25 @@ CREATE TABLE IF NOT EXISTS `commentdonation` (
 -- Data exporting was unselected.
 
 
+-- Dumping structure for table wymi.email
+CREATE TABLE IF NOT EXISTS `email` (
+  `emailId`  INT(10) UNSIGNED    NOT NULL AUTO_INCREMENT,
+  `address`  VARCHAR(50)         NOT NULL,
+  `subject`  VARCHAR(255)        NOT NULL,
+  `body`     VARCHAR(15000)      NOT NULL,
+  `sent`     TINYINT(3) UNSIGNED NOT NULL,
+  `sentDate` TIMESTAMP           NULL     DEFAULT NULL,
+  `version`  INT(10) UNSIGNED    NOT NULL,
+  `updated`  TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created`  TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`emailId`)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table wymi.filters
 CREATE TABLE IF NOT EXISTS `filters` (
   `userId`  INT(11) DEFAULT NULL,
