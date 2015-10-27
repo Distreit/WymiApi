@@ -6,7 +6,7 @@ public interface EmailDao {
 
     public void save(Email email);
 
-    public List getUnsent();
+    public List<Email> getUnsent();
 
     public void update(Email email);
 }
