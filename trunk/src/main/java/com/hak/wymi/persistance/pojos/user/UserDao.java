@@ -3,7 +3,7 @@ package com.hak.wymi.persistance.pojos.user;
 import java.security.Principal;
 
 public interface UserDao {
-    boolean save(User user);
+    void save(User user);
 
     User get(Principal principal);
 
@@ -11,5 +11,5 @@ public interface UserDao {
 
     User getFromEmail(String email);
 
-    boolean update(User user);
+    void update(User user);
 }

@@ -6,8 +6,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
-
 @Repository
 @SuppressWarnings("unchecked")
 public class BalanceDaoImpl implements BalanceDao {
@@ -16,10 +14,10 @@ public class BalanceDaoImpl implements BalanceDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public Balance get(Principal principal) {
+    public Balance get(Integer userId) {
         return (Balance) sessionFactory.getCurrentSession()
-                .createQuery("from Balance where user.name=:userName")
-                .setParameter("userName", principal.getName())
+                .createQuery("from Balance where user.userId=:userId")
+                .setParameter("userId", userId)
                 .uniqueResult();
     }
 }

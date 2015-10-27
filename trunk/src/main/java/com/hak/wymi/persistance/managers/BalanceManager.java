@@ -6,15 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
-
 @Service
 public class BalanceManager {
     @Autowired
     private BalanceDao balanceDao;
 
     @Transactional
-    public Balance get(Principal principal) {
-        return balanceDao.get(principal);
+    public Balance get(Integer userId) {
+        return balanceDao.get(userId);
     }
 }

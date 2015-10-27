@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.managers;
 
+import com.hak.wymi.persistance.pojos.user.SecureCurrentUser;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class UserManager {
     }
 
     @Transactional
-    public boolean save(User user) {
-        return userDao.save(user);
+    public void save(User user) {
+        userDao.save(user);
     }
 
     @Transactional
@@ -30,12 +31,17 @@ public class UserManager {
     }
 
     @Transactional
-    public boolean update(User user) {
-        return userDao.update(user);
+    public void update(User user) {
+        userDao.update(user);
     }
 
     @Transactional
     public User getFromEmail(String email) {
         return userDao.getFromEmail(email);
+    }
+
+    @Transactional
+    public SecureCurrentUser getSecureCurrent(Principal principal) {
+        return new SecureCurrentUser(userDao.getFromName(principal.getName()), principal);
     }
 }

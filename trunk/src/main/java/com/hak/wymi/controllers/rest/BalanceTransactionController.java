@@ -36,6 +36,6 @@ public class BalanceTransactionController {
         final User user = userManager.get(principal);
         transactionProcessor.cancel(user, transactionId);
         return new ResponseEntity<>(new UniversalResponse()
-                .addTransactions(principal, user, transactionProcessor, balanceManager), HttpStatus.ACCEPTED);
+                .addTransactions(user.getUserId(), transactionProcessor, balanceManager), HttpStatus.ACCEPTED);
     }
 }

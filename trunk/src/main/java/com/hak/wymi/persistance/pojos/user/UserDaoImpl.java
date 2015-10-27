@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Locale;
 
 @Repository
@@ -19,7 +18,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean save(User user) {
+    public void save(User user) {
         final Session session = sessionFactory.getCurrentSession();
         final Balance balance = new Balance();
 
@@ -31,7 +30,6 @@ public class UserDaoImpl implements UserDao {
 
         balance.setUserId(user.getUserId());
         session.save(balance);
-        return true;
     }
 
     @Override
@@ -43,35 +41,25 @@ public class UserDaoImpl implements UserDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public User getFromName(String name) {
-        final Session session = sessionFactory.getCurrentSession();
-        final User user = (User) session.createQuery("from User where lower(name)=:name")
+        return (User) sessionFactory
+                .getCurrentSession()
+                .createQuery("from User where lower(name)=:name")
                 .setParameter("name", name.toLowerCase(Locale.ENGLISH))
                 .uniqueResult();
-        user.getSubscriptions().size();
-        user.getFilters().size();
-        return user;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public User getFromEmail(String email) {
-        if (email != null && !"".equals(email)) {
-            final Session session = sessionFactory.getCurrentSession();
-            final List<User> userList = session.createQuery("from User where lower(email)=:email")
-                    .setParameter("email", email.toLowerCase(Locale.ENGLISH))
-                    .list();
-            if (userList.size() == 1) {
-                return userList.get(0);
-            }
-        }
-        return null;
+        return (User) sessionFactory.getCurrentSession()
+                .createQuery("from User where lower(email)=:email")
+                .setParameter("email", email.toLowerCase(Locale.ENGLISH))
+                .uniqueResult();
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public boolean update(User user) {
-        final Session session = sessionFactory.getCurrentSession();
-        session.update(user);
-        return true;
+    public void update(User user) {
+        sessionFactory.getCurrentSession().update(user);
     }
 }

@@ -21,8 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,9 +56,6 @@ public class UserController {
     private SecureRandom secureRandom;
 
     @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
     private TransactionProcessor transactionProcessor;
 
     @Autowired
@@ -76,15 +71,11 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> getCurrentUser(Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
-        if (principal != null && !"".equals(principal.getName())) {
-            final User user = userManager.get(principal);
-            final SecureCurrentUser secureUser = new SecureCurrentUser(user, principal);
+        final SecureCurrentUser secureUser = userManager.getSecureCurrent(principal);
 
-            universalResponse.addTransactions(principal, user, transactionProcessor, balanceManager);
+        universalResponse.addTransactions(secureUser.getUserId(), transactionProcessor, balanceManager);
 
-            return new ResponseEntity<>(universalResponse.setData(secureUser), HttpStatus.ACCEPTED);
-        }
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(universalResponse.setData(secureUser), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/name/{userName}/password-reset", method = RequestMethod.GET, produces = Constants.JSON)
@@ -100,11 +91,6 @@ public class UserController {
             final Email email = new Email(user.getEmail(), "WYMI password reset request", content);
             emailManager.save(email);
 
-//            final SimpleMailMessage message = new SimpleMailMessage();
-//            message.setTo(user.getEmail());
-//            message.setSubject("WYMI password reset request");
-//            message.setText(content);
-//            mailSender.send(message);
         } catch (Exception e) {
             LOGGER.trace("Ignore this, user not found when requesting password reset. " + userName, e);
         }
@@ -117,35 +103,26 @@ public class UserController {
         final UniversalResponse universalResponse = new UniversalResponse();
         final CallbackCode callbackCode = callbackCodeManager.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);
 
-        if (callbackCode != null) {
-            final User user = callbackCode.getUser();
-            user.setPassword(DigestUtils.sha256Hex(passwordChange.getPassword()));
-            if (userManager.update(user)) {
-                callbackCodeManager.delete(callbackCode);
-                return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
-            }
-        }
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        final User user = callbackCode.getUser();
+        user.setPassword(DigestUtils.sha256Hex(passwordChange.getPassword()));
+        userManager.update(user);
+        callbackCodeManager.delete(callbackCode);
+        return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> registerNewUser(@Validated({Default.class, Creation.class}) @RequestBody User user) {
-        final UniversalResponse universalResponse = new UniversalResponse();
         user.setRoles("ROLE_USER");
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-        if (userManager.save(user)) {
-            final String code = getValidationCode(user, CallbackCodeType.VALIDATION);
-            final SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(user.getEmail());
-            message.setSubject("WYMI account validation");
-            message.setText(String
-                    .format("Please click here to validate your account: http://%s/api/user/%s/validate/%s",
-                            siteDomain, user.getName(), code));
-            mailSender.send(message);
+        userManager.save(user);
 
-            return new ResponseEntity<>(universalResponse, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        final String code = getValidationCode(user, CallbackCodeType.VALIDATION);
+        final String body = String.format("Please click here to validate your account: http://%s/api/user/%s/validate/%s",
+                siteDomain, user.getName(), code);
+        final Email email = new Email(user.getEmail(), "WYMI account validation", body);
+        emailManager.save(email);
+
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.CREATED);
     }
 
     private String getValidationCode(User user, CallbackCodeType type) {

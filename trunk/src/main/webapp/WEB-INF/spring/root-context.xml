@@ -70,4 +70,18 @@
     <bean id="userDao" class="com.hak.wymi.persistance.pojos.user.UserDaoImpl"/>
 
     <bean id="callbackCodeDao" class="com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeImpl"/>
+
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="smtp.gmail.com"/>
+        <property name="port" value="587"/>
+        <property name="username" value="wymi.services@gmail.com"/>
+        <property name="password" value="z19v5sZ4mDb9"/>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.debug">true</prop>
+            </props>
+        </property>
+    </bean>
 </beans>

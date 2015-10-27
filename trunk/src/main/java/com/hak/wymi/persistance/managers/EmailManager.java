@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+
 @Service
+@SuppressWarnings("unchecked")
 public class EmailManager {
     @Autowired
     private EmailDao emailDao;
@@ -14,5 +17,15 @@ public class EmailManager {
     @Transactional
     public void save(Email email) {
         emailDao.save(email);
+    }
+
+    @Transactional
+    public Collection<? extends Email> getUnsent() {
+        return emailDao.getUnsent();
+    }
+
+    @Transactional
+    public void update(Email email) {
+        emailDao.update(email);
     }
 }
