@@ -77,7 +77,7 @@ public class CommentManager {
             commentCreationDao.save(transaction);
             transactionProcessor.process(transaction);
         } else {
-            throw new InvalidValueException(String.format("Topic fees do not match.\nFee Flat: %d\nFee percent: %d\nTopic: %s",
+            throw new InvalidValueException(String.format("Topic fees do not match.%nFee Flat: %d%nFee percent: %d%nTopic: %s",
                     feeFlat, feePercent, JSONConverter.getJSON(topic, true)));
         }
     }
