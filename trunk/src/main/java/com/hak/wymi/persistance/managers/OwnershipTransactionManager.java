@@ -64,25 +64,23 @@ public class OwnershipTransactionManager {
     public void claim(String topicName, String userName, Integer amount) throws InvalidValueException {
         final User user = userDao.getFromName(userName);
         final Topic topic = topicDao.get(topicName);
-        final OwnershipTransaction ownershipTransaction = getRentPeriodNotExpired(topic);
+        final OwnershipTransaction transaction = getRentPeriodNotExpired(topic);
 
-        if (ownershipTransaction != null) {
-            if (amount >= getClaimAmount(ownershipTransaction)
-                    && user.getName().equals(topic.getOwner().getName())
-                    && !ownershipTransaction.getWinningBid().getUser().getName().equals(user.getName())) {
+        if (amount >= getClaimAmount(transaction)
+                && user.getName().equals(topic.getOwner().getName())
+                && !transaction.getWinningBid().getUser().getName().equals(user.getName())) {
 
-                final TopicBidCreation topicBidCreation = topicBidManager.create(topicName, userName, amount);
+            final TopicBidCreation topicBidCreation = topicBidManager.create(topicName, userName, amount);
 
-                final List<TopicBid> failedBids = new LinkedList<>();
-                failedBids.add(ownershipTransaction.getWinningBid());
-                ownershipTransaction.setWinningBid(topicBidCreation.getTopicBid());
-                saveOrUpdate(ownershipTransaction, failedBids);
-                rentManager.processRentPeriodExpired(ownershipTransaction);
-            }
+            final List<TopicBid> failedBids = new LinkedList<>();
+            failedBids.add(transaction.getWinningBid());
+            transaction.setWinningBid(topicBidCreation.getTopicBid());
+            saveOrUpdate(transaction, failedBids);
+            rentManager.processRentPeriodExpired(transaction);
         }
     }
 
-    public int getClaimAmount(OwnershipTransaction ownershipTransaction) {
-        return (int) (ownershipTransaction.getWinningBid().getCurrentBalance() * ownerBidMultiplier);
+    public int getClaimAmount(OwnershipTransaction transaction) {
+        return (int) (transaction.getWinningBid().getCurrentBalance() * ownerBidMultiplier);
     }
 }

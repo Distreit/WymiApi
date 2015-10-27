@@ -80,7 +80,7 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
 
         if (startingAmount - siteTax - topicTax - finalAmount != 0) {
             throw new InvalidValueException(String.format(
-                    "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)\n %s",
+                    "Transaction values didn't add up!!! (site tax: %d, topic tax: %d, final: %d, starting: %d)%n %s",
                     siteTax, topicTax, finalAmount, startingAmount, JSONConverter.getJSON(transaction, true)));
         }
     }

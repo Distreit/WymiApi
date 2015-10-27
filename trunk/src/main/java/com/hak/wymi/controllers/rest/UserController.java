@@ -92,7 +92,9 @@ public class UserController {
             emailManager.save(email);
 
         } catch (Exception e) {
-            LOGGER.trace("Ignore this, user not found when requesting password reset. " + userName, e);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Ignore this, user not found when requesting password reset. " + userName, e);
+            }
         }
 
         return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);

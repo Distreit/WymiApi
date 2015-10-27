@@ -10,6 +10,7 @@ import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
 import com.hak.wymi.persistance.pojos.topicbid.TopicBidState;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
+import com.hak.wymi.utility.jsonconverter.JSONConverter;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
@@ -199,16 +200,7 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
                     try {
                         balanceTransactionCanceller.cancel(t.getTopicBidCreation());
                     } catch (InvalidValueException e) {
-                        LOGGER.error(
-                                String.format(
-                                        "Error on transaction name %s, topic %s, user %s, state %s, balance %d, class %s",
-                                        t.getName(),
-                                        t.getTopic(),
-                                        t.getUser().getName(),
-                                        t.getState(),
-                                        t.getCurrentBalance(),
-                                        t.getClass()
-                                ), e);
+                        LOGGER.error(String.format("Error on transaction. %n%s", JSONConverter.getJSON(t, true)), e);
                     }
                 });
     }
@@ -226,7 +218,8 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public OwnershipTransaction getRentPeriodNotExpired(Topic topic) {
-        return (OwnershipTransaction) sessionFactory.getCurrentSession()
+        return (OwnershipTransaction) sessionFactory
+                .getCurrentSession()
                 .createQuery("from OwnershipTransaction where waitingPeriodExpiration>:now and state=:state and topic.topicId=:topicId")
                 .setParameter("now", new DateTime())
                 .setParameter("state", OwnershipTransactionState.WAITING)
