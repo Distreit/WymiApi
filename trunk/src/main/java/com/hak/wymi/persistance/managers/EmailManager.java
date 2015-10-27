@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@SuppressWarnings("unchecked")
 public class EmailManager {
     @Autowired
     private EmailDao emailDao;
