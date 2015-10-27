@@ -13,7 +13,7 @@ import com.hak.wymi.persistance.pojos.topicbid.TopicBidDispersion;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRankDao;
 import com.hak.wymi.persistance.ranker.UserTopicRanker;
-import com.hak.wymi.utility.TransactionProcessor;
+import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
