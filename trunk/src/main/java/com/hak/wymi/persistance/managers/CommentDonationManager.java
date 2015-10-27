@@ -7,7 +7,7 @@ import com.hak.wymi.persistance.pojos.comment.CommentDonation;
 import com.hak.wymi.persistance.pojos.comment.CommentDonationDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
-import com.hak.wymi.utility.TransactionProcessor;
+import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

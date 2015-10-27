@@ -12,7 +12,7 @@ import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeType;
 import com.hak.wymi.persistance.pojos.email.Email;
 import com.hak.wymi.persistance.pojos.user.SecureCurrentUser;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.utility.TransactionProcessor;
+import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import com.hak.wymi.validations.groups.Creation;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;

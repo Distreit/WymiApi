@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction.exceptions;
 
-import com.hak.wymi.utility.JSONConverter;
+import com.hak.wymi.utility.jsonconverter.JSONConverter;
 
 public class InsufficientFundsException extends InvalidValueException {
     private static final long serialVersionUID = 2925561926123895336L;

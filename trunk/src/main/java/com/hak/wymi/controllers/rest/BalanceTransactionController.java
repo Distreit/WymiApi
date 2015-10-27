@@ -6,7 +6,7 @@ import com.hak.wymi.persistance.managers.BalanceManager;
 import com.hak.wymi.persistance.managers.UserManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.utility.TransactionProcessor;
+import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

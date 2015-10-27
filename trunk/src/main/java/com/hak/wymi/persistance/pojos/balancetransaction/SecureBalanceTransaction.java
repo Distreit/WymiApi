@@ -1,7 +1,7 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
-import com.hak.wymi.utility.TransactionProcessor;
+import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import org.joda.time.DateTime;
 
 public class SecureBalanceTransaction implements SecureToSend {

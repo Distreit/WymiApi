@@ -1,6 +1,6 @@
 package com.hak.wymi.persistance.pojos.balancetransaction.exceptions;
 
-import com.hak.wymi.utility.JSONConverter;
+import com.hak.wymi.utility.jsonconverter.JSONConverter;
 
 public class NegativePointsException extends InvalidValueException {
     private static final long serialVersionUID = -2572029244447145379L;

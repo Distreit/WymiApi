@@ -7,7 +7,7 @@ import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.SecureBalanceTransaction;
 import com.hak.wymi.persistance.pojos.user.Balance;
 import com.hak.wymi.persistance.pojos.user.SecureBalance;
-import com.hak.wymi.utility.TransactionProcessor;
+import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,6 +40,11 @@ public class UniversalResponse {
         return entries;
     }
 
+    public UniversalResponse setData(List<SecureToSend> secureToSend) {
+        this.entries.put(DATA, secureToSend);
+        return this;
+    }
+
     public UniversalResponse setData(int value) {
         final ConcurrentMap<String, Object> container = new ConcurrentHashMap<>();
         container.put("value", value);
@@ -48,11 +53,6 @@ public class UniversalResponse {
     }
 
     public UniversalResponse setData(SecureToSend secureToSend) {
-        this.entries.put(DATA, secureToSend);
-        return this;
-    }
-
-    public UniversalResponse setData(List<SecureToSend> secureToSend) {
         this.entries.put(DATA, secureToSend);
         return this;
     }

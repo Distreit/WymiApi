@@ -1,7 +1,7 @@
 package com.hak.wymi.security;
 
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
-import com.hak.wymi.utility.JSONConverter;
+import com.hak.wymi.utility.jsonconverter.JSONConverter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 

@@ -5,7 +5,7 @@ import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
-import com.hak.wymi.utility.JSONConverter;
+import com.hak.wymi.utility.jsonconverter.JSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

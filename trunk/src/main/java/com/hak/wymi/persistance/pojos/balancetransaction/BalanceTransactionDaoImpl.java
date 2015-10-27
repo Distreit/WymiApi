@@ -3,7 +3,7 @@ package com.hak.wymi.persistance.pojos.balancetransaction;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.Balance;
-import com.hak.wymi.utility.JSONConverter;
+import com.hak.wymi.utility.jsonconverter.JSONConverter;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.NonUniqueObjectException;

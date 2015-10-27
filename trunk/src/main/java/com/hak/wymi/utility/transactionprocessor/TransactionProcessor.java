@@ -1,4 +1,4 @@
-package com.hak.wymi.utility;
+package com.hak.wymi.utility.transactionprocessor;
 
 import com.hak.wymi.persistance.managers.BalanceTransactionManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
@@ -6,6 +6,7 @@ import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionCance
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.utility.jsonconverter.JSONConverter;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
