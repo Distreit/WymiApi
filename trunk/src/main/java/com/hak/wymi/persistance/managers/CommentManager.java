@@ -81,4 +81,16 @@ public class CommentManager {
                     feeFlat, feePercent, JSONConverter.getJSON(topic, true)));
         }
     }
+
+    @Transactional
+    public void update(Comment comment, String userName) {
+        final Comment dbComment = commentDao.get(comment.getCommentId());
+
+        if (dbComment.getAuthor().getName().equals(userName)) {
+            dbComment.setContent(comment.getContent());
+            commentDao.update(dbComment);
+        } else {
+            throw new UnsupportedOperationException("User not allowed to update comment.");
+        }
+    }
 }

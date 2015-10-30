@@ -28,10 +28,7 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Comment get(Integer commentId) {
-        return (Comment) sessionFactory.getCurrentSession()
-                .createQuery("from Comment where commentId=:commentId")
-                .setParameter("commentId", commentId)
-                .uniqueResult();
+        return (Comment) sessionFactory.getCurrentSession().load(Comment.class, commentId);
     }
 
     @Override
@@ -41,6 +38,14 @@ public class CommentDaoImpl implements CommentDao {
         session.save(comment);
         session.refresh(comment);
         return true;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void update(Comment comment) {
+        final Session session = sessionFactory.getCurrentSession();
+        session.update(comment);
+
     }
 
     @Override
