@@ -65,9 +65,9 @@ public class TopicController {
     public ResponseEntity<UniversalResponse> patchTopic(@Validated({Update.class}) @RequestBody Topic topic, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final Topic freshTopic = topicManager.update(topic, principal);
-        if (freshTopic != null) {
-            return new ResponseEntity<>(universalResponse.setData(new SecureTopic(freshTopic)), HttpStatus.CREATED);
+        final Topic persistantTopic = topicManager.update(topic, principal);
+        if (persistantTopic != null) {
+            return new ResponseEntity<>(universalResponse.setData(new SecureTopic(persistantTopic)), HttpStatus.CREATED);
         }
         return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }

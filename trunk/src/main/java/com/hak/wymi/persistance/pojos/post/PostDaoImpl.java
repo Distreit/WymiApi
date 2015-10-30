@@ -35,7 +35,7 @@ public class PostDaoImpl implements PostDao {
         final Session session = sessionFactory.getCurrentSession();
         final Query query;
         topicList.add("");
-        if (filtered) {
+        if (filtered || topicList.get(0).equals("ALL_TOPICS")) {
             query = session
                     .createQuery("FROM Post WHERE topic.name NOT IN (:topicNames) and deleted=false and trashed=:trashed ORDER BY score DESC");
         } else {
