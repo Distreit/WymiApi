@@ -52,7 +52,8 @@ public class RankingController {
         final UniversalResponse universalResponse = new UniversalResponse();
 
         final List<SecureToSend> posts = commentDonationManager.get(topicName)
-                .stream().map(SecureBalanceTransaction::new)
+                .stream()
+                .map(SecureBalanceTransaction::new)
                 .collect(Collectors.toCollection(LinkedList::new));
 
         return new ResponseEntity<>(universalResponse.setData(posts), HttpStatus.ACCEPTED);

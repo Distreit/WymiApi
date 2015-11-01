@@ -4,6 +4,7 @@ import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.managers.PostManger;
+import com.hak.wymi.persistance.managers.TrialManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.SecurePost;
@@ -32,6 +33,9 @@ public class PostController {
 
     @Autowired
     private PostManger postManger;
+
+    @Autowired
+    private TrialManager trialManager;
 
     @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
@@ -99,6 +103,13 @@ public class PostController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> deletePost(@PathVariable Integer postId, Principal principal) {
         postManger.delete(postId, principal.getName());
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/post/{postId}/trial", method = RequestMethod.POST, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> reportPost(@PathVariable Integer postId, Principal principal) {
+        trialManager.create(postId, principal.getName());
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 }

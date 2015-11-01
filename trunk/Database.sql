@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `balance` (
   CONSTRAINT `FK_balance_user` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table wymi.balance: ~28 rows (approximately)
+-- Dumping data for table wymi.balance: ~23 rows (approximately)
 /*!40000 ALTER TABLE `balance` DISABLE KEYS */;
 INSERT INTO `balance` (`userId`, `currentBalance`, `version`, `updated`, `created`) VALUES
 	(-1, 32, 5934, '2015-10-23 09:41:13', '2015-09-06 08:07:57'),
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `topic` (
 	AUTO_INCREMENT =4020
 	DEFAULT CHARSET =utf8;
 
--- Dumping data for table wymi.topic: ~1,489 rows (approximately)
+-- Dumping data for table wymi.topic: ~1,493 rows (approximately)
 /*!40000 ALTER TABLE `topic` DISABLE KEYS */;
 INSERT INTO `topic` (`topicId`, `name`, `owner`, `feeFlat`, `feePercent`, `rent`, `rentDueDate`, `subscriberCount`, `filterCount`, `title`, `description`, `version`, `updated`, `created`)
 VALUES
@@ -1614,7 +1614,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	DEFAULT CHARSET =latin1
 	ROW_FORMAT = COMPACT;
 
--- Dumping data for table wymi.user: ~28 rows (approximately)
+-- Dumping data for table wymi.user: ~23 rows (approximately)
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 INSERT INTO `user` (`userId`, `email`, `name`, `password`, `roles`, `validated`, `version`, `created`, `updated`) VALUES
 	(-1, 'SHbJu286T5c@SHbJu286T5c.com', 'SysopSHbJu286T5c',
