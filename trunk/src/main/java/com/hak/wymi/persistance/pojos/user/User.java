@@ -12,6 +12,8 @@ import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.Password;
 import com.hak.wymi.validations.PasswordsMatch;
 import com.hak.wymi.validations.groups.Creation;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -83,6 +85,11 @@ public class User extends PersistentObject implements HasPassword {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
     @Null(groups = {Creation.class})
     private Balance balance;
+
+    private Boolean willingJuror;
+
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime lastJurored;
 
     @Override
     public boolean passwordsMatch() {
@@ -180,5 +187,21 @@ public class User extends PersistentObject implements HasPassword {
     @JsonValue
     public SecureUser getSecureUser() {
         return new SecureUser(this);
+    }
+
+    public Boolean getWillingJuror() {
+        return willingJuror;
+    }
+
+    public void setWillingJuror(Boolean willingJuror) {
+        this.willingJuror = willingJuror;
+    }
+
+    public DateTime getLastJurored() {
+        return lastJurored;
+    }
+
+    public void setLastJurored(DateTime lastJurored) {
+        this.lastJurored = lastJurored;
     }
 }

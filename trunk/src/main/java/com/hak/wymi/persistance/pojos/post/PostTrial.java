@@ -1,7 +1,10 @@
 package com.hak.wymi.persistance.pojos.post;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.pojos.PersistentObject;
-import com.hak.wymi.persistance.pojos.TrialState;
+import com.hak.wymi.persistance.pojos.trial.Juror;
+import com.hak.wymi.persistance.pojos.trial.Trial;
+import com.hak.wymi.persistance.pojos.trial.TrialState;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import javax.persistence.Entity;
@@ -15,11 +18,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "posttrial")
-public class PostTrial extends PersistentObject {
+public class PostTrial extends PersistentObject implements Trial {
     private static final long serialVersionUID = -449771238466716661L;
 
     @Id
@@ -37,7 +42,7 @@ public class PostTrial extends PersistentObject {
     private Integer violatedSiteRuleVotes = 0;
     private Integer isIllegalVotes = 0;
 
-    @OneToMany(mappedBy = "postTrial", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "postTrial", fetch = FetchType.LAZY)
     private List<PostTrialJuror> jurors;
 
     @Enumerated(EnumType.STRING)
@@ -91,7 +96,8 @@ public class PostTrial extends PersistentObject {
         this.state = state;
     }
 
-    public List<PostTrialJuror> getJurors() {
+    @Override
+    public List<? extends Juror> getJurors() {
         return jurors;
     }
 
@@ -105,5 +111,16 @@ public class PostTrial extends PersistentObject {
 
     public void setReporter(User reporter) {
         this.reporter = reporter;
+    }
+
+    @JsonValue
+    public Map<String, Object> secureTrial() {
+        final Map<String, Object> result = new HashMap<>();
+        result.put("type", "post");
+        result.put("id", this.post.getPostId());
+        result.put("title", this.post.getTitle());
+        result.put("url", this.post.getHref());
+        result.put("text", this.post.getText());
+        return result;
     }
 }

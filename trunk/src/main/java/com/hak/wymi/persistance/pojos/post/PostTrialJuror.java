@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.pojos.PersistentObject;
+import com.hak.wymi.persistance.pojos.trial.Juror;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import javax.persistence.Entity;
@@ -13,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "posttrialjuror")
-public class PostTrialJuror extends PersistentObject {
+public class PostTrialJuror extends PersistentObject implements Juror {
     private static final long serialVersionUID = -5680636463620637739L;
 
     @Id
