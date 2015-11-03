@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.post;
 
-import com.hak.wymi.persistance.pojos.trial.Trial;
 import com.hak.wymi.persistance.pojos.user.User;
 
 import java.util.List;
@@ -14,5 +13,5 @@ public interface PostTrialDao {
 
     List<PostTrial> getOnTrial();
 
-    Trial getNextTrial(User user);
+    PostTrial getNextTrial(User user);
 }

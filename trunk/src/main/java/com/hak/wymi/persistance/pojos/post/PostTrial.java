@@ -117,10 +117,13 @@ public class PostTrial extends PersistentObject implements Trial {
     public Map<String, Object> secureTrial() {
         final Map<String, Object> result = new HashMap<>();
         result.put("type", "post");
-        result.put("id", this.post.getPostId());
-        result.put("title", this.post.getTitle());
-        result.put("url", this.post.getHref());
-        result.put("text", this.post.getText());
+        result.put("title", post.getTitle());
+
+        if (post.getHref() != null && !"".equals(post.getHref())) {
+            result.put("href", post.getHref());
+        } else {
+            result.put("text", post.getText());
+        }
         return result;
     }
 }

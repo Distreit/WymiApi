@@ -2,7 +2,8 @@ package com.hak.wymi.persistance.managers;
 
 import com.hak.wymi.persistance.pojos.post.PostTrial;
 import com.hak.wymi.persistance.pojos.post.PostTrialDao;
-import com.hak.wymi.persistance.pojos.trial.Trial;
+import com.hak.wymi.persistance.pojos.post.PostTrialJuror;
+import com.hak.wymi.persistance.pojos.post.PostTrialJurorDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import org.joda.time.DateTime;
@@ -19,6 +20,9 @@ public class TrialManager {
 
     @Autowired
     private PostTrialDao postTrialDao;
+
+    @Autowired
+    private PostTrialJurorDao postTrialJurorDao;
 
     @Value("${jury.rate.limit}")
     private Integer juryRateLimit;
@@ -38,13 +42,33 @@ public class TrialManager {
     }
 
     @Transactional
-    public Trial get(String userName) {
+    public PostTrialJuror get(String userName) {
+        postTrialJurorDao.clearExpired();
 
+        final PostTrialJuror juror = getExisting(userName);
+        if (juror != null) {
+            return juror;
+        }
+
+        return getNewJuror(userName);
+    }
+
+    private PostTrialJuror getExisting(String userName) {
+        return postTrialJurorDao.getExistingCurrent(userName);
+    }
+
+    private PostTrialJuror getNewJuror(String userName) {
         final User user = userDao.getFromName(userName);
         final DateTime lastJurored = user.getLastJurored();
         if (lastJurored == null || lastJurored.plusSeconds(juryRateLimit).isBefore(DateTime.now())) {
-            final Trial trial = postTrialDao.getNextTrial(user);
-            return trial;
+            final PostTrial trial = postTrialDao.getNextTrial(user);
+            if (trial != null) {
+                final PostTrialJuror juror = new PostTrialJuror();
+                juror.setPostTrial(trial);
+                juror.setUser(user);
+                postTrialJurorDao.save(juror);
+                return juror;
+            }
         }
         return null;
     }

@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.post;
 
-import com.hak.wymi.persistance.pojos.trial.Trial;
 import com.hak.wymi.persistance.pojos.trial.TrialState;
 import com.hak.wymi.persistance.pojos.user.User;
 import org.hibernate.SessionFactory;
@@ -22,7 +21,7 @@ public class PostTrialDaoImpl implements PostTrialDao {
     private SessionFactory sessionFactory;
 
     @Value("${jury.count.limit}")
-    private Integer juryCountLimit;
+    private Long juryCountLimit;
 
 
     @Override
@@ -59,8 +58,8 @@ public class PostTrialDaoImpl implements PostTrialDao {
      */
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public Trial getNextTrial(User user) {
-        return (Trial) sessionFactory
+    public PostTrial getNextTrial(User user) {
+        return (PostTrial) sessionFactory
                 .getCurrentSession()
                 .createQuery("FROM PostTrial pt WHERE \n" +
                         "state = 'ON_TRIAL'\n" +
@@ -76,7 +75,7 @@ public class PostTrialDaoImpl implements PostTrialDao {
                         "    AND     pt.post.postId = ptj.postTrial.postId ) <= :maxJurors \n" +
                         "ORDER BY created")
                 .setParameter("userId", user.getUserId())
-                .setParameter("maxJurors", new Long(juryCountLimit))
+                .setParameter("maxJurors", juryCountLimit)
                 .setMaxResults(1)
                 .uniqueResult();
     }

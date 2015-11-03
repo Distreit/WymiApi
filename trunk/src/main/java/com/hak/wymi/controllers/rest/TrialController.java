@@ -3,7 +3,7 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.managers.TrialManager;
-import com.hak.wymi.persistance.pojos.trial.Trial;
+import com.hak.wymi.persistance.pojos.post.PostTrialJuror;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +25,10 @@ public class TrialController {
     public ResponseEntity<UniversalResponse> getAccused(Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final Trial trial = trialManager.get(principal.getName());
-        if (trial != null) {
-            return new ResponseEntity<>(universalResponse.setData(trial), HttpStatus.ACCEPTED);
+        final PostTrialJuror juror = trialManager.get(principal.getName());
+        if (juror != null) {
+            return new ResponseEntity<>(universalResponse.setData(juror), HttpStatus.ACCEPTED);
         }
-        return new ResponseEntity<>(universalResponse, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(universalResponse, HttpStatus.NOT_FOUND);
     }
 }
