@@ -5,6 +5,7 @@ import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.persistance.pojos.trial.Juror;
 import com.hak.wymi.persistance.pojos.user.User;
+import com.hak.wymi.validations.groups.Update;
 import org.joda.time.DateTime;
 
 import javax.persistence.Entity;
@@ -15,6 +16,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,21 +28,27 @@ public class PostTrialJuror extends PersistentObject implements Juror, SecureToS
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull(groups = {Update.class})
     private Integer postTrialJurorId;
 
     @ManyToOne
     @JoinColumn(name = "userId")
+    @Null(groups = {Update.class})
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "postId")
+    @Null(groups = {Update.class})
     private PostTrial postTrial;
 
+    @NotNull(groups = {Update.class})
     private Boolean violatedSiteRuleVote;
 
+    @NotNull(groups = {Update.class})
     private Boolean isIllegalVote;
 
     @Transient
+    @Null(groups = {Update.class})
     private DateTime expires;
 
     public Integer getPostTrialJurorId() {

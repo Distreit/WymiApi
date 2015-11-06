@@ -6,4 +6,6 @@ public interface PostTrialJurorDao {
     PostTrialJuror getExistingCurrent(String userName);
 
     void clearExpired();
+
+    PostTrialJuror get(Integer postTrialJurorId);
 }

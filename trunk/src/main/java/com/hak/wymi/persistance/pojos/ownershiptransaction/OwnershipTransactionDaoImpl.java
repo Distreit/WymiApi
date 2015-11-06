@@ -194,15 +194,13 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     }
 
     private void cancelFailedBids(List<TopicBid> failedBids, TopicBid winningBid) {
-        failedBids.stream()
-                .filter(b -> !b.equals(winningBid))
-                .forEach(t -> {
-                    try {
-                        balanceTransactionCanceller.cancel(t.getTopicBidCreation());
-                    } catch (InvalidValueException e) {
-                        LOGGER.error(String.format("Error on transaction. %n%s", JSONConverter.getJSON(t, true)), e);
-                    }
-                });
+        failedBids.stream().filter(b -> !b.equals(winningBid)).forEach(t -> {
+            try {
+                balanceTransactionCanceller.cancel(t.getTopicBidCreation());
+            } catch (InvalidValueException e) {
+                LOGGER.error(String.format("Error on transaction. %n%s", JSONConverter.getJSON(t, true)), e);
+            }
+        });
     }
 
     @Override

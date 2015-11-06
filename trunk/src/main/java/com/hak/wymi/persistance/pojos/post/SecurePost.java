@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.post;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.pojos.trial.TrialState;
 import org.joda.time.DateTime;
 
 public class SecurePost implements SecureToSend {
@@ -15,6 +16,7 @@ public class SecurePost implements SecureToSend {
     private final Integer points;
     private final Boolean trashed;
     private final DateTime created;
+    private final TrialState trialState;
 
     public SecurePost(Post post) {
         this.postId = post.getPostId();
@@ -28,6 +30,11 @@ public class SecurePost implements SecureToSend {
         this.points = post.getPoints();
         this.trashed = post.getTrashed();
         this.created = post.getCreated();
+        if (post.getTrial() != null) {
+            trialState = post.getTrial().getState();
+        } else {
+            trialState = null;
+        }
     }
 
     public String getUser() {
@@ -72,5 +79,9 @@ public class SecurePost implements SecureToSend {
 
     public Boolean getTrashed() {
         return trashed;
+    }
+
+    public TrialState getTrialState() {
+        return trialState;
     }
 }

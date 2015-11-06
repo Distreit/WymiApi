@@ -25,7 +25,6 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class PostController {
@@ -50,18 +49,18 @@ public class PostController {
         return new ResponseEntity<>(new UniversalResponse().setData(new SecurePost(post)), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getPosts(@PathVariable String topicName,
-                                                      @RequestParam(required = false, defaultValue = "0") Integer firstResult,
-                                                      @RequestParam(required = false, defaultValue = "25") Integer maxResults
-    ) {
-        final List<SecureToSend> secureTopics = postManger
-                .get(topicName, firstResult, Math.min(MAX_RESULTS_PER_REQUEST, maxResults))
-                .stream()
-                .map(SecurePost::new)
-                .collect(Collectors.toCollection(LinkedList::new));
-        return new ResponseEntity<>(new UniversalResponse().setData(secureTopics), HttpStatus.ACCEPTED);
-    }
+//    @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.GET, produces = Constants.JSON)
+//    public ResponseEntity<UniversalResponse> getPosts(@PathVariable String topicName,
+//                                                      @RequestParam(required = false, defaultValue = "0") Integer firstResult,
+//                                                      @RequestParam(required = false, defaultValue = "25") Integer maxResults
+//    ) {
+//        final List<SecureToSend> secureTopics = postManger
+//                .get(topicName, firstResult, Math.min(MAX_RESULTS_PER_REQUEST, maxResults))
+//                .stream()
+//                .map(SecurePost::new)
+//                .collect(Collectors.toCollection(LinkedList::new));
+//        return new ResponseEntity<>(new UniversalResponse().setData(secureTopics), HttpStatus.ACCEPTED);
+//    }
 
     @RequestMapping(value = "/topic/{topicName}/post/{postId}", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPost(@PathVariable Integer postId) {
@@ -81,11 +80,8 @@ public class PostController {
         if (topics != null) {
             topicList.addAll(Arrays.asList(topics.split(",")));
         }
-        final List<SecureToSend> posts = postManger
-                .get(topicList, firstResult, maxResults, filter, trashed)
-                .stream()
-                .map(SecurePost::new)
-                .collect(Collectors.toCollection(LinkedList::new));
+        final List<? extends SecureToSend> posts = postManger
+                .getSecure(topicList, firstResult, maxResults, filter, trashed);
 
         return new ResponseEntity<>(new UniversalResponse().setData(posts), HttpStatus.ACCEPTED);
     }

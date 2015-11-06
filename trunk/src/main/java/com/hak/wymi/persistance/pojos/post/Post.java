@@ -38,6 +38,9 @@ public class Post extends PersistentObject implements HasPointsBalance {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "post")
     private PostCreation postCreation;
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "post")
+    private PostTrial trial;
+
     @ManyToOne
     @JoinColumn(name = "userId")
     private User user;
@@ -69,6 +72,12 @@ public class Post extends PersistentObject implements HasPointsBalance {
     private Double base;
 
     private Integer donations = 0;
+
+    private String deletedTitle;
+
+    private String deletedHref;
+
+    private String deletedText;
 
     public Integer getPostId() {
         return postId;
@@ -228,5 +237,48 @@ public class Post extends PersistentObject implements HasPointsBalance {
     @JsonValue
     public SecurePost getSecurePost() {
         return new SecurePost(this);
+    }
+
+    public void delete() {
+        this.deleted = true;
+        this.deletedTitle = this.title;
+        this.deletedHref = this.href;
+        this.deletedText = this.text;
+
+        this.title = "DELETED";
+        this.href = "DELETED";
+        this.text = "DELETED";
+    }
+
+    public String getDeletedTitle() {
+        return deletedTitle;
+    }
+
+    public void setDeletedTitle(String deletedTitle) {
+        this.deletedTitle = deletedTitle;
+    }
+
+    public String getDeletedHref() {
+        return deletedHref;
+    }
+
+    public void setDeletedHref(String deletedHref) {
+        this.deletedHref = deletedHref;
+    }
+
+    public String getDeletedText() {
+        return deletedText;
+    }
+
+    public void setDeletedText(String deletedText) {
+        this.deletedText = deletedText;
+    }
+
+    public PostTrial getTrial() {
+        return trial;
+    }
+
+    public void setTrial(PostTrial trial) {
+        this.trial = trial;
     }
 }

@@ -17,17 +17,17 @@ public class PostDaoImpl implements PostDao {
     @Autowired
     private SessionFactory sessionFactory;
 
-    @Override
-    @Transactional(propagation = Propagation.MANDATORY)
-    public List<Post> get(String topicName, int firstResult, int maxResults) {
-        return sessionFactory
-                .getCurrentSession()
-                .createQuery("FROM Post p WHERE p.topic.name=:topicName and deleted=false ORDER BY p.score DESC")
-                .setParameter("topicName", topicName)
-                .setFirstResult(firstResult)
-                .setMaxResults(maxResults)
-                .list();
-    }
+//    @Override
+//    @Transactional(propagation = Propagation.MANDATORY)
+//    public List<Post> get(String topicName, int firstResult, int maxResults) {
+//        return sessionFactory
+//                .getCurrentSession()
+//                .createQuery("FROM Post p WHERE p.topic.name=:topicName and deleted=false ORDER BY p.score DESC")
+//                .setParameter("topicName", topicName)
+//                .setFirstResult(firstResult)
+//                .setMaxResults(maxResults)
+//                .list();
+//    }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)

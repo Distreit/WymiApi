@@ -39,6 +39,7 @@ public class PostTrialJurorDaoImpl implements PostTrialJurorDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public void clearExpired() {
         sessionFactory
                 .getCurrentSession()
@@ -50,9 +51,17 @@ public class PostTrialJurorDaoImpl implements PostTrialJurorDao {
                 .executeUpdate();
     }
 
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public PostTrialJuror get(Integer postTrialJurorId) {
+        return (PostTrialJuror) sessionFactory
+                .getCurrentSession()
+                .load(PostTrialJuror.class, postTrialJurorId);
+    }
+
     private PostTrialJuror setExpires(PostTrialJuror postTrialJuror) {
         if (postTrialJuror != null) {
-            postTrialJuror.setExpires(postTrialJuror.getCreated().plus(juryTimeout));
+            postTrialJuror.setExpires(postTrialJuror.getCreated().plusSeconds(juryTimeout.intValue()));
         }
         return postTrialJuror;
     }

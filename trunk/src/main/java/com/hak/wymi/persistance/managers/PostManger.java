@@ -6,6 +6,7 @@ import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.post.PostCreation;
 import com.hak.wymi.persistance.pojos.post.PostCreationDao;
 import com.hak.wymi.persistance.pojos.post.PostDao;
+import com.hak.wymi.persistance.pojos.post.SecurePost;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.topic.TopicDao;
 import com.hak.wymi.persistance.pojos.user.User;
@@ -18,7 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostManger {
@@ -45,10 +48,10 @@ public class PostManger {
     @Autowired
     private TransactionProcessor transactionProcessor;
 
-    @Transactional
-    public List<Post> get(String topicName, Integer firstResult, int min) {
-        return postDao.get(topicName, firstResult, min);
-    }
+//    @Transactional
+//    public List<Post> get(String topicName, Integer firstResult, int min) {
+//        return postDao.get(topicName, firstResult, min);
+//    }
 
     @Transactional
     public Post get(Integer postId) {
@@ -56,8 +59,11 @@ public class PostManger {
     }
 
     @Transactional
-    public List<Post> get(List<String> topicList, Integer firstResult, Integer maxResults, Boolean filter, boolean trashed) {
-        return postDao.get(topicList, firstResult, maxResults, filter, trashed);
+    public List<SecurePost> getSecure(List<String> topicList, Integer firstResult, Integer maxResults, Boolean filter, boolean trashed) {
+        return postDao.get(topicList, firstResult, maxResults, filter, trashed)
+                .stream()
+                .map(SecurePost::new)
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Transactional
@@ -104,10 +110,7 @@ public class PostManger {
     public void delete(int postId, String userName) {
         final Post post = get(postId);
         if (!post.getDeleted() && post.getUser().getName().equals(userName)) {
-            post.setDeleted(true);
-            post.setTitle("DELETED");
-            post.setHref("http://siteDomain");
-            post.setText("DELETED");
+            post.delete();
             postDao.update(post);
         } else {
             throw new UnsupportedOperationException("User not allowed to delete post.");
