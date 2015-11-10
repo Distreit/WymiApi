@@ -31,14 +31,27 @@ public class CommentController {
     @Autowired
     private CommentManager commentManager;
 
-    @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
+    @RequestMapping(value = {""}, method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createComment(
             @Validated({Creation.class}) @RequestBody Comment comment,
             @PathVariable Integer postId,
             @RequestParam(required = true) Integer feeFlat,
             @RequestParam(required = true) Integer feePercent,
-            @RequestParam(required = false) Integer parentCommentId,
+            Principal principal
+    ) throws InvalidValueException {
+        commentManager.create(comment, principal.getName(), postId, feeFlat, feePercent, null);
+        return new ResponseEntity<>(new UniversalResponse().setData(new SecureComment(comment)), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = {"/{parentCommentId}"}, method = RequestMethod.POST, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> createCommentWithParent(
+            @Validated({Creation.class}) @RequestBody Comment comment,
+            @PathVariable Integer postId,
+            @RequestParam(required = true) Integer feeFlat,
+            @RequestParam(required = true) Integer feePercent,
+            @PathVariable Integer parentCommentId,
             Principal principal
     ) throws InvalidValueException {
         commentManager.create(comment, principal.getName(), postId, feeFlat, feePercent, parentCommentId);
