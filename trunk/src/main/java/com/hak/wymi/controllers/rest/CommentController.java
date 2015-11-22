@@ -26,12 +26,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "post/{postId}/comment")
 public class CommentController {
     @Autowired
     private CommentManager commentManager;
 
-    @RequestMapping(value = {""}, method = RequestMethod.POST, produces = Constants.JSON)
+    @RequestMapping(value = {"post/{postId}/comment"}, method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createComment(
             @Validated({Creation.class}) @RequestBody Comment comment,
@@ -44,7 +43,7 @@ public class CommentController {
         return new ResponseEntity<>(new UniversalResponse().setData(new SecureComment(comment)), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = {"/{parentCommentId}"}, method = RequestMethod.POST, produces = Constants.JSON)
+    @RequestMapping(value = {"post/{postId}/comment/{parentCommentId}"}, method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> createCommentWithParent(
             @Validated({Creation.class}) @RequestBody Comment comment,
@@ -58,7 +57,7 @@ public class CommentController {
         return new ResponseEntity<>(new UniversalResponse().setData(new SecureComment(comment)), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.PUT, produces = Constants.JSON)
+    @RequestMapping(value = "post/{postId}/comment", method = RequestMethod.PUT, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> updateComment(
             @RequestBody Comment comment,
@@ -68,7 +67,7 @@ public class CommentController {
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
+    @RequestMapping(value = "post/{postId}/comment", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getComments(@PathVariable Integer postId) {
         final List<SecureToSend> comments = commentManager.getAll(postId)
                 .stream()
@@ -78,10 +77,19 @@ public class CommentController {
         return new ResponseEntity<>(new UniversalResponse().setData(comments), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/{commentId}", method = RequestMethod.DELETE, produces = Constants.JSON)
+    @RequestMapping(value = "post/{postId}/comment/{commentId}", method = RequestMethod.DELETE, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> deleteComments(@PathVariable Integer commentId, Principal principal) {
         commentManager.delete(commentId, principal);
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "comment/{commentId}/trashed", method = RequestMethod.PATCH, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> setTrashed(@PathVariable Integer commentId,
+                                                        @RequestParam(required = true) Boolean trashed,
+                                                        Principal principal) {
+        commentManager.updateTrashed(commentId, trashed, principal.getName());
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 }

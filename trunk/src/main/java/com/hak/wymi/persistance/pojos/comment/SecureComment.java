@@ -22,6 +22,8 @@ public class SecureComment implements SecureToSend {
 
     private final Boolean deleted;
 
+    private final Boolean trashed;
+
     private final List<SecureComment> replies;
 
     private final Integer replyCount;
@@ -42,6 +44,7 @@ public class SecureComment implements SecureToSend {
         this.replies = new LinkedList<>();
         this.replyCount = comment.getReplyCount();
         this.deleted = comment.getDeleted();
+        this.trashed = comment.getTrashed();
 
         if (comment.getReplies() != null) {
             this.replies.addAll(comment.getReplies().stream().map(SecureComment::new).collect(Collectors.toList()));
@@ -82,5 +85,9 @@ public class SecureComment implements SecureToSend {
 
     public Boolean getDeleted() {
         return deleted;
+    }
+
+    public Boolean getTrashed() {
+        return trashed;
     }
 }

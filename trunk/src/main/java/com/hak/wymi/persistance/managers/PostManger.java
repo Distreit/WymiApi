@@ -96,7 +96,7 @@ public class PostManger {
             post.setTopic(topic);
             post.setUser(user);
             post.setBase(getBaseTime());
-            post.setScore(post.getBase());
+            post.setPoints(0);
 
             postCreationDao.save(transaction);
             transactionProcessor.process(transaction);

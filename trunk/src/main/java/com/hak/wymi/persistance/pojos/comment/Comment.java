@@ -62,7 +62,11 @@ public class Comment extends PersistentObject implements HasPointsBalance {
 
     private Double score;
 
+    private Double base;
+
     private Boolean deleted;
+
+    private Boolean trashed;
 
     @Size(max = 10000, min = 1, groups = {Creation.class})
     private String content;
@@ -121,7 +125,7 @@ public class Comment extends PersistentObject implements HasPointsBalance {
 
     public void setPoints(Integer points) {
         this.points = points;
-        this.score = points.doubleValue();
+        this.score = base + points;
     }
 
     public Boolean getDeleted() {
@@ -137,7 +141,7 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     }
 
     public void setContent(String content) {
-        if (this.deleted) {
+        if (this.deleted != null && this.deleted) {
             throw new UnsupportedOperationException("Cannot update deleted comment.");
         }
         this.content = content;
@@ -220,5 +224,21 @@ public class Comment extends PersistentObject implements HasPointsBalance {
 
     public Integer getReplyCount() {
         return replyCount;
+    }
+
+    public Double getBase() {
+        return base;
+    }
+
+    public void setBase(Double base) {
+        this.base = base;
+    }
+
+    public Boolean getTrashed() {
+        return trashed;
+    }
+
+    public void setTrashed(Boolean trashed) {
+        this.trashed = trashed;
     }
 }
