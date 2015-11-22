@@ -116,8 +116,7 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
                                             List<UserTopicRank> winningRanks) {
         session.buildLockRequest(pessimisticWrite).lock(ownershipTransaction);
 
-        final Topic topic = ownershipTransaction.getTopic();
-        session.buildLockRequest(pessimisticWrite).lock(topic);
+        final Topic topic = (Topic) session.get(Topic.class, ownershipTransaction.getTopic().getTopicId(), pessimisticWrite);
 
         final TopicBid topicBid = ownershipTransaction.getWinningBid();
         if (topicBid != null) {
@@ -175,7 +174,7 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     public boolean saveOrUpdate(OwnershipTransaction ownershipTransaction, List<TopicBid> failedBids) {
         final Session session = sessionFactory.getCurrentSession();
         final Topic topic = ownershipTransaction.getTopic();
-        session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(topic);
+        session.buildLockRequest(pessimisticWrite).lock(topic);
 
         if (failedBids != null) {
             final TopicBid winningBid = ownershipTransaction.getWinningBid();

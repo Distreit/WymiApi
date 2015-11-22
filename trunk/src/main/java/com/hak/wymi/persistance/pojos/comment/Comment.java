@@ -12,6 +12,7 @@ import com.hak.wymi.validations.groups.Creation;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -70,6 +71,9 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     @Fetch(value = FetchMode.SELECT)
     @BatchSize(size = 10)
     private List<Comment> replies;
+
+    @Formula("(select count(c.commentId) from comment c where c.parentCommentId=commentId)")
+    private Integer replyCount;
 
     public List<Comment> getReplies() {
         return replies;
@@ -133,6 +137,9 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     }
 
     public void setContent(String content) {
+        if (this.deleted) {
+            throw new UnsupportedOperationException("Cannot update deleted comment.");
+        }
         this.content = content;
     }
 
@@ -209,5 +216,9 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     @JsonValue
     public SecureComment getSecureComment() {
         return new SecureComment(this);
+    }
+
+    public Integer getReplyCount() {
+        return replyCount;
     }
 }
