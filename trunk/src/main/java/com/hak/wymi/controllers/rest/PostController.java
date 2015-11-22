@@ -28,8 +28,6 @@ import java.util.List;
 
 @RestController
 public class PostController {
-    private static final int MAX_RESULTS_PER_REQUEST = 100;
-
     @Autowired
     private PostManger postManger;
 
@@ -48,19 +46,6 @@ public class PostController {
         postManger.create(post, topicName, principal.getName(), feeFlat, feePercent);
         return new ResponseEntity<>(new UniversalResponse().setData(new SecurePost(post)), HttpStatus.ACCEPTED);
     }
-
-//    @RequestMapping(value = "/topic/{topicName}/post", method = RequestMethod.GET, produces = Constants.JSON)
-//    public ResponseEntity<UniversalResponse> getPosts(@PathVariable String topicName,
-//                                                      @RequestParam(required = false, defaultValue = "0") Integer firstResult,
-//                                                      @RequestParam(required = false, defaultValue = "25") Integer maxResults
-//    ) {
-//        final List<SecureToSend> secureTopics = postManger
-//                .get(topicName, firstResult, Math.min(MAX_RESULTS_PER_REQUEST, maxResults))
-//                .stream()
-//                .map(SecurePost::new)
-//                .collect(Collectors.toCollection(LinkedList::new));
-//        return new ResponseEntity<>(new UniversalResponse().setData(secureTopics), HttpStatus.ACCEPTED);
-//    }
 
     @RequestMapping(value = "/topic/{topicName}/post/{postId}", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPost(@PathVariable Integer postId) {
@@ -105,7 +90,7 @@ public class PostController {
     @RequestMapping(value = "/post/{postId}/trial", method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> reportPost(@PathVariable Integer postId, Principal principal) {
-        trialManager.create(postId, principal.getName());
+        trialManager.createPostTrial(postId, principal.getName());
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 }

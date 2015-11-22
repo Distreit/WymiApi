@@ -73,7 +73,7 @@ public class RentManager {
             } else {
                 LOGGER.info("Topic {} going to transfer ownership to {} unless owner responds by {}.",
                         topic.getName(), maxBid.getUser().getName(), transaction.getWaitingPeriodExpiration());
-                //TODO: Email/Message current owner with expiration time, need to create way for owner to claim site first.
+                //TODO: Email/Message current owner with expiration time, need to createPostTrial way for owner to claim site first.
             }
         }
     }

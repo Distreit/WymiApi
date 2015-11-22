@@ -56,6 +56,9 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     @Null(groups = {Creation.class})
     private CommentCreation commentCreation;
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "comment")
+    private CommentTrial trial;
+
     private Integer points;
 
     private Integer donations;
@@ -240,5 +243,18 @@ public class Comment extends PersistentObject implements HasPointsBalance {
 
     public void setTrashed(Boolean trashed) {
         this.trashed = trashed;
+    }
+
+    public CommentTrial getTrial() {
+        return trial;
+    }
+
+    public void setTrial(CommentTrial trial) {
+        this.trial = trial;
+    }
+
+    public void delete() {
+        this.deleted = true;
+        this.content = "";
     }
 }

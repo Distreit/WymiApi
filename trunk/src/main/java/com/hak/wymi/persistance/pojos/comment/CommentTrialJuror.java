@@ -1,4 +1,4 @@
-package com.hak.wymi.persistance.pojos.post;
+package com.hak.wymi.persistance.pojos.comment;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
@@ -22,14 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Entity
-@Table(name = "posttrialjuror")
-public class PostTrialJuror extends PersistentObject implements Juror, SecureToSend {
+@Table(name = "commenttrialjuror")
+public class CommentTrialJuror extends PersistentObject implements Juror, SecureToSend {
     private static final long serialVersionUID = -5680636463620637739L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NotNull(groups = {Update.class})
-    private Integer postTrialJurorId;
+    private Integer commentTrialJurorId;
 
     @ManyToOne
     @JoinColumn(name = "userId")
@@ -37,9 +37,9 @@ public class PostTrialJuror extends PersistentObject implements Juror, SecureToS
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "postId")
+    @JoinColumn(name = "commentId")
     @Null(groups = {Update.class})
-    private PostTrial postTrial;
+    private CommentTrial commentTrial;
 
     @NotNull(groups = {Update.class})
     private Boolean violatedSiteRuleVote;
@@ -51,22 +51,22 @@ public class PostTrialJuror extends PersistentObject implements Juror, SecureToS
     @Null(groups = {Update.class})
     private DateTime expires;
 
-    public PostTrialJuror() {
+    public CommentTrialJuror() {
         super();
     }
 
-    public PostTrialJuror(PostTrial postTrial, User user) {
+    public CommentTrialJuror(CommentTrial commentTrial, User user) {
         super();
-        this.postTrial = postTrial;
+        this.commentTrial = commentTrial;
         this.user = user;
     }
 
-    public Integer getPostTrialJurorId() {
-        return postTrialJurorId;
+    public Integer getCommentTrialJurorId() {
+        return commentTrialJurorId;
     }
 
-    public void setPostTrialJurorId(Integer postTrialJurorId) {
-        this.postTrialJurorId = postTrialJurorId;
+    public void setCommentTrialJurorId(Integer commentTrialJurorId) {
+        this.commentTrialJurorId = commentTrialJurorId;
     }
 
     public User getUser() {
@@ -77,12 +77,12 @@ public class PostTrialJuror extends PersistentObject implements Juror, SecureToS
         this.user = user;
     }
 
-    public PostTrial getPostTrial() {
-        return postTrial;
+    public CommentTrial getCommentTrial() {
+        return commentTrial;
     }
 
-    public void setPostTrial(PostTrial postTrial) {
-        this.postTrial = postTrial;
+    public void setCommentTrial(CommentTrial commentTrial) {
+        this.commentTrial = commentTrial;
     }
 
     public Boolean getViolatedSiteRuleVote() {
@@ -105,8 +105,8 @@ public class PostTrialJuror extends PersistentObject implements Juror, SecureToS
     public Map<String, Object> jsonValue() {
         final Map<String, Object> jsonValue = new HashMap<>();
         jsonValue.put("expires", this.expires);
-        jsonValue.put("postTrialJurorId", this.postTrialJurorId);
-        jsonValue.put("post", this.postTrial);
+        jsonValue.put("commentTrialJurorId", this.commentTrialJurorId);
+        jsonValue.put("comment", this.commentTrial);
         jsonValue.put("violatedSiteRuleVote", this.violatedSiteRuleVote);
         jsonValue.put("isIllegalVote", this.isIllegalVote);
         return jsonValue;

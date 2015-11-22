@@ -1,6 +1,7 @@
 package com.hak.wymi.persistance.pojos.comment;
 
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.pojos.trial.TrialState;
 import org.joda.time.DateTime;
 
 import java.util.LinkedList;
@@ -28,6 +29,8 @@ public class SecureComment implements SecureToSend {
 
     private final Integer replyCount;
 
+    private final TrialState trialState;
+
     public SecureComment(Comment comment) {
         if (comment.getDeleted()) {
             this.authorName = "[DELETED]";
@@ -48,6 +51,12 @@ public class SecureComment implements SecureToSend {
 
         if (comment.getReplies() != null) {
             this.replies.addAll(comment.getReplies().stream().map(SecureComment::new).collect(Collectors.toList()));
+        }
+
+        if (comment.getTrial() != null) {
+            trialState = comment.getTrial().getState();
+        } else {
+            trialState = null;
         }
     }
 
@@ -89,5 +98,9 @@ public class SecureComment implements SecureToSend {
 
     public Boolean getTrashed() {
         return trashed;
+    }
+
+    public TrialState getTrialState() {
+        return trialState;
     }
 }

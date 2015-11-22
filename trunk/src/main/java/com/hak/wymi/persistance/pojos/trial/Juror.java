@@ -1,4 +1,6 @@
 package com.hak.wymi.persistance.pojos.trial;
 
-public interface Juror {
+import com.hak.wymi.persistance.interfaces.SecureToSend;
+
+public interface Juror extends SecureToSend {
 }

@@ -4,6 +4,7 @@ import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.managers.CommentManager;
+import com.hak.wymi.persistance.managers.TrialManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.comment.Comment;
 import com.hak.wymi.persistance.pojos.comment.SecureComment;
@@ -29,6 +30,9 @@ import java.util.stream.Collectors;
 public class CommentController {
     @Autowired
     private CommentManager commentManager;
+
+    @Autowired
+    private TrialManager trialManager;
 
     @RequestMapping(value = {"post/{postId}/comment"}, method = RequestMethod.POST, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
@@ -90,6 +94,13 @@ public class CommentController {
                                                         @RequestParam(required = true) Boolean trashed,
                                                         Principal principal) {
         commentManager.updateTrashed(commentId, trashed, principal.getName());
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "comment/{commentId}/trial", method = RequestMethod.POST, produces = Constants.JSON)
+    @PreAuthorize("hasRole('ROLE_VALIDATED')")
+    public ResponseEntity<UniversalResponse> reportPost(@PathVariable Integer commentId, Principal principal) {
+        trialManager.createCommentTrial(commentId, principal.getName());
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 }
