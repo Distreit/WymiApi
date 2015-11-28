@@ -10,7 +10,7 @@ public class SecurePost implements SecureToSend {
     private final String topic;
     private final String title;
     private final Integer commentCount;
-    private final String url;
+    private final String href;
     private final String text;
     private final Double score;
     private final Integer points;
@@ -24,7 +24,7 @@ public class SecurePost implements SecureToSend {
         this.topic = post.getTopic().getName();
         this.title = post.getTitle();
         this.commentCount = post.getCommentCounts();
-        this.url = post.getHref();
+        this.href = post.getHref();
         this.text = post.getText();
         this.score = post.getScore();
         this.points = post.getPoints();
@@ -49,8 +49,8 @@ public class SecurePost implements SecureToSend {
         return title;
     }
 
-    public String getUrl() {
-        return url;
+    public String getHref() {
+        return href;
     }
 
     public String getText() {
