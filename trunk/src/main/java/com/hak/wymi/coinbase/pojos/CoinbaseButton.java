@@ -1,4 +1,4 @@
-package com.hak.wymi.coinbase;
+package com.hak.wymi.coinbase.pojos;
 
 public class CoinbaseButton {
     private String type;

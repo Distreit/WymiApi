@@ -1,4 +1,4 @@
-package com.hak.wymi.coinbase;
+package com.hak.wymi.coinbase.pojos;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

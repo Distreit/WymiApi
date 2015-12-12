@@ -3,6 +3,8 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.managers.CoinbaseResponseManager;
+import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
+import com.hak.wymi.persistance.pojos.coinbaseresponse.CoinbaseRawResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,12 +25,28 @@ public class CoinbaseController {
     @Value("${coinbase.ipAddress}")
     private String coinbaseIpAddress;
 
-    @RequestMapping(value = {"coinbase"}, method = RequestMethod.POST, produces = Constants.JSON)
+    @RequestMapping(value = {"coinbase/1634415595671652268"}, method = RequestMethod.POST, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> createComment(HttpServletRequest request) {
         if (request.getRemoteAddr().equals(coinbaseIpAddress)) {
             String body = getBody(request);
+
             coinbaseResponseManager.saveNewResponse(body);
+            for (CoinbaseRawResponse response : coinbaseResponseManager.getUnprocessed()) {
+                try {
+                    coinbaseResponseManager.process(response);
+                } catch (IOException | InvalidValueException e) {
+                    e.printStackTrace();
+                }
+            }
             return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
+        }
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.BAD_REQUEST);
+    }
+
+    @RequestMapping(value = {"cbtest"}, method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> test() throws IOException, InvalidValueException {
+        for (CoinbaseRawResponse response : coinbaseResponseManager.getUnprocessed()) {
+            coinbaseResponseManager.process(response);
         }
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.BAD_REQUEST);
     }
