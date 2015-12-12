@@ -47,10 +47,11 @@ public class TopicBidManager {
     }
 
     @Transactional(rollbackFor = {InvalidValueException.class})
-    public void cancel(Integer topicBidId, String userName) throws InvalidValueException {
+    public TopicBid cancel(Integer topicBidId, String userName) throws InvalidValueException {
         final TopicBidCreation topicBidCreation = topicBidDao.getTransaction(topicBidId);
         final User user = userDao.getFromName(userName);
         transactionProcessor.cancel(user, topicBidCreation);
+        return topicBidCreation.getTopicBid();
     }
 
     @Transactional(rollbackFor = {InvalidValueException.class})

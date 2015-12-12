@@ -58,8 +58,8 @@ public class TopicBidController {
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> cancelTopicBid(@PathVariable Integer topicBidId, Principal principal)
             throws InvalidValueException {
-        topicBidManager.cancel(topicBidId, principal.getName());
-        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
+        final SecureToSend topicBid = topicBidManager.cancel(topicBidId, principal.getName()).getSecureTopicBid();
+        return new ResponseEntity<>(new UniversalResponse().setData(topicBid), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
