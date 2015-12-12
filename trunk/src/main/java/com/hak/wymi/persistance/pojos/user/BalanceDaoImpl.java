@@ -20,4 +20,10 @@ public class BalanceDaoImpl implements BalanceDao {
                 .setParameter("userId", userId)
                 .uniqueResult();
     }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void update(Balance balance) {
+        sessionFactory.getCurrentSession().update(balance);
+    }
 }
