@@ -37,6 +37,14 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
             total += 1;
         }
 
+        if (password.length() > 12) {
+            total += 1;
+        }
+
+        if (password.length() > 16) {
+            total += 1;
+        }
+
         return total >= CATEGORY_COUNT && password.length() >= MIN_LENGTH;
     }
 
