@@ -45,7 +45,7 @@ public class User extends PersistentObject implements HasPassword {
 
     @NotNull
     @Size(min = 3, max = 30, message = "Name must be between 3 and 30 characters in length")
-    @Pattern(regexp = "[0-9a-zA-Z-_]*")
+    @Pattern(regexp = "^[0-9a-zA-Z][0-9a-zA-Z-_]*$")
     private String name;
 
     @NotNull
