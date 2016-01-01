@@ -116,6 +116,7 @@ public class UserController {
     public ResponseEntity<UniversalResponse> registerNewUser(@Validated({Default.class, Creation.class}) @RequestBody User user) {
         user.setRoles("ROLE_USER");
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+        user.setWillingJuror(true);
         userManager.save(user);
 
         final String code = getValidationCode(user, CallbackCodeType.VALIDATION);
