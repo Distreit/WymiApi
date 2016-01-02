@@ -1,10 +1,8 @@
 package com.hak.wymi.persistance.ranker;
 
 import com.hak.wymi.persistance.pojos.balancetransaction.DonationTransaction;
-import com.hak.wymi.persistance.pojos.comment.CommentDonation;
 import com.hak.wymi.persistance.pojos.topic.Topic;
 import com.hak.wymi.persistance.pojos.user.User;
-import com.hak.wymi.persistance.pojos.usertopicrank.UserTopicRank;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -34,14 +32,14 @@ public class UserTopicRankerTest extends TestCase {
 
     @Test
     public void testRunOn() throws Exception {
-        CommentDonation commentDonationA = new CommentDonation();
-        commentDonationA.setAmount(10);
-
-        donations.add(commentDonationA);
-
-        ranker.runOn(donations, 0.0000001, 1000, 0.825);
-        for (UserTopicRank rank : ranker.getUserRanks()) {
-            System.out.println(rank.getRank());
-        }
+//        CommentDonation commentDonationA = new CommentDonation();
+//        commentDonationA.setAmount(10);
+//
+//        donations.add(commentDonationA);
+//
+//        ranker.runOn(donations, 0.0000001, 1000, 0.825);
+//        for (UserTopicRank rank : ranker.getUserRanks()) {
+//            System.out.println(rank.getRank());
+//        }
     }
 }
