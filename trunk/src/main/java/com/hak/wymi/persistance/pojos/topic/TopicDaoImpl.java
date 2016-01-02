@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.topic;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,22 +22,6 @@ public class TopicDaoImpl implements TopicDao {
     public boolean update(Topic topic) {
         sessionFactory.getCurrentSession().update(topic);
         return true;
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.MANDATORY)
-    public Topic update(Topic partialTopic, Principal principal) {
-        final Session session = sessionFactory.getCurrentSession();
-        final Topic topic = (Topic) session.createQuery("from Topic where lower(name)=:name and owner.name=:ownerName")
-                .setParameter("name", partialTopic.getName().toLowerCase(Locale.ENGLISH))
-                .setParameter("ownerName", principal.getName())
-                .uniqueResult();
-
-        topic.setFeePercent(partialTopic.getFeePercent());
-        topic.setFeeFlat(partialTopic.getFeeFlat());
-        session.update(topic);
-        topic.getOwner();
-        return topic;
     }
 
     @Override

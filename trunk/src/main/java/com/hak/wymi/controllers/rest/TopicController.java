@@ -65,11 +65,8 @@ public class TopicController {
     public ResponseEntity<UniversalResponse> patchTopic(@Validated({Update.class}) @RequestBody Topic topic, Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final Topic persistantTopic = topicManager.update(topic, principal);
-        if (persistantTopic != null) {
-            return new ResponseEntity<>(universalResponse.setData(new SecureTopic(persistantTopic)), HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(universalResponse.addUnknownError(), HttpStatus.INTERNAL_SERVER_ERROR);
+        final Topic persistentTopic = topicManager.update(topic, principal.getName());
+        return new ResponseEntity<>(universalResponse.setData(new SecureTopic(persistentTopic)), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)

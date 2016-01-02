@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.List;
 
 @Service
@@ -25,13 +24,21 @@ public class TopicManager {
     }
 
     @Transactional
-    public boolean update(Topic topic) {
-        return topicDao.update(topic);
-    }
+    public Topic update(Topic topic, String userName) {
+        Topic persistentTopic = topicDao.get(topic.getName());
 
-    @Transactional
-    public Topic update(Topic topic, Principal principal) {
-        return topicDao.update(topic, principal);
+        if (persistentTopic.getOwner().getName().equals(userName)) {
+            persistentTopic.setTitle(topic.getTitle());
+            persistentTopic.setDescription(topic.getDescription());
+            persistentTopic.setFeePercent(topic.getFeePercent());
+            persistentTopic.setFeeFlat(topic.getFeeFlat());
+
+            topicDao.update(persistentTopic);
+
+            return persistentTopic;
+        } else {
+            throw new UnsupportedOperationException("User does not have update access to this topic.");
+        }
     }
 
     @Transactional
