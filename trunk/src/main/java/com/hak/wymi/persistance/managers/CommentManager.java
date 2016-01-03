@@ -83,6 +83,8 @@ public class CommentManager {
             comment.setBase(getBaseTime());
             comment.setPoints(0);
             comment.setDonations(0);
+            comment.setDeleted(false);
+            comment.setTrashed(false);
 
             commentCreationDao.save(transaction);
             transactionProcessor.process(transaction);

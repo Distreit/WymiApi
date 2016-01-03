@@ -9,6 +9,7 @@ import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValue
 import com.hak.wymi.persistance.pojos.comment.Comment;
 import com.hak.wymi.persistance.pojos.comment.SecureComment;
 import com.hak.wymi.validations.groups.Creation;
+import com.hak.wymi.validations.groups.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,7 +65,7 @@ public class CommentController {
     @RequestMapping(value = "post/{postId}/comment", method = RequestMethod.PUT, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> updateComment(
-            @RequestBody Comment comment,
+            @Validated({Update.class}) @RequestBody Comment comment,
             Principal principal
     ) throws InvalidValueException {
         commentManager.update(comment, principal.getName());

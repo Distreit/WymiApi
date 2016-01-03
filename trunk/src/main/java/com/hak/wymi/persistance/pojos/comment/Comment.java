@@ -9,6 +9,7 @@ import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.NegativePoin
 import com.hak.wymi.persistance.pojos.post.Post;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.validations.groups.Creation;
+import com.hak.wymi.validations.groups.Update;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -24,6 +25,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -36,50 +38,64 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null(groups = {Creation.class})
+    @NotNull(groups = {Update.class})
     private Integer commentId;
 
     @ManyToOne
     @JoinColumn(name = "authorId")
-    @Null(groups = {Creation.class})
+    @Null(groups = {Creation.class, Update.class})
     private User author;
 
     @ManyToOne
     @JoinColumn(name = "postId")
-    @Null(groups = {Creation.class})
+    @Null(groups = {Creation.class, Update.class})
     private Post post;
 
     @ManyToOne
     @JoinColumn(name = "parentCommentId")
+    @Null(groups = {Update.class})
     private Comment parentComment;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "comment")
-    @Null(groups = {Creation.class})
+    @Null(groups = {Creation.class, Update.class})
     private CommentCreation commentCreation;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "comment")
     private CommentTrial trial;
 
+    @Null(groups = {Creation.class, Update.class})
     private Integer points;
 
+    @Null(groups = {Creation.class, Update.class})
     private Integer donations;
 
+    @Null(groups = {Creation.class, Update.class})
     private Double score;
 
+    @Null(groups = {Creation.class, Update.class})
     private Double base;
 
+    @Null(groups = {Creation.class, Update.class})
     private Boolean deleted;
 
+    @Null(groups = {Creation.class, Update.class})
     private Boolean trashed;
 
-    @Size(max = 10000, min = 1, groups = {Creation.class})
+    @Size.List({
+            @Size(max = 10000, min = 0, groups = {Update.class}),
+            @Size(max = 10000, min = 1, groups = {Creation.class})
+    })
+    @NotNull(groups = {Creation.class, Update.class})
     private String content;
 
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SELECT)
     @BatchSize(size = 10)
+    @Null(groups = {Creation.class, Update.class})
     private List<Comment> replies;
 
     @Formula("(select count(c.commentId) from comment c where c.parentCommentId=commentId)")
+    @Null(groups = {Creation.class, Update.class})
     private Integer replyCount;
 
     public List<Comment> getReplies() {

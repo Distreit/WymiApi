@@ -5,6 +5,9 @@ import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.managers.CoinbaseResponseManager;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.coinbaseresponse.CoinbaseRawResponse;
+import com.hak.wymi.utility.IPChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,8 @@ import java.io.IOException;
 
 @RestController
 public class CoinbaseController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoinbaseController.class);
+
     @Autowired
     private CoinbaseResponseManager coinbaseResponseManager;
 
@@ -27,7 +32,7 @@ public class CoinbaseController {
 
     @RequestMapping(value = {"coinbase/1634415595671652268"}, method = RequestMethod.POST, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> createComment(HttpServletRequest request) {
-        if (request.getRemoteAddr().equals(coinbaseIpAddress)) {
+        if (IPChecker.checkIp(coinbaseIpAddress, request.getRemoteAddr())) {
             String body = getBody(request);
 
             coinbaseResponseManager.saveNewResponse(body);
@@ -35,10 +40,12 @@ public class CoinbaseController {
                 try {
                     coinbaseResponseManager.process(response);
                 } catch (IOException | InvalidValueException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Failed to process Coinbase response.");
                 }
             }
             return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
+        } else {
+            LOGGER.error("Coinbase response received from bad IP address (%s)", request.getRemoteAddr());
         }
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.BAD_REQUEST);
     }
