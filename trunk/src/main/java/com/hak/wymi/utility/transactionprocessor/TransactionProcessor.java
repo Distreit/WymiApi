@@ -73,7 +73,7 @@ public class TransactionProcessor {
             try {
                 transaction = queue.take();
                 processTransactionFromQueue(transaction);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
         }

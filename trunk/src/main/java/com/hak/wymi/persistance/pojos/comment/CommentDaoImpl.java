@@ -28,7 +28,7 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Comment get(Integer commentId) {
-        return (Comment) sessionFactory.getCurrentSession().load(Comment.class, commentId);
+        return (Comment) sessionFactory.getCurrentSession().get(Comment.class, commentId);
     }
 
     @Override

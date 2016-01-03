@@ -19,8 +19,6 @@ public class SecureComment implements SecureToSend {
 
     private final DateTime created;
 
-    private final Double score;
-
     private final Boolean deleted;
 
     private final Boolean trashed;
@@ -30,6 +28,8 @@ public class SecureComment implements SecureToSend {
     private final Integer replyCount;
 
     private final TrialState trialState;
+
+    private final Integer points;
 
     public SecureComment(Comment comment) {
         if (comment.getDeleted()) {
@@ -43,7 +43,7 @@ public class SecureComment implements SecureToSend {
         this.commentId = comment.getCommentId();
         this.postId = comment.getPost().getPostId();
         this.created = comment.getCreated();
-        this.score = comment.getScore();
+        this.points = comment.getPoints();
         this.replies = new LinkedList<>();
         this.replyCount = comment.getReplyCount();
         this.deleted = comment.getDeleted();
@@ -84,10 +84,6 @@ public class SecureComment implements SecureToSend {
         return replies;
     }
 
-    public Double getScore() {
-        return score;
-    }
-
     public Integer getReplyCount() {
         return replyCount;
     }
@@ -102,5 +98,9 @@ public class SecureComment implements SecureToSend {
 
     public TrialState getTrialState() {
         return trialState;
+    }
+
+    public Integer getPoints() {
+        return points;
     }
 }
