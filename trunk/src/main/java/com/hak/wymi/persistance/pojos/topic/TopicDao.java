@@ -12,4 +12,6 @@ public interface TopicDao {
     List<Topic> getAll(int firstResult, int maxResults);
 
     List<Topic> getRentDue();
+
+    List<Topic> getFiltered(List<String> query, int firstResult, int maxResults);
 }

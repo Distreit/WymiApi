@@ -71,16 +71,23 @@ public class TopicController {
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getTopics(
+            @RequestParam(required = false) String query,
             @RequestParam(required = false, defaultValue = "0") Integer firstResult,
             @RequestParam(required = false, defaultValue = "25") Integer maxResults) {
 
-        final UniversalResponse universalResponse = new UniversalResponse();
-        final List<SecureToSend> secureTopics = topicManager.getAll(firstResult, Math.min(maxResultsPerRequest, maxResults))
+        final List<Topic> topics;
+        if (query == null) {
+            topics = topicManager.getAll(firstResult, Math.min(maxResultsPerRequest, maxResults));
+        } else {
+            topics = topicManager.getFiltered(query, firstResult, Math.min(maxResultsPerRequest, maxResults));
+        }
+
+        final List<SecureToSend> secureTopics = topics
                 .stream()
                 .map(SecureTopic::new)
                 .collect(Collectors.toCollection(LinkedList::new));
 
-        return new ResponseEntity<>(universalResponse.setData(secureTopics), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(new UniversalResponse().setData(secureTopics), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "{topicName}", method = RequestMethod.GET, produces = Constants.JSON)

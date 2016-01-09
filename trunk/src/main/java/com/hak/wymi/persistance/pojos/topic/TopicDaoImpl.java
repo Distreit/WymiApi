@@ -1,6 +1,10 @@
 package com.hak.wymi.persistance.pojos.topic;
 
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -32,6 +36,23 @@ public class TopicDaoImpl implements TopicDao {
                 .setFirstResult(firstResult)
                 .setMaxResults(maxResults)
                 .list();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public List<Topic> getFiltered(List<String> searchTerms, int firstResult, int maxResults) {
+        final Criteria criteria = sessionFactory
+                .getCurrentSession()
+                .createCriteria(Topic.class)
+                .setFirstResult(firstResult)
+                .setMaxResults(maxResults)
+                .addOrder(Order.asc("name"));
+
+        for (String term : searchTerms) {
+            criteria.add(Restrictions.ilike("name", term, MatchMode.ANYWHERE));
+        }
+
+        return criteria.list();
     }
 
     @Override
