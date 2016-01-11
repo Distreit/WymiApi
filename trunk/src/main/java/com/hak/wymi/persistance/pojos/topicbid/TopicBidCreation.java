@@ -124,4 +124,9 @@ public class TopicBidCreation extends AbstractBalanceTransaction {
                         this.topicBid.getTopic().getUrl(), this.amount);
         return new Message(this.topicBid.getUser(), null, "Comment tip cancelled", messageText);
     }
+
+    @Override
+    public Object getSecureValue() {
+        return new SecureTopicBid(topicBid);
+    }
 }

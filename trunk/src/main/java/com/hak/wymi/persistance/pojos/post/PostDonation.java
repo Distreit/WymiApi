@@ -142,4 +142,9 @@ public class PostDonation extends AbstractBalanceTransaction implements Donation
                 .format("Your tip of %d to the post %s was cancelled.", this.amount, post.getUrl());
         return new Message(this.sourceUser, null, "Comment tip cancelled", messageText);
     }
+
+    @Override
+    public Object getSecureValue() {
+        return new SecurePost(post);
+    }
 }

@@ -117,6 +117,11 @@ public class CommentCreation extends AbstractBalanceTransaction {
         return new Message(this.comment.getAuthor(), null, "Comment creation failure", messageText);
     }
 
+    @Override
+    public Object getSecureValue() {
+        return new SecureComment(this.comment);
+    }
+
     public Integer getFeeFlat() {
         return feeFlat;
     }

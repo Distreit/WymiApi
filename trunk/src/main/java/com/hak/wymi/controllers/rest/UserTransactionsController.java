@@ -3,12 +3,14 @@ package com.hak.wymi.controllers.rest;
 import com.hak.wymi.controllers.rest.helpers.Constants;
 import com.hak.wymi.controllers.rest.helpers.UniversalResponse;
 import com.hak.wymi.persistance.interfaces.SecureToSend;
+import com.hak.wymi.persistance.managers.BalanceTransactionManager;
 import com.hak.wymi.persistance.managers.CommentDonationManager;
 import com.hak.wymi.persistance.managers.PostDonationManager;
+import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
+import com.hak.wymi.persistance.pojos.comment.CommentCreation;
 import com.hak.wymi.persistance.pojos.comment.CommentDonation;
-import com.hak.wymi.persistance.pojos.comment.SecureComment;
+import com.hak.wymi.persistance.pojos.post.PostCreation;
 import com.hak.wymi.persistance.pojos.post.PostDonation;
-import com.hak.wymi.persistance.pojos.post.SecurePost;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,64 +34,55 @@ public class UserTransactionsController {
     @Autowired
     private PostDonationManager postDonationManager;
 
-    @RequestMapping(value = "/transactions/comment", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getUserCommentTransactions(@PathVariable String userName,
-                                                                        @RequestParam(required = false, defaultValue = "0") Integer firstResult,
-                                                                        @RequestParam(required = false, defaultValue = "25") Integer maxResults,
-                                                                        Principal principal) {
+    @Autowired
+    private BalanceTransactionManager balanceTransactionManager;
+
+    @RequestMapping(value = "/transactions/{transactionType}/{resourceType}", method = RequestMethod.GET, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> get(@PathVariable String userName,
+                                                 @PathVariable String transactionType,
+                                                 @PathVariable String resourceType,
+                                                 @RequestParam(required = false, defaultValue = "0") Integer firstResult,
+                                                 @RequestParam(required = false, defaultValue = "25") Integer maxResults,
+                                                 Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        final List<CommentDonation> donations;
+        final List<BalanceTransaction> transactions;
+
+        final Class transactionTypeClass;
+
+        if (resourceType.equals("comment")) {
+            if (transactionType.equals("donation")) {
+                transactionTypeClass = CommentDonation.class;
+            } else {
+                transactionTypeClass = CommentCreation.class;
+            }
+        } else {
+            if (transactionType.equals("donation")) {
+                transactionTypeClass = PostDonation.class;
+            } else {
+                transactionTypeClass = PostCreation.class;
+            }
+        }
 
         if (principal == null || !userName.equals(principal.getName())) {
         } else {
-            donations = commentDonationManager.getPrivateTransactions(principal.getName(), firstResult, maxResults);
-            universalResponse.setData(donations.stream().map(SecureCommentDonation::new).collect(Collectors.toList()));
+            transactions = balanceTransactionManager.getPrivateTransactions(transactionTypeClass, principal.getName(), firstResult, maxResults);
+            universalResponse.setData(transactions.stream().map(Result::new).collect(Collectors.toList()));
         }
 
         return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/transactions/post", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getUserPostTransactions(@PathVariable String userName,
-                                                                     @RequestParam(required = false, defaultValue = "0") Integer firstResult,
-                                                                     @RequestParam(required = false, defaultValue = "25") Integer maxResults,
-                                                                     Principal principal) {
-        final UniversalResponse universalResponse = new UniversalResponse();
 
-        final List<PostDonation> donations;
-
-        if (principal == null || !userName.equals(principal.getName())) {
-        } else {
-            donations = postDonationManager.getPrivateTransactions(principal.getName(), firstResult, maxResults);
-            universalResponse.setData(donations.stream().map(SecurePostDonation::new).collect(Collectors.toList()));
-        }
-
-        return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
-    }
-
-
-    private class SecureCommentDonation implements SecureToSend {
+    private class Result implements SecureToSend {
         public int amount;
-        public SecureComment comment;
+        public Object resource;
         public DateTime date;
 
-        public SecureCommentDonation(CommentDonation commentDonation) {
-            this.amount = commentDonation.getAmount();
-            this.comment = new SecureComment(commentDonation.getComment());
-            this.date = commentDonation.getCreated();
-        }
-    }
-
-    private class SecurePostDonation implements SecureToSend {
-        public int amount;
-        public SecurePost post;
-        public DateTime date;
-
-        public SecurePostDonation(PostDonation postDonation) {
-            this.amount = postDonation.getAmount();
-            this.post = new SecurePost(postDonation.getPost());
-            this.date = postDonation.getCreated();
+        public Result(BalanceTransaction transaction) {
+            this.amount = transaction.getAmount();
+            this.date = transaction.getCreated();
+            this.resource = transaction.getSecureValue();
         }
     }
 }

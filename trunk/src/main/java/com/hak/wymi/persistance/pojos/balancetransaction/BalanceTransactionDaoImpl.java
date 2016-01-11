@@ -2,11 +2,16 @@ package com.hak.wymi.persistance.pojos.balancetransaction;
 
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
+import com.hak.wymi.persistance.pojos.comment.CommentCreation;
+import com.hak.wymi.persistance.pojos.comment.CommentDonation;
+import com.hak.wymi.persistance.pojos.post.PostCreation;
+import com.hak.wymi.persistance.pojos.post.PostDonation;
 import com.hak.wymi.persistance.pojos.user.Balance;
 import com.hak.wymi.utility.jsonconverter.JSONConverter;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.NonUniqueObjectException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -16,6 +21,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -174,5 +182,31 @@ public class BalanceTransactionDaoImpl implements BalanceTransactionDao {
     @Override
     public boolean cancel(BalanceTransaction transaction) throws InvalidValueException {
         return balanceTransactionCanceller.cancel(transaction);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public List<BalanceTransaction> getForUser(Class type, String userName, Integer firstResult, Integer maxResults) {
+        Session session = sessionFactory.getCurrentSession();
+        Query criteria = null;
+
+        if (type.equals(CommentDonation.class)) {
+            criteria = session.createQuery("FROM CommentDonation WHERE state=:state AND sourceUser.name=:userName AND comment.deleted != true ORDER BY created DESC");
+        } else if (type.equals(CommentCreation.class)) {
+            criteria = session.createQuery("FROM CommentCreation WHERE state=:state AND comment.author.name=:userName AND comment.deleted != true ORDER BY created DESC");
+        } else if (type.equals(PostDonation.class)) {
+            criteria = session.createQuery("FROM PostDonation WHERE state=:state AND sourceUser.name=:userName AND post.deleted != true ORDER BY created DESC");
+        } else if (type.equals(PostCreation.class)) {
+            criteria = session.createQuery("FROM PostCreation WHERE state=:state AND post.user.name=:userName AND post.deleted != true ORDER BY created DESC");
+        }
+
+        if (criteria != null) {
+            return criteria.setParameter("state", TransactionState.PROCESSED)
+                    .setParameter("userName", userName)
+                    .setFirstResult(firstResult)
+                    .setMaxResults(maxResults)
+                    .list();
+        }
+        return new LinkedList<>();
     }
 }

@@ -40,4 +40,9 @@ public class BalanceTransactionManager {
         unprocessedTransactions.addAll(commentDonationDao.getUnprocessed());
         return unprocessedTransactions;
     }
+
+    @Transactional
+    public List<BalanceTransaction> getPrivateTransactions(Class transactionTypeClass, String userName, Integer firstResult, Integer maxResults) {
+        return balanceTransactionDao.getForUser(transactionTypeClass, userName, firstResult, maxResults);
+    }
 }

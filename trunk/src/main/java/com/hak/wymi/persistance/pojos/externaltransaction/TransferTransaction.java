@@ -43,14 +43,26 @@ public class TransferTransaction extends AbstractBalanceTransaction {
         return amount;
     }
 
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
+
     @Override
     public HasPointsBalance getSource() {
         return sourceUser.getBalance();
     }
 
+    public void setSource(User source) {
+        this.sourceUser = source;
+    }
+
     @Override
     public HasPointsBalance getDestination() {
         return destinationUser.getBalance();
+    }
+
+    public void setDestination(User destination) {
+        this.destinationUser = destination;
     }
 
     @Override
@@ -99,15 +111,8 @@ public class TransferTransaction extends AbstractBalanceTransaction {
         return new Message(this.sourceUser, null, "Point transfer cancelled", messageText);
     }
 
-    public void setSource(User source) {
-        this.sourceUser = source;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
-    public void setDestination(User destination) {
-        this.destinationUser = destination;
+    @Override
+    public Object getSecureValue() {
+        return null;
     }
 }

@@ -1,10 +1,12 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.interfaces.HasPointsBalance;
+import com.hak.wymi.persistance.interfaces.SecureToSend;
 import com.hak.wymi.persistance.pojos.message.Message;
 import org.joda.time.DateTime;
 
-public interface BalanceTransaction {
+public interface BalanceTransaction extends SecureToSend {
     TransactionState getState();
 
     void setState(TransactionState state);
@@ -85,4 +87,7 @@ public interface BalanceTransaction {
     Message getCancellationMessage();
 
     SecureBalanceTransaction getSecureBalanceTransaction();
+
+    @JsonValue
+    Object getSecureValue();
 }

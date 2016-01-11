@@ -134,4 +134,9 @@ public class CommentDonation extends AbstractBalanceTransaction implements Donat
                 .format("Your tip of %d to the comment %s was cancelled.", this.amount, comment.getUrl());
         return new Message(this.sourceUser, null, "Comment tip cancelled", messageText);
     }
+
+    @Override
+    public Object getSecureValue() {
+        return new SecureComment(comment);
+    }
 }

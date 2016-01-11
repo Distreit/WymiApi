@@ -132,6 +132,11 @@ public class PostCreation extends AbstractBalanceTransaction {
         return new Message(this.getPost().getUser(), null, "Comment creation failure", messageText);
     }
 
+    @Override
+    public Object getSecureValue() {
+        return new SecurePost(post);
+    }
+
     public void setPostId(Integer postId) {
         this.postId = postId;
     }

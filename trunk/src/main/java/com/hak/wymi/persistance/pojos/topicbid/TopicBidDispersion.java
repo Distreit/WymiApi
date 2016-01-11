@@ -112,6 +112,11 @@ public class TopicBidDispersion extends AbstractBalanceTransaction {
         return null;
     }
 
+    @Override
+    public Object getSecureValue() {
+        return null;
+    }
+
     public void setDestinationUser(User destinationUser) {
         this.destinationUser = destinationUser;
     }
