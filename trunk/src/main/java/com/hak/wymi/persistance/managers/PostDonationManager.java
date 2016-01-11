@@ -52,4 +52,9 @@ public class PostDonationManager {
         postDonationDao.save(postDonation);
         transactionProcessor.add(postDonation);
     }
+
+    @Transactional
+    public List<PostDonation> getPrivateTransactions(String userName, Integer firstResult, Integer maxResults) {
+        return postDonationDao.getForUser(userName, firstResult, maxResults);
+    }
 }

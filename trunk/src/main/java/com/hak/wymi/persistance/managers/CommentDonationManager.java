@@ -56,4 +56,9 @@ public class CommentDonationManager {
     public List<CommentDonation> getUnprocessed() {
         return commentDonationDao.getUnprocessed();
     }
+
+    @Transactional
+    public List<CommentDonation> getPrivateTransactions(String userName, Integer firstResult, Integer maxResults) {
+        return commentDonationDao.getForUser(userName, firstResult, maxResults);
+    }
 }

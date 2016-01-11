@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
+@RequestMapping(value = "/ranking")
 public class RankingController {
     @Autowired
     private CommentDonationManager commentDonationManager;
@@ -47,7 +48,7 @@ public class RankingController {
     @Value("${ranking.dampeningFactor}")
     private Double dampeningFactor;
 
-    @RequestMapping(value = "/ranking/topic/{topicName}", method = RequestMethod.GET, produces = Constants.JSON)
+    @RequestMapping(value = "/topic/{topicName}", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getPost(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
@@ -59,7 +60,7 @@ public class RankingController {
         return new ResponseEntity<>(universalResponse.setData(posts), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/ranking/topic/{topicName}/ranks", method = RequestMethod.GET, produces = Constants.JSON)
+    @RequestMapping(value = "/topic/{topicName}/ranks", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getRanks(@PathVariable String topicName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 

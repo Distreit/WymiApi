@@ -20,12 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 @RestController
+@RequestMapping(value = "/trial")
 public class TrialController {
 
     @Autowired
     private TrialManager trialManager;
 
-    @RequestMapping(value = "/trial", method = RequestMethod.GET, produces = Constants.JSON)
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> getAccused(Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
@@ -37,7 +38,7 @@ public class TrialController {
         return new ResponseEntity<>(universalResponse, HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/trial/comment", method = RequestMethod.PUT, produces = Constants.JSON)
+    @RequestMapping(value = "/comment", method = RequestMethod.PUT, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> updateCommentTrialJuror(
             @RequestBody @Validated(Update.class) CommentTrialJuror commentTrialJuror,
@@ -47,7 +48,7 @@ public class TrialController {
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/trial/post", method = RequestMethod.PUT, produces = Constants.JSON)
+    @RequestMapping(value = "/post", method = RequestMethod.PUT, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> updatePostTrialJuror(
             @RequestBody @Validated(Update.class) PostTrialJuror postTrialJuror,

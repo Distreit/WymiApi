@@ -30,7 +30,7 @@ public class CommentDonationDaoImpl implements CommentDonationDao {
     @Transactional(propagation = Propagation.MANDATORY)
     public List<CommentDonation> getUnprocessed() {
         return sessionFactory.getCurrentSession()
-                .createQuery("from CommentDonation p where p.state=:state")
+                .createQuery("FROM CommentDonation p WHERE p.state=:state")
                 .setParameter("state", TransactionState.UNPROCESSED)
                 .list();
     }
@@ -39,9 +39,21 @@ public class CommentDonationDaoImpl implements CommentDonationDao {
     @Transactional(propagation = Propagation.MANDATORY)
     public List<CommentDonation> get(String topicName) {
         return sessionFactory.getCurrentSession()
-                .createQuery("from CommentDonation where state=:state and comment.post.topic.name=:topicName")
+                .createQuery("FROM CommentDonation WHERE state=:state AND comment.post.topic.name=:topicName")
                 .setParameter("state", TransactionState.PROCESSED)
                 .setParameter("topicName", topicName)
+                .list();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public List<CommentDonation> getForUser(String userName, Integer firstResult, Integer maxResults) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM CommentDonation WHERE state=:state AND sourceUser.name=:userName ORDER BY created DESC")
+                .setParameter("state", TransactionState.PROCESSED)
+                .setParameter("userName", userName)
+                .setFirstResult(firstResult)
+                .setMaxResults(maxResults)
                 .list();
     }
 }

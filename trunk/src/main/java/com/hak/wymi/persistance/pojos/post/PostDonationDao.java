@@ -8,4 +8,6 @@ public interface PostDonationDao {
     List<PostDonation> getUnprocessed();
 
     List<PostDonation> get(String topicName);
+
+    List<PostDonation> getForUser(String userName, Integer firstResult, Integer maxResults);
 }

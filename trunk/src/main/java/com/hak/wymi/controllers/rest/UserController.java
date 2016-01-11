@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -37,6 +36,7 @@ import java.security.Principal;
 import java.security.SecureRandom;
 
 @RestController
+@RequestMapping(value = "/user")
 public class UserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
@@ -67,7 +67,23 @@ public class UserController {
     @Value("${site.domain}")
     private String siteDomain;
 
-    @RequestMapping(value = "/user/current", method = RequestMethod.GET, produces = Constants.JSON)
+    @RequestMapping(value = "", method = RequestMethod.POST, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> registerNewUser(@Validated({Default.class, Creation.class}) @RequestBody User user) {
+        user.setRoles("ROLE_USER");
+        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+        user.setWillingJuror(true);
+        userManager.save(user);
+
+        final String code = getValidationCode(user, CallbackCodeType.VALIDATION);
+        final String body = String.format("Please click here to validate your account: http://%s/api/user/%s/validate/%s",
+                siteDomain, user.getName(), code);
+        final Email email = new Email(user.getEmail(), "WYMI account validation", body);
+        emailManager.save(email);
+
+        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/current", method = RequestMethod.GET, produces = Constants.JSON)
     @PreAuthorize("hasRole('ROLE_VALIDATED')")
     public ResponseEntity<UniversalResponse> getCurrentUser(Principal principal) {
         final UniversalResponse universalResponse = new UniversalResponse();
@@ -78,7 +94,19 @@ public class UserController {
         return new ResponseEntity<>(universalResponse.setData(secureUser), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/user/name/{userName}/password-reset", method = RequestMethod.GET, produces = Constants.JSON)
+    @RequestMapping(value = "/password", method = RequestMethod.PUT, produces = Constants.JSON)
+    public ResponseEntity<UniversalResponse> getSendPasswordChange(@Valid @RequestBody PasswordChange passwordChange) {
+        final UniversalResponse universalResponse = new UniversalResponse();
+        final CallbackCode callbackCode = callbackCodeManager.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);
+
+        final User user = callbackCode.getUser();
+        user.setPassword(DigestUtils.sha256Hex(passwordChange.getPassword()));
+        userManager.update(user);
+        callbackCodeManager.delete(callbackCode);
+        return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/name/{userName}/password-reset", method = RequestMethod.GET, produces = Constants.JSON)
     public ResponseEntity<UniversalResponse> getSendPasswordReset(@PathVariable String userName) {
         final UniversalResponse universalResponse = new UniversalResponse();
 
@@ -100,34 +128,6 @@ public class UserController {
         return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/user/password", method = RequestMethod.PUT, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> getSendPasswordChange(@Valid @RequestBody PasswordChange passwordChange) {
-        final UniversalResponse universalResponse = new UniversalResponse();
-        final CallbackCode callbackCode = callbackCodeManager.getFromCode(passwordChange.getCode(), CallbackCodeType.PASSWORD_RESET);
-
-        final User user = callbackCode.getUser();
-        user.setPassword(DigestUtils.sha256Hex(passwordChange.getPassword()));
-        userManager.update(user);
-        callbackCodeManager.delete(callbackCode);
-        return new ResponseEntity<>(universalResponse, HttpStatus.ACCEPTED);
-    }
-
-    @RequestMapping(value = "/user", method = RequestMethod.POST, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> registerNewUser(@Validated({Default.class, Creation.class}) @RequestBody User user) {
-        user.setRoles("ROLE_USER");
-        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-        user.setWillingJuror(true);
-        userManager.save(user);
-
-        final String code = getValidationCode(user, CallbackCodeType.VALIDATION);
-        final String body = String.format("Please click here to validate your account: http://%s/api/user/%s/validate/%s",
-                siteDomain, user.getName(), code);
-        final Email email = new Email(user.getEmail(), "WYMI account validation", body);
-        emailManager.save(email);
-
-        return new ResponseEntity<>(new UniversalResponse(), HttpStatus.CREATED);
-    }
-
     private String getValidationCode(User user, CallbackCodeType type) {
         final CallbackCode callbackCode = new CallbackCode();
         callbackCode.setUser(user);
@@ -135,27 +135,5 @@ public class UserController {
         callbackCode.setType(type);
         callbackCodeManager.save(callbackCode);
         return callbackCode.getCode();
-    }
-
-    @RequestMapping(value = "/username/{username}", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> usernameExists(@PathVariable String username) {
-
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        if (username != null && !username.equals("") && userManager.getFromName(username) != null) {
-            status = HttpStatus.NO_CONTENT;
-        }
-
-        return new ResponseEntity<>(new UniversalResponse(), status);
-    }
-
-    @RequestMapping(value = "/email/", method = RequestMethod.GET, produces = Constants.JSON)
-    public ResponseEntity<UniversalResponse> emailExists(@RequestParam String email) {
-
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        if (email != null && !email.equals("") && userManager.getFromEmail(email) != null) {
-            status = HttpStatus.NO_CONTENT;
-        }
-
-        return new ResponseEntity<>(new UniversalResponse(), status);
     }
 }

@@ -43,4 +43,16 @@ public class PostDonationDaoImpl implements PostDonationDao {
                 .setParameter("topicName", topicName)
                 .list();
     }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public List<PostDonation> getForUser(String userName, Integer firstResult, Integer maxResults) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM PostDonation WHERE state=:state AND sourceUser.name=:userName ORDER BY created DESC")
+                .setParameter("state", TransactionState.PROCESSED)
+                .setParameter("userName", userName)
+                .setFirstResult(firstResult)
+                .setMaxResults(maxResults)
+                .list();
+    }
 }

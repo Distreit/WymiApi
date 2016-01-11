@@ -8,4 +8,6 @@ public interface CommentDonationDao {
     List<CommentDonation> getUnprocessed();
 
     List<CommentDonation> get(String topicName);
+
+    List<CommentDonation> getForUser(String userName, Integer firstResult, Integer maxResults);
 }
