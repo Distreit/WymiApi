@@ -154,6 +154,10 @@ public class Post extends PersistentObject implements HasPointsBalance {
 
     @Override
     public void addPoints(Integer amount) throws InvalidValueException {
+        if (this.deleted) {
+            throw new UnsupportedOperationException("Cannot add points to a deleted post.");
+        }
+
         if (amount < 0) {
             throw new NegativePointsException(amount, this);
         }

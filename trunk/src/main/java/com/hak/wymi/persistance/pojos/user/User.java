@@ -12,6 +12,7 @@ import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.Password;
 import com.hak.wymi.validations.PasswordsMatch;
 import com.hak.wymi.validations.groups.Creation;
+import com.hak.wymi.validations.groups.Update;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
@@ -40,7 +41,7 @@ public class User extends PersistentObject implements HasPassword {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Null(groups = Creation.class)
+    @Null(groups = {Creation.class, Update.class})
     private Integer userId;
 
     @NotNull
@@ -48,26 +49,29 @@ public class User extends PersistentObject implements HasPassword {
     @Pattern(regexp = "^[0-9a-zA-Z][0-9a-zA-Z-_]*$")
     private String name;
 
-    @NotNull
-    @Size(
-            min = 8,
-            max = 50,
-            message = "Password must be between 8 and 50 characters in length",
-            groups = Creation.class
-    )
-    @Password(groups = Creation.class)
+    @Transient
+    @NotNull(groups = {Update.class})
+    private String currentPassword;
+
+    @NotNull(groups = {Creation.class})
+    @Password(groups = {Creation.class, Update.class})
     private String password;
 
     @Transient
     private String confirmPassword;
 
-    @Null(groups = Creation.class)
+    @Null(groups = {Creation.class, Update.class})
     private String roles;
 
-    @NotNull
+    @NotNull(groups = {Creation.class})
     @Email
-    @EmailDoesNotExist(groups = Creation.class)
+    @EmailDoesNotExist(groups = {Creation.class, Update.class})
     private String email;
+
+    @Null(groups = {Creation.class})
+    @Email
+    @EmailDoesNotExist(groups = {Creation.class, Update.class})
+    private String newEmail;
 
     @Transient
     private String confirmEmail;
@@ -76,19 +80,23 @@ public class User extends PersistentObject implements HasPassword {
 
     @ManyToMany(mappedBy = "subscribers")
     @JsonIgnore
+    @Null(groups = {Update.class})
     private Set<Topic> subscriptions;
 
     @ManyToMany(mappedBy = "filters")
     @JsonIgnore
+    @Null(groups = {Update.class})
     private Set<Topic> filters;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-    @Null(groups = {Creation.class})
+    @Null(groups = {Creation.class, Update.class})
     private Balance balance;
 
+    @NotNull
     private Boolean willingJuror;
 
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @Null(groups = {Creation.class, Update.class})
     private DateTime lastJurored;
 
     @Override
@@ -203,5 +211,21 @@ public class User extends PersistentObject implements HasPassword {
 
     public void setLastJurored(DateTime lastJurored) {
         this.lastJurored = lastJurored;
+    }
+
+    public String getCurrentPassword() {
+        return currentPassword;
+    }
+
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
+    }
+
+    public String getNewEmail() {
+        return newEmail;
+    }
+
+    public void setNewEmail(String newEmail) {
+        this.newEmail = newEmail;
     }
 }

@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Password {
-    String message() default "Passwords must be at least 8 characters and contain three of the following: numbers, lower-case letters, upper-case letters, and symbols";
+    String message() default "Password too weak";
 
     Class<?>[] groups() default {};
 

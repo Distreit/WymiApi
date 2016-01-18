@@ -14,17 +14,23 @@ public class SecureCurrentUser implements SecureToSend {
     private final Integer userId;
 
     private final String name;
+    private final String email;
+    private final Boolean willingJuror;
     private final Collection<String> subscriptions;
     private final Collection<String> filters;
 
     public SecureCurrentUser(User user, Principal principal) {
         if (principal.getName().equalsIgnoreCase(user.getName())) {
             this.name = user.getName();
+            this.email = user.getEmail();
+            this.willingJuror = user.getWillingJuror();
             this.subscriptions = user.getSubscriptions().stream().map(Topic::getName).sorted().collect(Collectors.toCollection(LinkedList::new));
             this.filters = user.getFilters().stream().map(Topic::getName).sorted().collect(Collectors.toCollection(LinkedList::new));
             this.userId = user.getUserId();
         } else {
             this.name = "";
+            this.email = "";
+            this.willingJuror = null;
             this.subscriptions = new LinkedList<>();
             this.filters = new LinkedList<>();
             this.userId = null;
@@ -45,5 +51,13 @@ public class SecureCurrentUser implements SecureToSend {
 
     public Integer getUserId() {
         return userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public Boolean getWillingJuror() {
+        return willingJuror;
     }
 }

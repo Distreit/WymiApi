@@ -9,7 +9,9 @@ public interface UserDao {
 
     User getFromName(String name);
 
-    User getFromEmail(String email);
+    User getFromEmail(String email, boolean includeNewEmails);
 
     void update(User user);
+
+    User getFromEmail(String email);
 }

@@ -43,17 +43,6 @@ public class Balance extends PersistentObject implements HasPointsBalance {
     }
 
     @Override
-    public void removePoints(Integer amount) throws InvalidValueException {
-        if (amount < 0) {
-            throw new NegativePointsException(amount, this);
-        }
-        if (this.currentBalance < amount) {
-            throw new InsufficientFundsException(amount, this);
-        }
-        this.currentBalance -= amount;
-    }
-
-    @Override
     public void incrementTransactionCount() {
         // Doesn't need to track transaction count.
     }
@@ -70,10 +59,25 @@ public class Balance extends PersistentObject implements HasPointsBalance {
 
     @Override
     public void addPoints(Integer amount) throws InvalidValueException {
+        if (!user.getValidated()) {
+            throw new UnsupportedOperationException("Cannot add points to a unvalidated user.");
+        }
+
         if (amount < 0) {
             throw new NegativePointsException(amount, this);
         }
         this.currentBalance += amount;
+    }
+
+    @Override
+    public void removePoints(Integer amount) throws InvalidValueException {
+        if (amount < 0) {
+            throw new NegativePointsException(amount, this);
+        }
+        if (this.currentBalance < amount) {
+            throw new InsufficientFundsException(amount, this);
+        }
+        this.currentBalance -= amount;
     }
 
     public Integer getUserId() {

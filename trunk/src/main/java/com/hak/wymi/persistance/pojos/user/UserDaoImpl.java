@@ -51,9 +51,23 @@ public class UserDaoImpl implements UserDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public User getFromEmail(String email) {
+        return getFromEmail(email, false);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public User getFromEmail(String email, boolean includeNewEmails) {
+        final String newEmail;
+        if (includeNewEmails) {
+            newEmail = email.toLowerCase(Locale.ENGLISH);
+        } else {
+            newEmail = "DOESN'T_EXIST";
+        }
+
         return (User) sessionFactory.getCurrentSession()
-                .createQuery("from User where lower(email)=:email")
+                .createQuery("from User where lower(email)=:email OR lower(newEmail)=:newEmail")
                 .setParameter("email", email.toLowerCase(Locale.ENGLISH))
+                .setParameter("newEmail", newEmail)
                 .uniqueResult();
     }
 

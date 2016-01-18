@@ -1,13 +1,13 @@
 package com.hak.wymi.validations.constraints;
 
+import com.hak.wymi.utility.passwordstrength.PasswordStrengthChecker;
 import com.hak.wymi.validations.Password;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class PasswordValidator implements ConstraintValidator<Password, String> {
-    private static final int CATEGORY_COUNT = 3;
-    private static final int MIN_LENGTH = 8;
+    private static final int MIN_PASSWORD_STRENGTH = 60;
 
     @Override
     public void initialize(Password password) {
@@ -16,36 +16,9 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
 
     @Override
     public boolean isValid(String password, ConstraintValidatorContext cxt) {
-        if (password == null) {
-            return false;
-        }
+        Integer passwordStrength = PasswordStrengthChecker.getStrengthResults(password).getFinalResult();
 
-        int total = 0;
-        if (password.matches(".*[a-z].*")) {
-            total += 1;
-        }
-
-        if (password.matches(".*[A-Z].*")) {
-            total += 1;
-        }
-
-        if (password.matches(".*[0-9].*")) {
-            total += 1;
-        }
-
-        if (password.matches(".*[~!@#$%^&*()_+|}{\":?><`\\-=\\]\\[;'\\\\,./ ].*")) {
-            total += 1;
-        }
-
-        if (password.length() > 12) {
-            total += 1;
-        }
-
-        if (password.length() > 16) {
-            total += 1;
-        }
-
-        return total >= CATEGORY_COUNT && password.length() >= MIN_LENGTH;
+        return password == null || passwordStrength >= MIN_PASSWORD_STRENGTH;
     }
 
 }

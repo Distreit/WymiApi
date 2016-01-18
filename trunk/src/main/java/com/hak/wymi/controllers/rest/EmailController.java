@@ -22,7 +22,7 @@ public class EmailController {
     public ResponseEntity<UniversalResponse> emailExists(@RequestParam String email) {
 
         HttpStatus status = HttpStatus.NOT_FOUND;
-        if (email != null && !email.equals("") && userManager.getFromEmail(email) != null) {
+        if (email != null && !email.equals("") && userManager.emailExists(email)) {
             status = HttpStatus.NO_CONTENT;
         }
 
