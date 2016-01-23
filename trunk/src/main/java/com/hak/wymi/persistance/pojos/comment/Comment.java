@@ -25,6 +25,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
@@ -44,11 +45,13 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     @ManyToOne
     @JoinColumn(name = "authorId")
     @Null(groups = {Creation.class, Update.class})
+    @NotNull
     private User author;
 
     @ManyToOne
     @JoinColumn(name = "postId")
     @Null(groups = {Creation.class, Update.class})
+    @NotNull
     private Post post;
 
     @ManyToOne
@@ -64,21 +67,32 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     private CommentTrial trial;
 
     @Null(groups = {Creation.class, Update.class})
+    @Min(value = 0)
+    @NotNull
+    private Integer depth;
+
+    @Null(groups = {Creation.class, Update.class})
+    @NotNull
     private Integer points;
 
     @Null(groups = {Creation.class, Update.class})
+    @NotNull
     private Integer donations;
 
     @Null(groups = {Creation.class, Update.class})
+    @NotNull
     private Double score;
 
     @Null(groups = {Creation.class, Update.class})
+    @NotNull
     private Double base;
 
     @Null(groups = {Creation.class, Update.class})
+    @NotNull
     private Boolean deleted;
 
     @Null(groups = {Creation.class, Update.class})
+    @NotNull
     private Boolean trashed;
 
     @Size.List({
@@ -276,5 +290,13 @@ public class Comment extends PersistentObject implements HasPointsBalance {
     public void delete() {
         this.deleted = true;
         this.content = "";
+    }
+
+    public Integer getDepth() {
+        return depth;
+    }
+
+    public void setDepth(Integer depth) {
+        this.depth = depth;
     }
 }

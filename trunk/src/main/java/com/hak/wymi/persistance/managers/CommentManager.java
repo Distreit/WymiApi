@@ -44,6 +44,9 @@ public class CommentManager {
     @Value("${score.baseTime}")
     private Integer baseTime;
 
+    @Value("${comment.depthMultiplier}")
+    private Double commentDepthMultiplier;
+
     @Transactional
     public Comment get(Integer commentId) {
         return commentDao.get(commentId);
@@ -65,20 +68,28 @@ public class CommentManager {
         final Post post = postDao.get(postId);
         final Topic topic = post.getTopic();
 
-        if (feeFlat.equals(topic.getFeeFlat()) && feePercent.equals(topic.getFeePercent())) {
+        Comment parentComment = null;
+        if (parentCommentId != null) {
+            parentComment = commentDao.get(parentCommentId);
+            comment.setParentComment(parentComment);
+            comment.setDepth(parentComment.getDepth() + 1);
+        } else {
+            comment.setDepth(0);
+        }
+
+        final int commentFeeFlat = getCommentFeeFlat(topic, parentComment);
+
+        if (feeFlat.equals(commentFeeFlat) && feePercent.equals(topic.getFeePercent())) {
             final User user = userDao.getFromName(userName);
             final CommentCreation transaction = new CommentCreation();
 
             transaction.setFeePercent(topic.getFeePercent());
-            transaction.setFeeFlat(topic.getFeeFlat());
+            transaction.setFeeFlat(commentFeeFlat);
             transaction.setState(TransactionState.UNPROCESSED);
             transaction.setComment(comment);
 
             comment.setAuthor(user);
             comment.setPost(post);
-            if (parentCommentId != null) {
-                comment.setParentComment(commentDao.get(parentCommentId));
-            }
 
             comment.setBase(getBaseTime());
             comment.setPoints(0);
@@ -92,6 +103,13 @@ public class CommentManager {
             throw new InvalidValueException(String.format("Topic fees do not match.%nFee Flat: %d%nFee percent: %d%nTopic: %s",
                     feeFlat, feePercent, JSONConverter.getJSON(topic, true)));
         }
+    }
+
+    private Integer getCommentFeeFlat(Topic topic, Comment parentComment) {
+        if (parentComment == null) {
+            return topic.getFeeFlat();
+        }
+        return (int) (Math.ceil(topic.getFeeFlat() * (1 - Math.min(1, (parentComment.getDepth() + 1) * commentDepthMultiplier))));
     }
 
     @Transactional

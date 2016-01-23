@@ -1,6 +1,5 @@
 package com.hak.wymi.persistance.pojos.balancetransaction;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.hak.wymi.persistance.pojos.PersistentObject;
 import com.hak.wymi.validations.groups.Creation;
 
@@ -42,10 +41,5 @@ public abstract class AbstractBalanceTransaction extends PersistentObject implem
     @Override
     public final void setTransactionLog(TransactionLog transactionLog) {
         this.transactionLog = transactionLog;
-    }
-
-    @JsonValue
-    public SecureBalanceTransaction getSecureBalanceTransaction() {
-        return new SecureBalanceTransaction(this);
     }
 }

@@ -31,6 +31,8 @@ public class SecureComment implements SecureToSend {
 
     private final Integer points;
 
+    private final Integer depth;
+
     public SecureComment(Comment comment) {
         if (comment.getDeleted()) {
             this.authorName = "[DELETED]";
@@ -48,6 +50,7 @@ public class SecureComment implements SecureToSend {
         this.replyCount = comment.getReplyCount();
         this.deleted = comment.getDeleted();
         this.trashed = comment.getTrashed();
+        this.depth = comment.getDepth();
 
         if (comment.getReplies() != null) {
             this.replies.addAll(comment.getReplies().stream().map(SecureComment::new).collect(Collectors.toList()));
@@ -102,5 +105,9 @@ public class SecureComment implements SecureToSend {
 
     public Integer getPoints() {
         return points;
+    }
+
+    public Integer getDepth() {
+        return depth;
     }
 }

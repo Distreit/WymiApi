@@ -86,8 +86,6 @@ public interface BalanceTransaction extends SecureToSend {
      */
     Message getCancellationMessage();
 
-    SecureBalanceTransaction getSecureBalanceTransaction();
-
     @JsonValue
     Object getSecureValue();
 }
