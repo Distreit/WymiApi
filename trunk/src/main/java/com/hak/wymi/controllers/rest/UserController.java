@@ -61,7 +61,7 @@ public class UserController {
 
         final UniversalResponse universalResponse = new UniversalResponse();
 
-        if (userName.equals(principal.getName())) {
+        if (userName.equalsIgnoreCase(principal.getName())) {
             userManager.applyChanges(user);
         }
 

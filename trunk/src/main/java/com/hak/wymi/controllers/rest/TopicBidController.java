@@ -80,7 +80,7 @@ public class TopicBidController {
         final OwnershipTransaction ownershipTransaction = ownershipTransactionManager.getRentPeriodNotExpired(topic);
 
         final int claimAmount;
-        if (ownershipTransaction.getWinningBid().getUser().getName().equals(principal.getName())) {
+        if (ownershipTransaction.getWinningBid().getUser().getName().equalsIgnoreCase(principal.getName())) {
             claimAmount = 0;
         } else {
             claimAmount = ownershipTransactionManager.getClaimAmount(ownershipTransaction);

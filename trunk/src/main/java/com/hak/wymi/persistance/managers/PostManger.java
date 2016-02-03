@@ -14,6 +14,8 @@ import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.jsonconverter.JSONConverter;
 import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class PostManger {
     private static final int MILLISECONDS_IN_A_SECOND = 1000;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostManger.class);
 
     @Value("${score.baseTime}")
     private Integer baseTime;
@@ -69,7 +72,7 @@ public class PostManger {
     @Transactional
     public void updateTrashed(int postId, boolean trashed, String userName) {
         final Post post = get(postId);
-        if (post.getTopic().getOwner().getName().equals(userName) && post.getTrashed() != trashed) {
+        if (post.getTopic().getOwner().getName().equalsIgnoreCase(userName) && post.getTrashed() != trashed) {
             if (!trashed) {
                 post.setScore(post.getScore() - post.getBase() + getBaseTime());
             }
@@ -109,10 +112,11 @@ public class PostManger {
     @Transactional
     public void delete(int postId, String userName) {
         final Post post = get(postId);
-        if (!post.getDeleted() && post.getUser().getName().equals(userName)) {
+        if (!post.getDeleted() && post.getUser().getName().equalsIgnoreCase(userName)) {
             post.delete();
             postDao.update(post);
         } else {
+            LOGGER.debug(String.format("Deleted: %s, PostAuthor: %s, Username: %s", post.getDeleted(), post.getUser().getName(), userName));
             throw new UnsupportedOperationException("User not allowed to delete post.");
         }
     }

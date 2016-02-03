@@ -19,7 +19,7 @@
 
     <servlet>
         <servlet-name>angular</servlet-name>
-        <jsp-file>/views/index.html</jsp-file>
+        <jsp-file>/views/${indexFile}</jsp-file>
     </servlet>
 
     <servlet-mapping>

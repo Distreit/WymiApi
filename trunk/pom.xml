@@ -23,7 +23,21 @@
 
         <jsonpath.version>0.8.1</jsonpath.version>
         <spring.version>3.2.3.RELEASE</spring.version>
+        <indexFile>index_prd.html</indexFile>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <indexFile>index_dev.html</indexFile>
+            </properties>
+
+            <build>
+                <finalName>${project.artifactId}</finalName>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencies>
         <!-- Spring -->
@@ -346,10 +360,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
 
     <build>
+        <finalName>ROOT</finalName>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -367,6 +382,24 @@
                     <compilerArgument>-Xlint:-path</compilerArgument>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <filtering>true</filtering>
+                            <directory>src/main/webapp</directory>
+                            <includes>
+                                <include>**/web.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
                 </configuration>
             </plugin>
 

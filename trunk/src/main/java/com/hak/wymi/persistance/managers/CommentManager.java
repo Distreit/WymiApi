@@ -116,7 +116,7 @@ public class CommentManager {
     public void update(Comment comment, String userName) {
         final Comment dbComment = commentDao.get(comment.getCommentId());
 
-        if (dbComment.getAuthor().getName().equals(userName)) {
+        if (dbComment.getAuthor().getName().equalsIgnoreCase(userName)) {
             dbComment.setContent(comment.getContent());
             commentDao.update(dbComment);
         } else {
@@ -127,7 +127,7 @@ public class CommentManager {
     @Transactional
     public void updateTrashed(Integer commentId, Boolean trashed, String userName) {
         final Comment comment = get(commentId);
-        if (comment.getPost().getTopic().getOwner().getName().equals(userName) && comment.getTrashed() != trashed) {
+        if (comment.getPost().getTopic().getOwner().getName().equalsIgnoreCase(userName) && comment.getTrashed() != trashed) {
             if (!trashed) {
                 comment.setScore(comment.getScore() - comment.getBase() + getBaseTime());
             }

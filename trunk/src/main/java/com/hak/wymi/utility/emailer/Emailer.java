@@ -29,7 +29,7 @@ public class Emailer {
     private Queue<Email> emailQueue = new LinkedList<>();
 
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 15000)
     public void checkEmailQueue() {
         if (emailQueue.isEmpty()) {
             emailQueue.addAll(emailManager.getUnsent());

@@ -1,0 +1,52 @@
+<html ng-csp ng-app="wymi" ng-controller="RouteController as router">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <link rel="shortcut icon" href="/build/images/favicon.ico?v=0">
+
+    <title>Where your mouth is - pre-alpha</title>
+
+    <base href="/">
+
+    <script>
+        var wymiGlobals = {
+            pageContext: '/static/pages/'
+        };
+    </script>
+
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+    <link href='/build/_bower.min.css' rel='stylesheet' type='text/css'>
+    <link href='/build/wymi-client.min.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+hello ${score.baseTime}!!
+<div wymi-content></div>
+
+<div id="deferredJS">
+    <script src="/build/_bower.min.js"></script>
+    <script src="/build/wymi-client.min.js"></script>
+
+    <script>
+        (function (w, d) {
+            var id = 'embedly-platform', n = 'script';
+            if (!d.getElementById(id)) {
+                w.embedly = w.embedly || function () {
+                    (w.embedly.q = w.embedly.q || []).push(arguments);
+                };
+                var e = d.createElement(n);
+                e.id = id;
+                e.async = 1;
+                e.src = ('https:' === document.location.protocol ? 'https' : 'http') + '://cdn.embedly.com/widgets/platform.js';
+                var s = d.getElementsByTagName(n)[0];
+                s.parentNode.insertBefore(e, s);
+            }
+        })(window, document);
+    </script>
+
+    <script src="//localhost:35729/livereload.js"></script>
+</div>
+
+</body>
+</html>

@@ -64,7 +64,7 @@ public class UserTransactionsController {
             }
         }
 
-        if (principal == null || !userName.equals(principal.getName())) {
+        if (principal == null || !userName.equalsIgnoreCase(principal.getName())) {
         } else {
             transactions = balanceTransactionManager.getPrivateTransactions(transactionTypeClass, principal.getName(), firstResult, maxResults);
             universalResponse.setData(transactions.stream().map(Result::new).collect(Collectors.toList()));

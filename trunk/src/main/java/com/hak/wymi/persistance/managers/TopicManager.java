@@ -28,7 +28,7 @@ public class TopicManager {
     public Topic update(Topic topic, String userName) {
         Topic persistentTopic = topicDao.get(topic.getName());
 
-        if (persistentTopic.getOwner().getName().equals(userName)) {
+        if (persistentTopic.getOwner().getName().equalsIgnoreCase(userName)) {
             persistentTopic.setTitle(topic.getTitle());
             persistentTopic.setDescription(topic.getDescription());
             persistentTopic.setFeePercent(topic.getFeePercent());

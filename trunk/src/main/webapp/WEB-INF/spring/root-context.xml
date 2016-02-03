@@ -38,11 +38,8 @@
         </property>
     </bean>
 
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/wymi"/>
-        <property name="username" value="root"/>
-        <property name="password" value="maes1234"/>
+    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/dataSource"/>
     </bean>
 
     <!-- Hibernate 3 Annotation SessionFactory Bean definition -->
@@ -56,6 +53,11 @@
                 <prop key="hibernate.show_sql">false</prop>
             </props>
         </property>
+
+        <property name="entityInterceptor">
+            <bean class="com.hak.wymi.utility.EntityInterceptor"></bean>
+        </property>
+
     </bean>
 
     <bean id="transactionManager"

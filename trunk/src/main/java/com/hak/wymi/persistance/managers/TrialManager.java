@@ -97,7 +97,7 @@ public class TrialManager {
     public void update(PostTrialJuror transientJuror, String userName) {
         final PostTrialJuror juror = postTrialJurorDao.get(transientJuror.getPostTrialJurorId());
 
-        if (juror.getUser().getName().equals(userName)) {
+        if (juror.getUser().getName().equalsIgnoreCase(userName)) {
             juror.setIsIllegalVote(transientJuror.getIsIllegalVote());
             juror.setViolatedSiteRuleVote(transientJuror.getViolatedSiteRuleVote());
 
@@ -122,7 +122,7 @@ public class TrialManager {
     public void update(CommentTrialJuror transientJuror, String userName) {
         final CommentTrialJuror juror = commentTrialJurorDao.get(transientJuror.getCommentTrialJurorId());
 
-        if (juror.getUser().getName().equals(userName)) {
+        if (juror.getUser().getName().equalsIgnoreCase(userName)) {
             juror.setIsIllegalVote(transientJuror.getIsIllegalVote());
             juror.setViolatedSiteRuleVote(transientJuror.getViolatedSiteRuleVote());
 
