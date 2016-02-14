@@ -1,5 +1,6 @@
 package com.hak.wymi.persistance.pojos;
 
+import com.hak.wymi.persistance.interfaces.HasPassword;
 import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeType;
 import com.hak.wymi.validations.CallbackCodeExists;
 import com.hak.wymi.validations.Password;
@@ -8,7 +9,7 @@ import com.hak.wymi.validations.PasswordsMatch;
 import javax.validation.constraints.NotNull;
 
 @PasswordsMatch
-public class PasswordChange {
+public class PasswordChange implements HasPassword {
 
     @NotNull
     @Password
@@ -44,5 +45,10 @@ public class PasswordChange {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    @Override
+    public boolean passwordsMatch() {
+        return this.password.equals(this.confirmPassword);
     }
 }
