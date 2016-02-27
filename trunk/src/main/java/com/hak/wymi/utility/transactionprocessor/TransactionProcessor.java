@@ -26,7 +26,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 @Service
 public class TransactionProcessor {
-    public static final int TRANSACTION_WAIT_PERIOD = 5000;
+    public static final int TRANSACTION_WAIT_PERIOD = 30000;
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionProcessor.class);
     private static final int QUEUE_START_SIZE = 50;
 
