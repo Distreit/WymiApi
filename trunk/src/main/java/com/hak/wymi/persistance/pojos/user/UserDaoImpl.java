@@ -56,6 +56,15 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
+    public User getFromPhoneNumber(String phoneNumber) {
+        return (User) sessionFactory.getCurrentSession()
+                .createQuery("from User where phoneNumber=:phoneNumber")
+                .setParameter("phoneNumber", phoneNumber)
+                .uniqueResult();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public User getFromEmail(String email, boolean includeNewEmails) {
         final String newEmail;
         if (includeNewEmails) {

@@ -86,6 +86,11 @@ public class UserManager {
                 user.setPassword(calcPasswordHash(newPassword));
             }
 
+            if (partialUser.getPhoneNumber() != null && !partialUser.getPhoneNumber().equals(user.getPhoneNumber())) {
+                changed = true;
+                user.setPhoneNumber(partialUser.getPhoneNumber());
+            }
+
             if (partialUser.getWillingJuror() != null && user.getWillingJuror() != partialUser.getWillingJuror()) {
                 changed = true;
                 user.setWillingJuror(partialUser.getWillingJuror());
@@ -116,5 +121,10 @@ public class UserManager {
     @Transactional
     public boolean emailExists(String email) {
         return userDao.getFromEmail(email, true) != null;
+    }
+
+    @Transactional
+    public boolean phoneNumberExists(String phoneNumber) {
+        return userDao.getFromPhoneNumber(phoneNumber) != null;
     }
 }

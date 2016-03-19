@@ -31,6 +31,18 @@ public class CallbackCode extends PersistentObject {
     @Enumerated(EnumType.STRING)
     private CallbackCodeType type;
 
+    public CallbackCode() {
+        super();
+    }
+
+    public CallbackCode(User user, CallbackCodeType type, String code) {
+        super();
+
+        this.user = user;
+        this.type = type;
+        this.code = code;
+    }
+
     public Integer getCallbackCodeId() {
         return callbackCodeId;
     }

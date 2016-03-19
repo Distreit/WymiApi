@@ -14,4 +14,6 @@ public interface UserDao {
     void update(User user);
 
     User getFromEmail(String email);
+
+    User getFromPhoneNumber(String phoneNumber);
 }

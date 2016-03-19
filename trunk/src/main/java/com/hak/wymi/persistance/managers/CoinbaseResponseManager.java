@@ -5,18 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hak.wymi.coinbase.pojos.CoinbaseCurrencyAmount;
 import com.hak.wymi.coinbase.pojos.CoinbaseOrder;
-import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
 import com.hak.wymi.persistance.pojos.coinbaseresponse.CoinbaseRawResponse;
 import com.hak.wymi.persistance.pojos.coinbaseresponse.CoinbaseRawResponseDao;
-import com.hak.wymi.persistance.pojos.externaltransaction.TransferTransaction;
-import com.hak.wymi.persistance.pojos.externaltransaction.TransferTransactionDao;
-import com.hak.wymi.persistance.pojos.user.Balance;
-import com.hak.wymi.persistance.pojos.user.BalanceDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.jsonconverter.JSONConverter;
-import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +28,10 @@ public class CoinbaseResponseManager {
     private CoinbaseRawResponseDao coinbaseRawResponseDao;
 
     @Autowired
-    private BalanceDao balanceDao;
-
-    @Autowired
     private UserDao userDao;
 
     @Autowired
-    private TransferTransactionDao transferTransactionDao;
-
-    @Autowired
-    private TransactionProcessor transactionProcessor;
+    private BalanceTransactionManager balanceTransactionManager;
 
     @Transactional
     public void saveNewResponse(String responseText) {
@@ -122,21 +110,9 @@ public class CoinbaseResponseManager {
         CoinbaseCurrencyAmount amountObject = order.getAmount();
         if (amountObject.getCurrency().equals("USD") && order.getMetadata() != null && order.getMetadata().containsKey("custom")) {
             User destinationUser = userDao.getFromName(order.getMetadata().get("custom"));
+            int amount = ((Double) (amountObject.getAmount() * 10000)).intValue();
 
-            Integer amount = ((Double) (amountObject.getAmount() * 10000)).intValue();
-            Balance siteBalance = balanceDao.get(-1);
-            siteBalance.addPoints(amount.intValue());
-            balanceDao.update(siteBalance);
-
-            TransferTransaction transaction = new TransferTransaction();
-
-            transaction.setState(TransactionState.UNPROCESSED);
-            transaction.setSource(siteBalance.getUser());
-            transaction.setAmount(amount);
-            transaction.setDestination(destinationUser);
-
-            transferTransactionDao.save(transaction);
-            transactionProcessor.process(transaction);
+            balanceTransactionManager.createPointsFor(destinationUser, amount);
         } else {
             LOGGER.error("Order currency not in USD, or missing user name:" + JSONConverter.getJSON(order, false));
             throw new UnsupportedOperationException();

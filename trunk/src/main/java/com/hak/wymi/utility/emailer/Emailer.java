@@ -3,6 +3,7 @@ package com.hak.wymi.utility.emailer;
 import com.hak.wymi.persistance.managers.EmailManager;
 import com.hak.wymi.persistance.pojos.email.Email;
 import com.hak.wymi.utility.jsonconverter.JSONConverter;
+import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +29,26 @@ public class Emailer {
 
     private Queue<Email> emailQueue = new LinkedList<>();
 
-
     @Scheduled(fixedRate = 15000)
+    public void sendEmail() {
+        if (!emailQueue.isEmpty()) {
+            send(emailQueue.remove());
+        }
+    }
+
+    @Scheduled(fixedRate = 300000)
     public void checkEmailQueue() {
         if (emailQueue.isEmpty()) {
             emailQueue.addAll(emailManager.getUnsent());
-        } else {
-            send(emailQueue.remove());
+        }
+    }
+
+    public void add(Email email) {
+        if (BooleanUtils.isFalse(email.getSent()) && email.getEmailId() != null) {
+            int id = email.getEmailId();
+            if (emailQueue.stream().filter(e -> e.getEmailId() != id).count() == 0) {
+                emailQueue.add(email);
+            }
         }
     }
 
@@ -49,6 +63,9 @@ public class Emailer {
             email.setSentDate(new DateTime());
             emailManager.update(email);
         } catch (MailException e) {
+            email.setSent(false);
+            email.setSentDate(null);
+            add(email);
             LOGGER.error("Failed to send email. \n" + JSONConverter.getJSON(email, true), e);
         }
     }

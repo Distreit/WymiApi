@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
 
 @Repository
@@ -28,7 +29,7 @@ public class CallbackCodeImpl implements CallbackCodeDao {
     public CallbackCode getFromUserName(String userName, String code, CallbackCodeType type) {
         return (CallbackCode) sessionFactory
                 .getCurrentSession()
-                .createQuery("from CallbackCode c where lower(c.user.name)=:name and c.code=:code and c.type=:type")
+                .createQuery("FROM CallbackCode c WHERE lower(c.user.name)=:name and c.code=:code and c.type=:type")
                 .setParameter("code", code)
                 .setParameter("type", type)
                 .setParameter("name", userName.toLowerCase(Locale.ENGLISH))
@@ -44,7 +45,7 @@ public class CallbackCodeImpl implements CallbackCodeDao {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void delete(User user, CallbackCodeType type) {
-        sessionFactory.getCurrentSession().createQuery("DELETE FROM CallbackCode where user.userId=:userId AND type=:type")
+        sessionFactory.getCurrentSession().createQuery("DELETE FROM CallbackCode WHERE user.userId=:userId AND type=:type")
                 .setParameter("userId", user.getUserId())
                 .setParameter("type", type)
                 .executeUpdate();
@@ -56,7 +57,7 @@ public class CallbackCodeImpl implements CallbackCodeDao {
     public CallbackCode getFromCode(String code, CallbackCodeType type) {
         return (CallbackCode) sessionFactory
                 .getCurrentSession()
-                .createQuery("from CallbackCode c where c.code=:code and c.type=:type")
+                .createQuery("FROM CallbackCode c WHERE c.code=:code and c.type=:type")
                 .setParameter("code", code)
                 .setParameter("type", type)
                 .uniqueResult();
@@ -67,7 +68,7 @@ public class CallbackCodeImpl implements CallbackCodeDao {
     public CallbackCode getFromCode(String code) {
         return (CallbackCode) sessionFactory
                 .getCurrentSession()
-                .createQuery("from CallbackCode c where c.code=:code")
+                .createQuery("FROM CallbackCode c WHERE c.code=:code")
                 .setParameter("code", code)
                 .uniqueResult();
     }
@@ -78,7 +79,7 @@ public class CallbackCodeImpl implements CallbackCodeDao {
         final DateTime dateTime = DateTime.now().plusDays(-3);
         final Session session = sessionFactory.getCurrentSession();
 
-        session.createQuery("DELETE FROM CallbackCode where UNIX_TIMESTAMP(created) < :date")
+        session.createQuery("DELETE FROM CallbackCode WHERE UNIX_TIMESTAMP(created) < :date")
                 .setParameter("date", dateTime.getMillis() / 1000)
                 .executeUpdate();
 
@@ -86,5 +87,16 @@ public class CallbackCodeImpl implements CallbackCodeDao {
                 .executeUpdate();
 
         // TODO: Figure out what to do with unvalidated user accounts.
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public List<CallbackCode> getCodesForUser(String userName, CallbackCodeType type) {
+        return sessionFactory
+                .getCurrentSession()
+                .createQuery("FROM CallbackCode c WHERE c.type=:type AND c.user.name=:userName")
+                .setParameter("type", type)
+                .setParameter("userName", userName)
+                .list();
     }
 }

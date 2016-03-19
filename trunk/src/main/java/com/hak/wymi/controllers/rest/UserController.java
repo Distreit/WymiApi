@@ -47,7 +47,7 @@ public class UserController {
     public ResponseEntity<UniversalResponse> registerNewUser(@Validated({Default.class, Creation.class}) @RequestBody User user) {
         user.setRoles("ROLE_USER");
         user.setPassword(UserManager.calcPasswordHash(user.getPassword()));
-        user.setWillingJuror(true);
+        user.setReceivedFunds(false);
         userManager.save(user);
 
         return new ResponseEntity<>(new UniversalResponse(), HttpStatus.CREATED);

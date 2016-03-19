@@ -11,6 +11,8 @@ import com.hak.wymi.validations.EmailsMatch;
 import com.hak.wymi.validations.NameDoesNotExist;
 import com.hak.wymi.validations.Password;
 import com.hak.wymi.validations.PasswordsMatch;
+import com.hak.wymi.validations.PhoneNumber;
+import com.hak.wymi.validations.PhoneNumberDoesNotExist;
 import com.hak.wymi.validations.groups.Creation;
 import com.hak.wymi.validations.groups.Update;
 import org.hibernate.annotations.Type;
@@ -41,58 +43,65 @@ public class User extends PersistentObject implements HasPassword {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Null(groups = {Creation.class, Update.class})
+    @Null(groups = {Creation.class, Update.class}, message = "user id may not be null")
     private Integer userId;
 
-    @NotNull
+    @NotNull(message = "user name may not be null")
     @Size(min = 3, max = 30, message = "Name must be between 3 and 30 characters in length")
     @Pattern(regexp = "^[0-9a-zA-Z][0-9a-zA-Z-_]*$")
     private String name;
 
     @Transient
-    @NotNull(groups = {Update.class})
+    @NotNull(groups = {Update.class}, message = "user current password may not be null")
     private String currentPassword;
 
-    @NotNull(groups = {Creation.class})
+    @NotNull(groups = {Creation.class}, message = "user password may not be null")
     @Password(groups = {Creation.class, Update.class})
     private String password;
 
     @Transient
     private String confirmPassword;
 
-    @Null(groups = {Creation.class, Update.class})
+    @Null(groups = {Creation.class, Update.class}, message = "user roles must be null")
     private String roles;
 
-    @NotNull(groups = {Creation.class})
+    @NotNull(groups = {Creation.class}, message = "user email may not be null")
     @Email
     @EmailDoesNotExist(groups = {Creation.class, Update.class})
     private String email;
 
-    @Null(groups = {Creation.class})
+    @Null(groups = {Creation.class}, message = "user new email must be null")
     @Email
     @EmailDoesNotExist(groups = {Creation.class, Update.class})
     private String newEmail;
+
+    @PhoneNumber
+    @PhoneNumberDoesNotExist(groups = {Creation.class, Update.class})
+    private String phoneNumber;
 
     @Transient
     private String confirmEmail;
 
     private Boolean validated = Boolean.FALSE;
 
+    @Null(groups = {Creation.class, Update.class}, message = "user received funds must be null")
+    private Boolean receivedFunds;
+
     @ManyToMany(mappedBy = "subscribers")
     @JsonIgnore
-    @Null(groups = {Update.class})
+    @Null(groups = {Update.class}, message = "user subscriptions must be null")
     private Set<Topic> subscriptions;
 
     @ManyToMany(mappedBy = "filters")
     @JsonIgnore
-    @Null(groups = {Update.class})
+    @Null(groups = {Update.class}, message = "user filters must be null")
     private Set<Topic> filters;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-    @Null(groups = {Creation.class, Update.class})
+    @Null(groups = {Creation.class, Update.class}, message = "user balance must be null")
     private Balance balance;
 
-    @NotNull
+    @NotNull(groups = {Creation.class}, message = "user willing juror may not be null")
     private Boolean willingJuror;
 
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -227,5 +236,21 @@ public class User extends PersistentObject implements HasPassword {
 
     public void setNewEmail(String newEmail) {
         this.newEmail = newEmail;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Boolean getReceivedFunds() {
+        return receivedFunds;
+    }
+
+    public void setReceivedFunds(Boolean receivedFunds) {
+        this.receivedFunds = receivedFunds;
     }
 }

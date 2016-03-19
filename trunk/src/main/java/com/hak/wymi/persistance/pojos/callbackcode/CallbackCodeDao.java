@@ -2,6 +2,8 @@ package com.hak.wymi.persistance.pojos.callbackcode;
 
 import com.hak.wymi.persistance.pojos.user.User;
 
+import java.util.List;
+
 public interface CallbackCodeDao {
     void save(CallbackCode callbackCode);
 
@@ -16,4 +18,6 @@ public interface CallbackCodeDao {
     CallbackCode getFromCode(String code);
 
     void cleanUp();
+
+    List<CallbackCode> getCodesForUser(String name, CallbackCodeType phoneNumberVerification);
 }
