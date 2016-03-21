@@ -7,6 +7,7 @@ import com.hak.wymi.persistance.pojos.callbackcode.CallbackCodeType;
 import com.hak.wymi.persistance.pojos.smsmessage.SMSMessage;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
+import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,7 @@ public class CallbackCodeManager {
     private SMSMessageManager smsMessageManager;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @Transactional
     public CallbackCode getFromCode(String code, CallbackCodeType passwordReset) {
@@ -90,7 +91,7 @@ public class CallbackCodeManager {
                 case PHONE_NUMBER_VERIFICATION:
                     user.setReceivedFunds(true);
                     userDao.update(user);
-                    balanceTransactionManager.createPointsFor(user, 1000);
+                    transactionProcessor.createPointsFor(user, 1000);
                     callbackCodeDao.delete(callbackCode);
                     return "PHONE_NUMBER_VERIFICATION";
                 default:

@@ -11,6 +11,7 @@ import com.hak.wymi.persistance.pojos.coinbaseresponse.CoinbaseRawResponseDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.persistance.pojos.user.UserDao;
 import com.hak.wymi.utility.jsonconverter.JSONConverter;
+import com.hak.wymi.utility.transactionprocessor.TransactionProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class CoinbaseResponseManager {
     private UserDao userDao;
 
     @Autowired
-    private BalanceTransactionManager balanceTransactionManager;
+    private TransactionProcessor transactionProcessor;
 
     @Transactional
     public void saveNewResponse(String responseText) {
@@ -112,7 +113,7 @@ public class CoinbaseResponseManager {
             User destinationUser = userDao.getFromName(order.getMetadata().get("custom"));
             int amount = ((Double) (amountObject.getAmount() * 10000)).intValue();
 
-            balanceTransactionManager.createPointsFor(destinationUser, amount);
+            transactionProcessor.createPointsFor(destinationUser, amount);
         } else {
             LOGGER.error("Order currency not in USD, or missing user name:" + JSONConverter.getJSON(order, false));
             throw new UnsupportedOperationException();

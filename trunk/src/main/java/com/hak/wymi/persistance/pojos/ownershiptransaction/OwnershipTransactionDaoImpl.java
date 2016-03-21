@@ -173,8 +173,7 @@ public class OwnershipTransactionDaoImpl implements OwnershipTransactionDao {
     @Transactional(propagation = Propagation.MANDATORY)
     public boolean saveOrUpdate(OwnershipTransaction ownershipTransaction, List<TopicBid> failedBids) {
         final Session session = sessionFactory.getCurrentSession();
-        final Topic topic = ownershipTransaction.getTopic();
-        session.buildLockRequest(pessimisticWrite).lock(topic);
+        final Topic topic = (Topic) session.load(Topic.class, ownershipTransaction.getTopic().getTopicId(), pessimisticWrite);
 
         if (failedBids != null) {
             final TopicBid winningBid = ownershipTransaction.getWinningBid();

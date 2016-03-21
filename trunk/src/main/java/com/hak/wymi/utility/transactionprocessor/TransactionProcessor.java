@@ -5,6 +5,10 @@ import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransaction;
 import com.hak.wymi.persistance.pojos.balancetransaction.BalanceTransactionCanceller;
 import com.hak.wymi.persistance.pojos.balancetransaction.TransactionState;
 import com.hak.wymi.persistance.pojos.balancetransaction.exceptions.InvalidValueException;
+import com.hak.wymi.persistance.pojos.externaltransaction.TransferTransaction;
+import com.hak.wymi.persistance.pojos.externaltransaction.TransferTransactionDao;
+import com.hak.wymi.persistance.pojos.user.Balance;
+import com.hak.wymi.persistance.pojos.user.BalanceDao;
 import com.hak.wymi.persistance.pojos.user.User;
 import com.hak.wymi.utility.jsonconverter.JSONConverter;
 import org.joda.time.DateTime;
@@ -41,6 +45,12 @@ public class TransactionProcessor {
 
     @Autowired
     private BalanceTransactionCanceller balanceTransactionCanceller;
+
+    @Autowired
+    private BalanceDao balanceDao;
+
+    @Autowired
+    private TransferTransactionDao transferTransactionDao;
 
     private boolean processQueue;
 
@@ -147,5 +157,22 @@ public class TransactionProcessor {
 
     public boolean cancel(User user, BalanceTransaction transaction) throws InvalidValueException {
         return transaction.getSource().getBalanceId().equals(user.getBalance().getBalanceId()) && balanceTransactionManager.cancel(transaction);
+    }
+
+    @Transactional
+    public void createPointsFor(User destinationUser, int amount) throws InvalidValueException {
+        Balance siteBalance = balanceDao.get(-1);
+        siteBalance.addPoints(amount);
+        balanceDao.update(siteBalance);
+
+        TransferTransaction transaction = new TransferTransaction();
+
+        transaction.setState(TransactionState.UNPROCESSED);
+        transaction.setSource(siteBalance.getUser());
+        transaction.setAmount(amount);
+        transaction.setDestination(destinationUser);
+
+        transferTransactionDao.save(transaction);
+        process(transaction);
     }
 }
